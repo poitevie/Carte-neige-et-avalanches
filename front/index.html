@@ -1,3 +1,87 @@
-<html>
-    Skitour
-</html>
+<!DOCTYPE html>
+<style type="text/css">
+  /* Définition du style pour l'élément avec l'identifiant 'viewerDiv' */
+  #viewerDiv {
+    width: 100%; /* Largeur à 100% */
+    height: 600px; /* Hauteur à 600 pixels */
+  }
+</style>
+
+<!-- Importation de la feuille de style pour Leaflet, une bibliothèque pour la cartographie -->
+<link
+  rel="stylesheet"
+  href="https://unpkg.com/leaflet@1.0.3/dist/leaflet.css"
+/>
+
+<!-- Importation de la bibliothèque Leaflet -->
+<script src="https://unpkg.com/leaflet@1.0.3/dist/leaflet.js"></script>
+
+<!-- Importation de la bibliothèque jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<!-- Définition d'un élément div pour la carte -->
+<div id="viewerDiv"></div>
+
+<script type="text/javascript">
+  /* Lorsque la fenêtre est entièrement chargée */
+  window.onload = function () {
+    /* Initialisation de la carte avec Leaflet dans l'élément div avec id 'viewerDiv',
+    avec une vue centrée sur les coordonnées [45.15384615384615, 5.6923076923076925]
+    et un zoom de 10 */
+    var map = L.map("viewerDiv").setView(
+      [45.15384615384615, 5.6923076923076925],
+      10
+    );
+
+    /* Ajout de la couche de tuiles pour la carte via une URL de service de tuiles */
+    L.tileLayer(
+      "https://wxs.ign.fr/decouverte/geoportail/wmts?service=WMTS&request=GetTile&version=1.0.0&tilematrixset=PM&tilematrix={z}&tilecol={x}&tilerow={y}&layer=ORTHOIMAGERY.ORTHOPHOTOS&format=image/jpeg&style=normal",
+      {
+        minZoom: 0 /* Niveau de zoom minimum */,
+        maxZoom: 18 /* Niveau de zoom maximum */,
+        tileSize: 256 /* Taille des tuiles */,
+        attribution:
+          "IGN-F/Géoportail" /* Crédit à afficher pour les données */,
+      }
+    ).addTo(map);
+
+    /* Création d'un élément canvas pour dessiner une image */
+    var canvas = document.createElement("canvas");
+    canvas.width = 277; /* Largeur de 277 pixels */
+    canvas.height = 277; /* Hauteur de 277 pixels */
+    /* Récupération du contexte de dessin pour le canvas */
+    var ctx = canvas.getContext("2d");
+
+    // Définition de la zone géographique qui sera couverte par l'overlay d'image
+    var latLngBounds = L.latLngBounds([
+      [45.23076923076923, 5.769230769230769],
+      [45.30769230769231, 5.846153846153846],
+    ]);
+
+    // Chargement des données JSON depuis le fichier data.txt
+    $.getJSON("data.txt", function (data) {
+
+      // Boucle pour dessiner sur le canvas
+      for (var i = 0; i < 277; i++) {
+        for (var j = 0; j < 277; j++) {
+          var alt = data[i][j];
+          ctx.fillStyle =
+            "rgb(" +
+            (alt / 4000) * 255 +
+            "," +
+            (alt / 4000) * 255 +
+            "," +
+            (alt / 4000) * 255 +
+            ")";
+          ctx.globalAlpha = 1;
+          ctx.fillRect(j, i, 1, 1);
+        }
+      }
+
+      // Ajout de l'image créée sur le canvas en tant qu'overlay sur la carte
+      var imageOverlay = L.imageOverlay(canvas.toDataURL(), latLngBounds, {
+        opacity: 1,
+      }).addTo(map);
+    });
+  };
+</script>
