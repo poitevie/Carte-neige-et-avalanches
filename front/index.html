@@ -52,36 +52,79 @@
     /* Récupération du contexte de dessin pour le canvas */
     var ctx = canvas.getContext("2d");
 
-    // Définition de la zone géographique qui sera couverte par l'overlay d'image
-    var latLngBounds = L.latLngBounds([
-      [45.23076923076923, 5.769230769230769],
-      [45.30769230769231, 5.846153846153846],
-    ]);
+    // Récupère les coordonnées en bas a gauche d'une grille
+    function PosToCoordBottomLeft(Pos) {
+      coordN = Pos[0] + (Pos[3] * (100 / 13)) / 100;
+      coordE = Pos[1] + (Pos[2] * (100 / 13)) / 100;
+      return [coordN, coordE];
+    }
 
-    // Chargement des données JSON depuis le fichier data.txt
-    $.getJSON("data.txt", function (data) {
-
-      // Boucle pour dessiner sur le canvas
-      for (var i = 0; i < 277; i++) {
-        for (var j = 0; j < 277; j++) {
-          var alt = data[i][j];
-          ctx.fillStyle =
-            "rgb(" +
-            (alt / 4000) * 255 +
-            "," +
-            (alt / 4000) * 255 +
-            "," +
-            (alt / 4000) * 255 +
-            ")";
-          ctx.globalAlpha = 1;
-          ctx.fillRect(j, i, 1, 1);
-        }
+    // Récupère les coordonnées en haut a droite d'une grille
+    function PosToCoordTopRight(Pos) {
+      Pos[2] = Pos[2] + 1;
+      if (Pos[2] == 13) {
+        Pos[2] = 0;
+        Pos[1] = Pos[1] + 1;
       }
+      Pos[3] = Pos[3] + 1;
+      if (Pos[3] == 13) {
+        Pos[3] = 0;
+        Pos[0] = Pos[0] + 1;
+      }
+      return PosToCoordBottomLeft(Pos);
+    }
 
-      // Ajout de l'image créée sur le canvas en tant qu'overlay sur la carte
-      var imageOverlay = L.imageOverlay(canvas.toDataURL(), latLngBounds, {
-        opacity: 1,
-      }).addTo(map);
-    });
+    function getBounds(x, y, n, e) {
+      // Définition de la zone géographique qui sera couverte par l'overlay d'image
+      return L.latLngBounds([
+        [
+          PosToCoordBottomLeft([n, e, x, y])[0],
+          PosToCoordBottomLeft([n, e, x, y])[1],
+        ],
+        [
+          PosToCoordTopRight([n, e, x, y])[0],
+          PosToCoordTopRight([n, e, x, y])[1],
+        ],
+      ]);
+    }
+
+    // Chargement des données JSON depuis l'url
+    function getImage(x, y, n, e) {
+      var url = `http://localhost:8000/back/gettile.php?x=${x}&y=${y}&n=${n}&e=${e}`;
+      $.getJSON(url, function (data) {
+        // Boucle pour dessiner sur le canvas
+        for (var i = 0; i < 277; i++) {
+          for (var j = 0; j < 277; j++) {
+            var alt = data[i][j];
+            ctx.fillStyle =
+              "rgb(" +
+              (alt / 4000) * 255 +
+              "," +
+              (alt / 4000) * 255 +
+              "," +
+              (alt / 4000) * 255 +
+              ")";
+            ctx.globalAlpha = 1;
+            ctx.fillRect(j, i, 1, 1);
+          }
+        }
+
+        // Ajout de l'image créée sur le canvas en tant qu'overlay sur la carte
+        var imageOverlay = L.imageOverlay(
+          canvas.toDataURL(),
+          getBounds(x, y, n, e),
+          {
+            opacity: 1,
+          }
+        ).addTo(map);
+      });
+    }
+
+    // Lancement de l'affichage sur la tuile N45E005
+    for (var x = 0; x < 13; x++) {
+      for (var y = 0; y < 13; y++) {
+        getImage(x, y, 45, 5);
+      }
+    }
   };
 </script>
