@@ -1,3 +1,279 @@
-<html>
-    Skitour
-</html>
+<!DOCTYPE html>
+<style type="text/css">
+  /* Définition du style pour l'élément avec l'identifiant 'viewerDiv' */
+  #viewerDiv {
+    width: 100%;
+    /* Largeur à 100% */
+    height: 600px;
+    /* Hauteur à 600 pixels */
+  }
+</style>
+
+<!-- Importation de la feuille de style pour Leaflet, une bibliothèque pour la cartographie -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.3/dist/leaflet.css" />
+
+<!-- Importation de la bibliothèque Leaflet -->
+<script src="https://unpkg.com/leaflet@1.0.3/dist/leaflet.js"></script>
+
+<!-- Importation de la bibliothèque jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<!-- Définition d'un élément div pour la carte -->
+<div id="viewerDiv"></div>
+
+<script type="text/javascript">
+  /* Lorsque la fenêtre est entièrement chargée */
+  window.onload = function () {
+    /* Initialisation de la carte avec Leaflet dans l'élément div avec id 'viewerDiv',
+    avec une vue centrée sur les coordonnées [45.15384615384615, 5.6923076923076925]
+    et un zoom de 10 */
+    var map = L.map("viewerDiv").setView(
+      [45.17384615384615, 5.7123076923076925],
+      18
+    );
+
+    /* Ajout de la couche de tuiles pour la carte via une URL de service de tuiles */
+    L.tileLayer(
+      "https://wxs.ign.fr/decouverte/geoportail/wmts?service=WMTS&request=GetTile&version=1.0.0&tilematrixset=PM&tilematrix={z}&tilecol={x}&tilerow={y}&layer=ORTHOIMAGERY.ORTHOPHOTOS&format=image/jpeg&style=normal",
+      {
+        minZoom: 0 /* Niveau de zoom minimum */,
+        maxZoom: 18 /* Niveau de zoom maximum */,
+        tileSize: 256 /* Taille des tuiles */,
+        attribution:
+          "IGN-F/Géoportail" /* Crédit à afficher pour les données */,
+      }
+    ).addTo(map);
+
+      //Gestion des cartes déja affiché
+      var carte =[];
+
+    /* Création d'un élément canvas pour dessiner une image */
+    var canvas = document.createElement("canvas");
+    canvas.width = 277; /* Largeur de 277 pixels */
+    canvas.height = 277; /* Hauteur de 277 pixels */
+    /* Récupération du contexte de dessin pour le canvas */
+    var ctx = canvas.getContext("2d");
+
+    // Récupère les coordonnées en bas a gauche d'une grille
+    function PosToCoordBottomLeft(Pos) {
+      coordN = Pos[0] + (Pos[3] * (100 / 13)) / 100;
+      coordE = Pos[1] + (Pos[2] * (100 / 13)) / 100;
+      return [coordN, coordE];
+    }
+
+    // Récupère les coordonnées en haut a droite d'une grille
+    function PosToCoordTopRight(Pos) {
+      Pos[2] = Pos[2] + 1;
+      if (Pos[2] == 13) {
+        Pos[2] = 0;
+        Pos[1] = Pos[1] + 1;
+      }
+      Pos[3] = Pos[3] + 1;
+      if (Pos[3] == 13) {
+        Pos[3] = 0;
+        Pos[0] = Pos[0] + 1;
+      }
+      return PosToCoordBottomLeft(Pos);
+    }
+
+    function getBounds(x, y, n, e) {
+      // Définition de la zone géographique qui sera couverte par l'overlay d'image
+      return L.latLngBounds([
+        [
+          PosToCoordBottomLeft([n, e, x, y])[0],
+          PosToCoordBottomLeft([n, e, x, y])[1],
+        ],
+        [
+          PosToCoordTopRight([n, e, x, y])[0],
+          PosToCoordTopRight([n, e, x, y])[1],
+        ],
+      ]);
+    }
+
+    // Chargement des données JSON depuis l'url
+    function getImage(x, y, n, e) {
+      var url = `http://localhost:8000/back/gettile.php?x=${x}&y=${y}&n=${n}&e=${e}`;
+      $.getJSON(url, function (data) {
+        // Boucle pour dessiner sur le canvas
+        for (var i = 0; i < 277; i++) {
+          for (var j = 0; j < 277; j++) {
+            var alt = data[i][j];
+            ctx.fillStyle =
+              "rgb(" +
+              (alt / 4000) * 255 +
+              "," +
+              (alt / 4000) * 255 +
+              "," +
+              (alt / 4000) * 255 +
+              ")";
+            ctx.globalAlpha = 1;
+            ctx.fillRect(j, i, 1, 1);
+          }
+        }
+
+        // Ajout de l'image créée sur le canvas en tant qu'overlay sur la carte
+        var imageOverlay = L.imageOverlay(
+          canvas.toDataURL(),
+          getBounds(x, y, n, e),
+          {
+            opacity: 1,
+          }
+        ).addTo(map);
+      });
+    }
+
+
+    //Calcul la position dans la grille de france depuis une coordonées
+    function CoordToPos(coords) {
+      N = Math.floor(coords.lat);
+      E = Math.floor(coords.lng);
+      xtemp = (coords.lng - E) * 100;
+      ytemp = (coords.lat - N) * 100;
+
+      X = Math.floor(xtemp / (100 / 13));
+      Y = Math.floor(ytemp / (100 / 13));
+      return [N, E, X, Y];
+    }
+
+    //COmparaison de tableau
+    function isEqual(tableau1, tableau2) {
+      if (tableau1.length !== tableau2.length) return false
+
+      return tableau1.every((value, index) => value === tableau2[index])
+    }
+
+    //FOnction pour verifer si un tableau est present dans un tableau de tableau
+    function InclusTab(tableauTableau, tableau) {
+      var present = false;
+      for (var i = 0; i < tableauTableau.length; i++) {
+        if (isEqual(tableauTableau[i], tableau)) {
+          present = true;
+        }
+      }
+      return present;
+    }
+
+
+    //Determiner tout les grilles a afficher
+    function GrilleAfficher() {
+      var grille = [];
+      var NE = CoordToPos(map.getBounds().getNorthEast());
+      if(!InclusTab(carte,NE)){ grille.push(NE); carte.push(NE)};
+      var NW = CoordToPos(map.getBounds().getNorthWest());
+      if (!InclusTab(grille, NW)&&(!InclusTab(carte,NW))) { grille.push(NW); carte.push(NW) }
+
+      var SE = CoordToPos(map.getBounds().getSouthEast());
+      if (!InclusTab(grille, SE)&&(!InclusTab(carte,SE))) { grille.push(SE); carte.push(SE) }
+
+
+      var SW = CoordToPos(map.getBounds().getSouthWest());
+      if (!InclusTab(grille, SW)&&(!InclusTab(carte,SW))) { grille.push(SW) ; carte.push(SW)}
+
+
+      var Nmin = SW[0]
+      var Nmax = NW[0]
+      var Emin = SW[1]
+      var Emax = NE[1]
+      var Xmin = SW[2]
+      var Xmax = NE[2]
+      var Ymin = SW[3]
+      var Ymax = NW[3]
+
+      console.log(SW, SE, NW, NE)
+      if (Nmin == Nmax && Emin == Emax) {
+        AjoutTuile(grille, Nmin, Emin, Xmin, Xmax, Ymin, Ymax);
+      }
+      else if (Nmin == Nmax && Emin != Emax) {
+        AjoutTuile(grille, Nmin, Emin, Xmin, 12, Ymin, Ymax);  // Recupere la premiere tuile en bas a gauche
+        AjoutTuile(grille, Nmin, Emax, 0, Xmax, Ymin, Ymax);  // Recupere la premiere tuile en bas a droite
+        console.log(Nmin,Nmax,Emin,Emax,Xmin,Xmax,Ymin,Ymax);
+
+
+        //Recupere toutes les tuiles entre
+        for (var i = Emin + 1; i <= Emax - 1; i++) {
+          
+            AjoutTuile(grille, Nmin, i, 0, 12, 0, 12);
+        }
+
+
+      }
+      else if (Nmin != Nmax && Emin == Emax) {
+        AjoutTuile(grille, Nmax, Emin, Xmin, Xmax, 0, Ymax);  // Recupere la premiere tuile en haut a gauche
+        AjoutTuile(grille, Nmin, Emax, Xmin, Xmax, Ymin, 12);  // Recupere la premiere tuile en bas a droite
+         //Recupere toutes les tuiles entre
+        
+          for (var j = Nmin + 1; j <= Nmax - 1; j++) {
+            AjoutTuile(grille, j, Emin, 0, 12, 0, 12);
+          }
+        
+      }
+      else {
+        AjoutTuile(grille, Nmin, Emin, Xmin, 12, Ymin, 12);  // Recupere la premiere tuile en bas a gauche
+        console.log(Nmin, Nmax, Emin, Emax, Xmin, Xmax, Ymin, Ymax);
+
+
+        //Recupere la colone a gauche 
+        for (var i = Nmin + 1; i <= Nmax - 1; i++) {
+          AjoutTuile(grille, i, Emin, Xmin, 12, 0, 12);
+        }
+        AjoutTuile(grille, Nmax, Emin, Xmin, 12, 0, Ymax);  // Recupere la premiere tuile en haut a gauche
+        AjoutTuile(grille, Nmin, Emax, 0, Xmax, Ymin, 12);  // Recupere la premiere tuile en bas a droite
+        //Recupere la colone a droite
+        for (var i = Nmin + 1; i <= Nmax - 1; i++) {
+          AjoutTuile(grille, i, Emax, 0, Xmax, 0, 12);
+        }
+        AjoutTuile(grille, Nmax, Emax, Xmin, 12, 0, Ymax);  // Recupere la premiere tuile en haut à droite
+        //Recupere la ligne en bas
+        for (var i = Emin + 1; i <= Emax - 1; i++) {
+          AjoutTuile(grille, Nmin, i, 0, 12, Ymin, 12);
+        }
+        //Recupere la ligne en haut
+        for (var i = Emin + 1; i <= Emax - 1; i++) {
+          AjoutTuile(grille, Nmax, i, 0, 12, 0, Ymax);
+        }
+        //Recupere toutes les tuiles entre
+        for (var i = Emin + 1; i <= Emax - 1; i++) {
+          for (var j = Nmin + 1; j <= Nmax - 1; j++) {
+            AjoutTuile(grille, j, i, 0, 12, 0, 12);
+          }
+        }
+
+      }
+      console.log(grille)
+      return grille;
+    }
+
+    function AjoutTuile(grille, N, E, Xmin, Xmax, Ymin, Ymax) {
+      for (var i = Xmin; i <= Xmax; i++) {
+        for (var j = Ymin; j <= Ymax; j++) {
+          var temp = [N, E, i, j];
+          if (!InclusTab(grille, temp)&&!InclusTab(carte,temp)) { grille.push(temp); carte.push(temp) }
+        }
+      }
+    }
+
+    //Affichage des images concernés
+    var grille = GrilleAfficher();
+    console.log(grille)
+    grille.forEach(e => getImage(e[2], e[3], e[0], e[1]));
+
+    //Event de recuperation des coordonées de l'ecran 
+    map.on('dragend', function (e) {
+      if(map.getZoom()>=10){
+      var grille = GrilleAfficher();
+
+      grille.forEach(e => getImage(e[2], e[3], e[0], e[1]));
+      }
+    });
+
+    //Event qui affiche la carte a la fin d'un zoom/dezoom
+     map.on('zoomend', function (e) {
+      console.log(map.getZoom())
+      if(map.getZoom()>=10){
+        var grille = GrilleAfficher();
+        
+           grille.forEach(e=>getImage(e[2], e[3], e[0], e[1]));
+     }
+      });
+  }
+</script>
