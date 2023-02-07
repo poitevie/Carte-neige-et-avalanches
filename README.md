@@ -7,7 +7,7 @@
 <br />
 <div align="center">
 
-<a href="https://github.com/othneildrew/Best-README-Template">
+<a>
     <img src="https://skitour.fr/img/skitour.png" alt="Logo" width="256">
   </a>
 
@@ -48,9 +48,9 @@
 
 [![Product Name Screen Shot][product-screenshot]](https://skitour.fr/)  
 
-Ce projet a pour but de fournir un aperçu des informations neige et avalanches sur le site Skitour, pour permettre aux utilisateurs de préparer au mieux leurs sorties.
+Ce projet a pour but de fournir un aperçu des informations neige et avalanches sur le site [Skitour](https://skitour.fr/), pour permettre aux utilisateurs de préparer au mieux leurs sorties.
 
-Ces informations sont récupérées à partir des bulletins journaliers des risques d'avalanches de Météo France, puis affichées sur une carte interactive à l'aide de l'outil Leaflet sur différentes couches :
+Ces informations sont récupérées à partir des bulletins journaliers des risques d'avalanches ([BRA](https://meteofrance.com/meteo-montagne)) de Météo France, puis affichées sur une carte interactive à l'aide de l'outil Leaflet sur différentes couches :
 * Neige fraîchement tombée
 * Neige totale
 * Risque nivologique
