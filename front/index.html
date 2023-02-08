@@ -28,8 +28,8 @@
     avec une vue centrée sur les coordonnées [45.15384615384615, 5.6923076923076925]
     et un zoom de 10 */
     var map = L.map("viewerDiv").setView(
-      [45.15384615384615, 5.6923076923076925],
-      10
+      [45.17384615384615, 5.7123076923076925],
+      18
     );
 
     /* Ajout de la couche de tuiles pour la carte via une URL de service de tuiles */
@@ -43,6 +43,9 @@
           "IGN-F/Géoportail" /* Crédit à afficher pour les données */,
       }
     ).addTo(map);
+
+      //Gestion des cartes déja affiché
+      var carte =[];
 
     /* Création d'un élément canvas pour dessiner une image */
     var canvas = document.createElement("canvas");
@@ -100,6 +103,7 @@
         ).addTo(map);
       });
     }
+
 
   };
 </script>
