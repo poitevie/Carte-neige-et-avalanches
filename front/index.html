@@ -2,16 +2,15 @@
 <style type="text/css">
   /* Définition du style pour l'élément avec l'identifiant 'viewerDiv' */
   #viewerDiv {
-    width: 100%; /* Largeur à 100% */
-    height: 600px; /* Hauteur à 600 pixels */
+    width: 100%;
+    /* Largeur à 100% */
+    height: 600px;
+    /* Hauteur à 600 pixels */
   }
 </style>
 
 <!-- Importation de la feuille de style pour Leaflet, une bibliothèque pour la cartographie -->
-<link
-  rel="stylesheet"
-  href="https://unpkg.com/leaflet@1.0.3/dist/leaflet.css"
-/>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.3/dist/leaflet.css" />
 
 <!-- Importation de la bibliothèque Leaflet -->
 <script src="https://unpkg.com/leaflet@1.0.3/dist/leaflet.js"></script>
@@ -47,64 +46,46 @@
 
     /* Création d'un élément canvas pour dessiner une image */
     var canvas = document.createElement("canvas");
-    canvas.width = 277; /* Largeur de 277 pixels */
-    canvas.height = 277; /* Hauteur de 277 pixels */
-    /* Récupération du contexte de dessin pour le canvas */
-    var ctx = canvas.getContext("2d");
+    // document.body.appendChild(canvas);
 
-    // Récupère les coordonnées en bas a gauche d'une grille
-    function PosToCoordBottomLeft(Pos) {
-      coordN = Pos[0] + (Pos[3] * (100 / 13)) / 100;
-      coordE = Pos[1] + (Pos[2] * (100 / 13)) / 100;
-      return [coordN, coordE];
-    }
-
-    // Récupère les coordonnées en haut a droite d'une grille
-    function PosToCoordTopRight(Pos) {
-      Pos[2] = Pos[2] + 1;
-      if (Pos[2] == 13) {
-        Pos[2] = 0;
-        Pos[1] = Pos[1] + 1;
-      }
-      Pos[3] = Pos[3] + 1;
-      if (Pos[3] == 13) {
-        Pos[3] = 0;
-        Pos[0] = Pos[0] + 1;
-      }
-      return PosToCoordBottomLeft(Pos);
-    }
-
-    function getBounds(x, y, n, e) {
-      // Définition de la zone géographique qui sera couverte par l'overlay d'image
-      return L.latLngBounds([
-        [
-          PosToCoordBottomLeft([n, e, x, y])[0],
-          PosToCoordBottomLeft([n, e, x, y])[1],
-        ],
-        [
-          PosToCoordTopRight([n, e, x, y])[0],
-          PosToCoordTopRight([n, e, x, y])[1],
-        ],
-      ]);
-    }
 
     // Chargement des données JSON depuis l'url
-    function getImage(x, y, n, e) {
-      var url = `http://localhost:8000/back/gettile.php?x=${x}&y=${y}&n=${n}&e=${e}`;
+    function getImage(numMassif) {
+      var url = `http://localhost/skitour/back/getrisquemassif.php?massif=${numMassif}`;
       $.getJSON(url, function (data) {
+        canvas.width = data["width"]; /* Largeur */
+        canvas.height = data["height"]; /* Hauteur */
+        var ctx = canvas.getContext("2d"); /* Récupération du contexte de dessin pour le canvas */
+        var risque = data["tile"];
+        var bg = data["bg"];
+        var hd = data["hd"];
         // Boucle pour dessiner sur le canvas
-        for (var i = 0; i < 277; i++) {
-          for (var j = 0; j < 277; j++) {
-            var alt = data[i][j];
-            ctx.fillStyle =
-              "rgb(" +
-              (alt / 4000) * 255 +
-              "," +
-              (alt / 4000) * 255 +
-              "," +
-              (alt / 4000) * 255 +
-              ")";
-            ctx.globalAlpha = 1;
+        for (var i = 0; i < canvas.height; i++) {
+          for (var j = 0; j < canvas.width; j++) {
+            var alt = risque[i][j];
+            switch (alt) {
+              case 0:
+                continue;
+              case 1:
+                ctx.fillStyle = "rgb(44, 176, 81)";
+                break
+              case 2:
+                ctx.fillStyle = "rgb(254, 240, 53)";
+                break
+              case 3:
+                ctx.fillStyle = "rgb(253, 127, 54)";
+                break
+              case 4:
+                ctx.fillStyle = "rgb(236, 11, 24)";
+                break
+              case 5:
+                ctx.fillStyle = "rgb(236, 11, 24)";
+                break
+              default:
+                break;
+            }
+
+            ctx.globalAlpha = 0.5;
             ctx.fillRect(j, i, 1, 1);
           }
         }
@@ -112,7 +93,7 @@
         // Ajout de l'image créée sur le canvas en tant qu'overlay sur la carte
         var imageOverlay = L.imageOverlay(
           canvas.toDataURL(),
-          getBounds(x, y, n, e),
+          L.latLngBounds([bg, hd]),
           {
             opacity: 1,
           }
@@ -120,11 +101,5 @@
       });
     }
 
-    // Lancement de l'affichage sur la tuile N45E005
-    for (var x = 0; x < 13; x++) {
-      for (var y = 0; y < 13; y++) {
-        getImage(x, y, 45, 5);
-      }
-    }
   };
 </script>
