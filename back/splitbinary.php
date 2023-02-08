@@ -16,7 +16,7 @@ else {
 
     for ($i = 0; $i < count($features); $i++) {
         $id = $features[$i]->{"properties"}->{"id"};
-        if($id == "09") generatehgt($features[$i], $id);
+        generatehgt($features[$i], $id);
     }
     $content = json_encode($cadremassif);
     file_put_contents("geojson/cadremassif.json", $content);
