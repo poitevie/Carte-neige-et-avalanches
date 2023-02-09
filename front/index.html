@@ -28,12 +28,12 @@
     avec une vue centrée sur les coordonnées [45.15384615384615, 5.6923076923076925]
     et un zoom de 10 */
     var map = L.map("viewerDiv").setView(
-      [45.17384615384615, 5.7123076923076925],
-      18
+      [45.17384615384615, 5.71],
+      10
     );
 
     /* Ajout de la couche de tuiles pour la carte via une URL de service de tuiles */
-    L.tileLayer(
+    var ign = L.tileLayer(
       "https://wxs.ign.fr/decouverte/geoportail/wmts?service=WMTS&request=GetTile&version=1.0.0&tilematrixset=PM&tilematrix={z}&tilecol={x}&tilerow={y}&layer=ORTHOIMAGERY.ORTHOPHOTOS&format=image/jpeg&style=normal",
       {
         minZoom: 0 /* Niveau de zoom minimum */,
@@ -44,18 +44,30 @@
       }
     ).addTo(map);
 
-      //Gestion des cartes déja affiché
-      var carte =[];
+    var osm = L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      maxZoom: 19,
+      attribution: "© OpenStreetMap",
+    });
+
+    var baseMaps = {
+      "OpenStreetMap": osm,
+      "IGN découverte": ign,
+    };
+
+    var layerControl = L.control.layers(baseMaps).addTo(map);
+
+    //Gestion des cartes déja affiché
+    var carte = [];
 
     /* Création d'un élément canvas pour dessiner une image */
     var canvas = document.createElement("canvas");
-    // document.body.appendChild(canvas);
 
 
     // Chargement des données JSON depuis l'url
     function getImage(numMassif) {
-      var url = `http://localhost/skitour/back/getrisquemassif.php?massif=${numMassif}`;
+      var url = `http://localhost:8000/back/getrisquemassif.php?massif=${numMassif}`;
       $.getJSON(url, function (data) {
+        console.log(data);
         canvas.width = data["width"]; /* Largeur */
         canvas.height = data["height"]; /* Hauteur */
         var ctx = canvas.getContext("2d"); /* Récupération du contexte de dessin pour le canvas */
@@ -104,6 +116,99 @@
       });
     }
 
+    //Recupere les rectangles autour des massifs depuis un fichier .JSOn
+    let massif; 
+    $.getJSON("cadremassif.json",function(data){
+ 
+       var test = new Map(data.map((e)=>[e.id,e.cadre]));
+       massif =  new Map(data.map((e)=>[e.id,e.cadre]));
+      console.log(test);
+    }).then((o)=> {
 
-  };
+    //Affichage des images concernés lors de la premiere génèration de l'image
+    var grille = MassifAfficher();
+    grille.forEach(e => getImage(e));
+    })
+
+   
+    //Permet de savoir si un point est dans un rectangle ou non
+    function dansRect(P,bg,bd,hg,hd) {
+
+      return bg[0]<=P[0]&&hg[0]>=P[0]&&P[1]>=bg[1]&&P[1]<=bd[1]
+    }
+
+    //Verifie si un rectangle entourant un massif est afficher a l'écran
+    function dansMassif(value, key, ma) {
+
+      var SWma = value.bg;
+      var NEma = value.hd;
+      var NWma = value.hg;
+      var SEma = value.bd;
+
+      var NE = [map.getBounds().getNorthEast().lat,map.getBounds().getNorthEast().lng];
+      var NW = [map.getBounds().getNorthWest().lat,map.getBounds().getNorthWest().lng];
+      var SE = [map.getBounds().getSouthEast().lat,map.getBounds().getSouthEast().lng];
+      var SW = [map.getBounds().getSouthWest().lat,map.getBounds().getSouthWest().lng];
+      if (dansRect(SWma,SW,SE,NW,NE)) {
+        ma.push(key)
+      }
+      if (dansRect(NEma,SW,SE,NW,NE) && !(ma.includes(key))) {
+        ma.push(key)
+      }
+      if (dansRect(NWma,SW,SE,NW,NE) && !(ma.includes(key))) {
+        ma.push(key)
+      }
+      if (dansRect(SEma,SW,SE,NW,NE) && !(ma.includes(key))) {
+        ma.push(key)
+      }
+      if (dansRect(SW,SWma,SEma,NWma,NEma) && !(ma.includes(key))) {
+        ma.push(key)
+      }
+      if (dansRect(NE,SWma,SEma,NWma,NEma) && !(ma.includes(key))) {
+        ma.push(key)
+      }
+      if (dansRect(NW,SWma,SEma,NWma,NEma) && !(ma.includes(key))) {
+        ma.push(key)
+      }
+      if (dansRect(SE,SWma,SEma,NWma,NEma) && !(ma.includes(key))) {
+        ma.push(key)
+      }
+    }
+
+
+    //Determiner tout les massifs à afficher
+    function MassifAfficher() {
+      var ma = [];
+
+      var key = massif.entries();
+      var x = key.next().value;
+      
+      while (x != undefined) {
+        dansMassif(x[1], x[0], ma);
+        var x = key.next().value;
+      }
+      console.log(map.getBounds())
+      console.log(ma)
+      return ma;
+    }
+
+
+
+    //Gestion des events de Drag
+    map.on('dragend', function (e) {
+      if (map.getZoom() >= 10) {
+        var grille = MassifAfficher();
+        grille.forEach(e => getImage(e))
+      }
+    });
+
+    //Event qui affiche la carte a la fin d'un zoom/dezoom
+    map.on('zoomend', function (e) {
+      console.log(map.getZoom())
+      if (map.getZoom() >= 10) {
+        var grille = MassifAfficher();
+        grille.forEach(e => getImage(e))
+      }
+    });
+  }
 </script>
