@@ -147,29 +147,37 @@
       var NW = [map.getBounds().getNorthWest().lat, map.getBounds().getNorthWest().lng];
       var SE = [map.getBounds().getSouthEast().lat, map.getBounds().getSouthEast().lng];
       var SW = [map.getBounds().getSouthWest().lat, map.getBounds().getSouthWest().lng];
-      if (dansRect(SWma, SW, SE, NW, NE)) {
+      if (dansRect(SWma, SW, SE, NW, NE)&& !(carte.includes(key))) {
         ma.push(key)
+        carte.push(key);
       }
-      if (dansRect(NEma, SW, SE, NW, NE) && !(ma.includes(key))) {
+      if (dansRect(NEma, SW, SE, NW, NE) && !(ma.includes(key))&& !(carte.includes(key))) {
         ma.push(key)
+        carte.push(key);
       }
-      if (dansRect(NWma, SW, SE, NW, NE) && !(ma.includes(key))) {
+      if (dansRect(NWma, SW, SE, NW, NE) && !(ma.includes(key))&& !(carte.includes(key))) {
         ma.push(key)
+        carte.push(key);
       }
-      if (dansRect(SEma, SW, SE, NW, NE) && !(ma.includes(key))) {
-        ma.push(key)
+      if (dansRect(SEma, SW, SE, NW, NE) && !(ma.includes(key))&& !(carte.includes(key))) {
+        ma.push(key);
+        carte.push(key);
       }
-      if (dansRect(SW, SWma, SEma, NWma, NEma) && !(ma.includes(key))) {
+      if (dansRect(SW, SWma, SEma, NWma, NEma) && !(ma.includes(key))&& !(carte.includes(key))) {
         ma.push(key)
+        carte.push(key);
       }
-      if (dansRect(NE, SWma, SEma, NWma, NEma) && !(ma.includes(key))) {
+      if (dansRect(NE, SWma, SEma, NWma, NEma) && !(ma.includes(key))&& !(carte.includes(key))) {
         ma.push(key)
+        carte.push(key);
       }
-      if (dansRect(NW, SWma, SEma, NWma, NEma) && !(ma.includes(key))) {
+      if (dansRect(NW, SWma, SEma, NWma, NEma) && !(ma.includes(key))&& !(carte.includes(key))) {
         ma.push(key)
+        carte.push(key);
       }
-      if (dansRect(SE, SWma, SEma, NWma, NEma) && !(ma.includes(key))) {
+      if (dansRect(SE, SWma, SEma, NWma, NEma) && !(ma.includes(key)) && !(carte.includes(key))) {
         ma.push(key)
+        carte.push(key);
       }
     }
 
