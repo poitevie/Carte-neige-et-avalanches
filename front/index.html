@@ -67,7 +67,6 @@
     function getImage(numMassif) {
       var url = `http://localhost:8000/back/getrisquemassif.php?massif=${numMassif}`;
       $.getJSON(url, function (data) {
-        console.log(data);
         canvas.width = data["width"]; /* Largeur */
         canvas.height = data["height"]; /* Hauteur */
         var ctx = canvas.getContext("2d"); /* Récupération du contexte de dessin pour le canvas */
@@ -117,24 +116,23 @@
     }
 
     //Recupere les rectangles autour des massifs depuis un fichier .JSOn
-    let massif; 
-    $.getJSON("cadremassif.json",function(data){
- 
-       var test = new Map(data.map((e)=>[e.id,e.cadre]));
-       massif =  new Map(data.map((e)=>[e.id,e.cadre]));
-      console.log(test);
-    }).then((o)=> {
+    let massif;
+    $.getJSON("cadremassif.json", function (data) {
 
-    //Affichage des images concernés lors de la premiere génèration de l'image
-    var grille = MassifAfficher();
-    grille.forEach(e => getImage(e));
+      var test = new Map(data.map((e) => [e.id, e.cadre]));
+      massif = new Map(data.map((e) => [e.id, e.cadre]));
+    }).then((o) => {
+
+      //Affichage des images concernés lors de la premiere génèration de l'image
+      var grille = MassifAfficher();
+      grille.forEach(e => getImage(e));
     })
 
-   
-    //Permet de savoir si un point est dans un rectangle ou non
-    function dansRect(P,bg,bd,hg,hd) {
 
-      return bg[0]<=P[0]&&hg[0]>=P[0]&&P[1]>=bg[1]&&P[1]<=bd[1]
+    //Permet de savoir si un point est dans un rectangle ou non
+    function dansRect(P, bg, bd, hg, hd) {
+
+      return bg[0] <= P[0] && hg[0] >= P[0] && P[1] >= bg[1] && P[1] <= bd[1]
     }
 
     //Verifie si un rectangle entourant un massif est afficher a l'écran
@@ -145,32 +143,32 @@
       var NWma = value.hg;
       var SEma = value.bd;
 
-      var NE = [map.getBounds().getNorthEast().lat,map.getBounds().getNorthEast().lng];
-      var NW = [map.getBounds().getNorthWest().lat,map.getBounds().getNorthWest().lng];
-      var SE = [map.getBounds().getSouthEast().lat,map.getBounds().getSouthEast().lng];
-      var SW = [map.getBounds().getSouthWest().lat,map.getBounds().getSouthWest().lng];
-      if (dansRect(SWma,SW,SE,NW,NE)) {
+      var NE = [map.getBounds().getNorthEast().lat, map.getBounds().getNorthEast().lng];
+      var NW = [map.getBounds().getNorthWest().lat, map.getBounds().getNorthWest().lng];
+      var SE = [map.getBounds().getSouthEast().lat, map.getBounds().getSouthEast().lng];
+      var SW = [map.getBounds().getSouthWest().lat, map.getBounds().getSouthWest().lng];
+      if (dansRect(SWma, SW, SE, NW, NE)) {
         ma.push(key)
       }
-      if (dansRect(NEma,SW,SE,NW,NE) && !(ma.includes(key))) {
+      if (dansRect(NEma, SW, SE, NW, NE) && !(ma.includes(key))) {
         ma.push(key)
       }
-      if (dansRect(NWma,SW,SE,NW,NE) && !(ma.includes(key))) {
+      if (dansRect(NWma, SW, SE, NW, NE) && !(ma.includes(key))) {
         ma.push(key)
       }
-      if (dansRect(SEma,SW,SE,NW,NE) && !(ma.includes(key))) {
+      if (dansRect(SEma, SW, SE, NW, NE) && !(ma.includes(key))) {
         ma.push(key)
       }
-      if (dansRect(SW,SWma,SEma,NWma,NEma) && !(ma.includes(key))) {
+      if (dansRect(SW, SWma, SEma, NWma, NEma) && !(ma.includes(key))) {
         ma.push(key)
       }
-      if (dansRect(NE,SWma,SEma,NWma,NEma) && !(ma.includes(key))) {
+      if (dansRect(NE, SWma, SEma, NWma, NEma) && !(ma.includes(key))) {
         ma.push(key)
       }
-      if (dansRect(NW,SWma,SEma,NWma,NEma) && !(ma.includes(key))) {
+      if (dansRect(NW, SWma, SEma, NWma, NEma) && !(ma.includes(key))) {
         ma.push(key)
       }
-      if (dansRect(SE,SWma,SEma,NWma,NEma) && !(ma.includes(key))) {
+      if (dansRect(SE, SWma, SEma, NWma, NEma) && !(ma.includes(key))) {
         ma.push(key)
       }
     }
@@ -182,13 +180,11 @@
 
       var key = massif.entries();
       var x = key.next().value;
-      
+
       while (x != undefined) {
         dansMassif(x[1], x[0], ma);
         var x = key.next().value;
       }
-      console.log(map.getBounds())
-      console.log(ma)
       return ma;
     }
 
@@ -204,7 +200,6 @@
 
     //Event qui affiche la carte a la fin d'un zoom/dezoom
     map.on('zoomend', function (e) {
-      console.log(map.getZoom())
       if (map.getZoom() >= 10) {
         var grille = MassifAfficher();
         grille.forEach(e => getImage(e))
