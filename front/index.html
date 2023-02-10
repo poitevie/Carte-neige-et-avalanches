@@ -65,7 +65,7 @@
 
     // Chargement des données JSON depuis l'url
     function getImage(numMassif) {
-      var url = `http://localhost:8000/back/getrisquemassif.php?massif=${numMassif}`;
+      var url = `http://localhost/skitour/back/getrisquemassif.php?massif=${numMassif}`;
       $.getJSON(url, function (data) {
         canvas.width = data["width"]; /* Largeur */
         canvas.height = data["height"]; /* Hauteur */
