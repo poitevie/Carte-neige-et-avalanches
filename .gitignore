@@ -1,5 +1,6 @@
 back/hgt/*
 back/cache/*
+back/test/*
 .DS_Store
 back/.DS_Store
 front/.DS_Store
