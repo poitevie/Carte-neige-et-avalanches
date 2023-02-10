@@ -54,23 +54,17 @@ if (isset($_GET["massif"])) {
             //Fichier risque de météofrance en fonction du massif.
             $xml = (array) simplexml_load_string(file_get_contents("http://api.meteofrance.com/files/mountain/bulletins/BRA" . $filenumber . ".xml"));
 
-            if (isset($xml["CARTOUCHERISQUE"])) {
-                if (isset($xml["CARTOUCHERISQUE"]->{"RISQUE"})) {
+            if (isset($xml["CARTOUCHERISQUE"]->{"RISQUE"})) {
                     //variables risque
                     $risque = $xml["CARTOUCHERISQUE"]->{"RISQUE"};
-                    $risque1 = $risque["RISQUE1"]; // =-1 quand risque non chiffré
-                    $evolurisque1 = $risque["EVOLURISQUE1"];
-                    $loc1 = $risque["LOC1"];
-                    $altitude = $risque["ALTITUDE"];
-                    $risque2 = $risque["RISQUE2"];
-                    $evolurisque2 = $risque["EVOLURISQUE2"];
-                    $loc2 = $risque["LOC2"];
-                    $risquemaxi = $risque["RISQUEMAXI"];
-
-                    if (isset($loc1))
-                        $loc1 = substr($loc1, 0, 1);
-                    if (isset($loc2))
-                        $loc2 = substr($loc2, 0, 1);
+                    $risque1 = (int) $risque["RISQUE1"]; // =-1 quand risque non chiffré
+                    $evolurisque1 = (int) $risque["EVOLURISQUE1"];
+                    $loc1 = $risque["LOC1"][0];
+                    $altitude = (int) $risque["ALTITUDE"];
+                    $risque2 = (int) $risque["RISQUE2"];
+                    $evolurisque2 = (int) $risque["EVOLURISQUE2"];
+                    $loc2 = $risque["LOC2"][0];
+                    $risquemaxi = (int) $risque["RISQUEMAXI"];
 
                     $array = array("width" => $width, "height" => $height, "bg" => [$bglat, $bglon], "hd" => [$hdlat, $hdlon], "tile" => null);
                     $tile = array();
@@ -83,43 +77,43 @@ if (isset($_GET["massif"])) {
                             $alt = @unpack('n', $val)[1];
                             //génération du code risque en fonction de l'altitude et des données météofrance
                             if ($alt > 0) {
-                                if (isset($risque1) && intval($risque1) == -1) {
+                                if ($risque1 == -1) {
                                     array_push($line, 0);
-                                } else if (isset($loc1) && $loc1 == "<" && $alt < $altitude) {
-                                    $val = isset($evolurisque1) && $evolurisque1 != "" ? intval(intval($risque1) . intval($evolurisque1)) : intval($risque1);
+                                } else if ($loc1 == "<" && $alt < $altitude) {
+                                    $val = $evolurisque1 != 0 ? $risque1 . $evolurisque1 : $risque1;
                                     array_push($line, $val);
-                                } else if (isset($loc1) && $loc1 == ">" && $alt > $altitude) {
-                                    $val = isset($evolurisque1) && $evolurisque1 != "" ? intval(intval($risque1) . intval($evolurisque1)) : intval($risque1);
+                                } else if ($loc1 == ">" && $alt > $altitude) {
+                                    $val = $evolurisque1 != 0 ? $risque1 . $evolurisque1 : $risque1;
                                     array_push($line, $val);
-                                } else if (isset($loc2) && $loc2 == "<" && $alt <= $altitude) {
-                                    $val = isset($evolurisque2) && $evolurisque2 != "" ? intval(intval($risque2) . intval($evolurisque2)) : intval($risque2);
+                                } else if ($loc2 == "<" && $alt <= $altitude) {
+                                    $val = $evolurisque2 != 0 ? $risque2 . $evolurisque2 : $risque2;
                                     array_push($line, $val);
-                                } else if (isset($loc2) && $loc2 == ">" && $alt >= $altitude) {
-                                    $val = isset($evolurisque2) && $evolurisque2 != "" ? intval(intval($risque2) . intval($evolurisque2)) : intval($risque2);
+                                } else if ($loc2 == ">" && $alt >= $altitude) {
+                                    $val = $evolurisque2 != 0 ? $risque2 . $evolurisque2 : $risque2;
                                     array_push($line, $val);
-                                } else if (isset($loc1) && $loc1 == "W" && false) {
-                                    $val = isset($evolurisque1) && $evolurisque1 != "" ? intval(intval($risque1) . intval($evolurisque1)) : intval($risque1);
+                                } else if ($loc1 == "W" && false) {
+                                    $val = $evolurisque1 != 0 ? $risque1 . $evolurisque1 : $risque1;
                                     array_push($line, $val);
-                                } else if (isset($loc1) && $loc1 == "N" && false) {
-                                    $val = isset($evolurisque1) && $evolurisque1 != "" ? intval(intval($risque1) . intval($evolurisque1)) : intval($risque1);
+                                } else if ($loc1 == "N" && false) {
+                                    $val = $evolurisque1 != 0 ? $risque1 . $evolurisque1 : $risque1;
                                     array_push($line, $val);
-                                } else if (isset($loc1) && $loc1 == "E" && false) {
-                                    $val = isset($evolurisque1) && $evolurisque1 != "" ? intval(intval($risque1) . intval($evolurisque1)) : intval($risque1);
+                                } else if ($loc1 == "E" && false) {
+                                    $val = $evolurisque1 != 0 ? $risque1 . $evolurisque1 : $risque1;
                                     array_push($line, $val);
-                                } else if (isset($loc1) && $loc1 == "S" && false) {
-                                    $val = isset($evolurisque1) && $evolurisque1 != "" ? intval(intval($risque1) . intval($evolurisque1)) : intval($risque1);
+                                } else if ($loc1 == "S" && false) {
+                                    $val = $evolurisque1 != 0 ? $risque1 . $evolurisque1 : $risque1;
                                     array_push($line, $val);
-                                } else if (isset($loc2) && $loc2 == "W" && false) {
-                                    $val = isset($evolurisque2) && $evolurisque2 != "" ? intval(intval($risque2) . intval($evolurisque2)) : intval($risque2);
+                                } else if ($loc2 == "W" && false) {
+                                    $val = $evolurisque2 != 0 ? $risque2 . $evolurisque2 : $risque2;
                                     array_push($line, $val);
-                                } else if (isset($loc2) && $loc2 == "N" && false) {
-                                    $val = isset($evolurisque2) && $evolurisque2 != "" ? intval(intval($risque2) . intval($evolurisque2)) : intval($risque2);
+                                } else if ($loc2 == "N" && false) {
+                                    $val = $evolurisque2 != 0 ? $risque2 . $evolurisque2 : $risque2;
                                     array_push($line, $val);
-                                } else if (isset($loc2) && $loc2 == "E" && false) {
-                                    $val = isset($evolurisque2) && $evolurisque2 != "" ? intval(intval($risque2) . intval($evolurisque2)) : intval($risque2);
+                                } else if ($loc2 == "E" && false) {
+                                    $val = $evolurisque2 != 0 ? $risque2 . $evolurisque2 : $risque2;
                                     array_push($line, $val);
-                                } else if (isset($loc2) && $loc2 == "S" && false) {
-                                    $val = isset($evolurisque2) && $evolurisque2 != "" ? intval(intval($risque2) . intval($evolurisque2)) : intval($risque2);
+                                } else if ($loc2 == "S" && false) {
+                                    $val = $evolurisque2 != 0 ? $risque2 . $evolurisque2 : $risque2;
                                     array_push($line, $val);
                                 } else {
                                     array_push($line, intval($risque1));
@@ -140,10 +134,6 @@ if (isset($_GET["massif"])) {
                     ob_end_clean();
                     file_put_contents("cache/getrisquemassif/" . $filenumber . ".json", $page);
                     echo $page;
-                }
-                else {
-                    die("Erreur : Il y a une erreur lors du chargement des données de météofrance");
-                }
             }
             else {
                 die("Erreur : Il y a une erreur lors du chargement des données de météofrance");
