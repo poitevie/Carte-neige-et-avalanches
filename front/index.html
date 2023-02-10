@@ -74,8 +74,8 @@
         var bg = data["bg"];
         var hd = data["hd"];
         // Boucle pour dessiner sur le canvas
-        for (var i = 0; i < canvas.height/3; i++) {
-          for (var j = 0; j < canvas.width/3; j++) {
+        for (var i = 0; i < canvas.height; i++) {
+          for (var j = 0; j < canvas.width; j++) {
             var alt = risque[i][j];
             switch (alt) {
               case 0:
@@ -100,15 +100,7 @@
             }
 
             ctx.globalAlpha = 0.5;
-            ctx.fillRect(j*3, i*3, 1, 1);
-            ctx.fillRect(j*3, i*3+1, 1, 1);
-            ctx.fillRect(j*3, i*3+2, 1, 1);
-            ctx.fillRect(j*3+1, i*3, 1, 1);
-            ctx.fillRect(j*3+1, i*3+1, 1, 1);
-            ctx.fillRect(j*3+1, i*3+2, 1, 1);
-            ctx.fillRect(j*3+2, i*3, 1, 1);
-            ctx.fillRect(j*3+2, i*3+1, 1, 1);
-            ctx.fillRect(j*3+2, i*3+2, 1, 1);
+            ctx.fillRect(j, i, 1, 1);
           }
         }
 
