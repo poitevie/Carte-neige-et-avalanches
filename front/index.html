@@ -25,8 +25,7 @@
   /* Lorsque la fenêtre est entièrement chargée */
   window.onload = function () {
     /* Initialisation de la carte avec Leaflet dans l'élément div avec id 'viewerDiv',
-    avec une vue centrée sur les coordonnées [45.15384615384615, 5.6923076923076925]
-    et un zoom de 10 */
+    avec une vue centrée sur les coordonnées et le zoom donnés */
     var map = L.map("viewerDiv").setView(
       [45.17384615384615, 5.71],
       10
@@ -44,19 +43,22 @@
       }
     ).addTo(map);
 
+    /* Définition de la couche de tuiles OpenStreetMap */
     var osm = L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
       maxZoom: 19,
       attribution: "© OpenStreetMap",
     });
 
+    /* Définition des couches de base de la carte */
     var baseMaps = {
       "OpenStreetMap": osm,
       "IGN découverte": ign,
     };
 
+    /* Ajout du contrôle de couche à la carte */
     var layerControl = L.control.layers(baseMaps).addTo(map);
 
-    //Gestion des cartes déja affiché
+    /* Stockage des cartes déjà affichées */
     var carte = [];
 
     /* Création d'un élément canvas pour dessiner une image */
@@ -73,38 +75,45 @@
         var risque = data["tile"];
         var bg = data["bg"];
         var hd = data["hd"];
-        // Boucle pour dessiner sur le canvas
+        /* Boucle pour dessiner sur le canvas */
         for (var i = 0; i < canvas.height; i++) {
           for (var j = 0; j < canvas.width; j++) {
-            var alt = risque[i][j];
-            switch (alt) {
+            /* Récupération du niveau de risque de chaque point */
+            var niveauRisque = risque[i][j];
+            switch (niveauRisque) {
+              /* Risque = 0 */
               case 0:
                 continue;
+              /* Risque = 1 */
               case 1:
                 ctx.fillStyle = "rgb(44, 176, 81)";
                 break
+              /* Risque = 2 */
               case 2:
                 ctx.fillStyle = "rgb(254, 240, 53)";
                 break
+              /* Risque = 3 */
               case 3:
                 ctx.fillStyle = "rgb(253, 127, 54)";
                 break
+              /* Risque = 4 */
               case 4:
                 ctx.fillStyle = "rgb(236, 11, 24)";
                 break
+              /* Risque = 5 */
               case 5:
                 ctx.fillStyle = "rgb(131, 7, 12)";
                 break
               default:
                 break;
             }
-
+            /* Transparence du canvas */
             ctx.globalAlpha = 0.5;
             ctx.fillRect(j, i, 1, 1);
           }
         }
 
-        // Ajout de l'image créée sur le canvas en tant qu'overlay sur la carte
+        /* Ajout de l'image créée sur le canvas en tant qu'overlay sur la carte */
         var imageOverlay = L.imageOverlay(
           canvas.toDataURL(),
           L.latLngBounds([bg, hd]),
@@ -115,7 +124,7 @@
       });
     }
 
-    //Recupere les rectangles autour des massifs depuis un fichier .JSOn
+    /* Recupère les rectangles autour des massifs depuis un fichier json */
     let massif;
     $.getJSON("cadremassif.json", function (data) {
 
@@ -123,19 +132,18 @@
       massif = new Map(data.map((e) => [e.id, e.cadre]));
     }).then((o) => {
 
-      //Affichage des images concernés lors de la premiere génèration de l'image
+      /* Affichage des images concernées lors de la première génération de l'image */
       var grille = MassifAfficher();
       grille.forEach(e => getImage(e));
     })
 
 
-    //Permet de savoir si un point est dans un rectangle ou non
+    /* Fonction permettant de savoir si un point est dans un rectangle ou non */
     function dansRect(P, bg, bd, hg, hd) {
-
       return bg[0] <= P[0] && hg[0] >= P[0] && P[1] >= bg[1] && P[1] <= bd[1]
     }
 
-    //Verifie si un rectangle entourant un massif est afficher a l'écran
+    /* Vérification de l'affichage du rectangle entourant un massif à l'écran */
     function dansMassif(value, key, ma) {
 
       var SWma = value.bg;
@@ -147,31 +155,31 @@
       var NW = [map.getBounds().getNorthWest().lat, map.getBounds().getNorthWest().lng];
       var SE = [map.getBounds().getSouthEast().lat, map.getBounds().getSouthEast().lng];
       var SW = [map.getBounds().getSouthWest().lat, map.getBounds().getSouthWest().lng];
-      if (dansRect(SWma, SW, SE, NW, NE)&& !(carte.includes(key))) {
+      if (dansRect(SWma, SW, SE, NW, NE) && !(carte.includes(key))) {
         ma.push(key)
         carte.push(key);
       }
-      if (dansRect(NEma, SW, SE, NW, NE) && !(ma.includes(key))&& !(carte.includes(key))) {
+      if (dansRect(NEma, SW, SE, NW, NE) && !(ma.includes(key)) && !(carte.includes(key))) {
         ma.push(key)
         carte.push(key);
       }
-      if (dansRect(NWma, SW, SE, NW, NE) && !(ma.includes(key))&& !(carte.includes(key))) {
+      if (dansRect(NWma, SW, SE, NW, NE) && !(ma.includes(key)) && !(carte.includes(key))) {
         ma.push(key)
         carte.push(key);
       }
-      if (dansRect(SEma, SW, SE, NW, NE) && !(ma.includes(key))&& !(carte.includes(key))) {
+      if (dansRect(SEma, SW, SE, NW, NE) && !(ma.includes(key)) && !(carte.includes(key))) {
         ma.push(key);
         carte.push(key);
       }
-      if (dansRect(SW, SWma, SEma, NWma, NEma) && !(ma.includes(key))&& !(carte.includes(key))) {
+      if (dansRect(SW, SWma, SEma, NWma, NEma) && !(ma.includes(key)) && !(carte.includes(key))) {
         ma.push(key)
         carte.push(key);
       }
-      if (dansRect(NE, SWma, SEma, NWma, NEma) && !(ma.includes(key))&& !(carte.includes(key))) {
+      if (dansRect(NE, SWma, SEma, NWma, NEma) && !(ma.includes(key)) && !(carte.includes(key))) {
         ma.push(key)
         carte.push(key);
       }
-      if (dansRect(NW, SWma, SEma, NWma, NEma) && !(ma.includes(key))&& !(carte.includes(key))) {
+      if (dansRect(NW, SWma, SEma, NWma, NEma) && !(ma.includes(key)) && !(carte.includes(key))) {
         ma.push(key)
         carte.push(key);
       }
@@ -182,7 +190,7 @@
     }
 
 
-    //Determiner tout les massifs à afficher
+    /* Détermination de tous les massifs à afficher */
     function MassifAfficher() {
       var ma = [];
 
@@ -198,7 +206,7 @@
 
 
 
-    //Gestion des events de Drag
+    /* Gestion des évents de drag */
     map.on('dragend', function (e) {
       if (map.getZoom() >= 10) {
         var grille = MassifAfficher();
@@ -206,7 +214,7 @@
       }
     });
 
-    //Event qui affiche la carte a la fin d'un zoom/dezoom
+    /* Évent affichant la carte a la fin d'un zoom/dézoom */
     map.on('zoomend', function (e) {
       if (map.getZoom() >= 10) {
         var grille = MassifAfficher();
