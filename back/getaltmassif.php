@@ -4,6 +4,8 @@ header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, POST');
 header('Access-Control-Allow-Headers: X-Requested-With');
 
+
+//Le paramètre massif correspond à l'id du massif ex: 07 pour la Chartreuse
 if (isset($_GET["massif"])) {
     // VARIABLES GLOBALES
     $hgt_value_size = 2;
@@ -13,51 +15,67 @@ if (isset($_GET["massif"])) {
     $filespath = "hgt/massifs/";
     $filenumber = htmlspecialchars($_GET["massif"]);
 
-    if (file_exists($filespath . $filenumber . '.hgt')) { // SRTM3 V2
-        $fileext = '.hgt';
-        $hgt_line_records = 3600;
-    } else
-        return;
+    //Cache
+    if (file_exists("cache/getaltmassif/" . $filenumber . ".json")) {
+        readfile("cache/getaltmassif/" . $filenumber . ".json");
+    } else {
+        // Si le fichier binaire du massif existe
+        if (file_exists($filespath . $filenumber . '.hgt')) {
+            $fileext = '.hgt';
+            $hgt_line_records = 3600;
+        } else
+            die("Erreur : " . $filenumber . $fileext . " n'existe pas");
 
-    if (!$fp = fopen($filespath . $filenumber . $fileext, "rb"))
-        die("Erreur : N'a pas pu ouvrir le fichier d'altitude");
-    else {
-        fseek($fp, 0);
-        $val = fread($fp, 2);
-        $width = @unpack('n', $val)[1];
-        fseek($fp, 2);
-        $val = fread($fp, 2);
-        $height = @unpack('n', $val)[1];
-        fseek($fp, 4);
-        $val = fread($fp, 4);
-        $bglat = @unpack('f', $val)[1];
-        fseek($fp, 8);
-        $val = fread($fp, 4);
-        $bglon = @unpack('f', $val)[1];
-        fseek($fp, 12);
-        $val = fread($fp, 4);
-        $hdlat = @unpack('f', $val)[1];
-        fseek($fp, 16);
-        $val = fread($fp, 4);
-        $hdlon = @unpack('f', $val)[1];
+        if (!$fp = fopen($filespath . $filenumber . $fileext, "rb"))
+            die("Erreur : N'a pas pu ouvrir le fichier d'altitude " . $filenumber . $fileext);
+        else {
 
-        $array = array("width" => $width, "height" => $height, "bg" => [$bglat, $bglon], "hd" => [$hdlat, $hdlon], "tile" => null);
-        $tile = array();
-        for ($j = 0; $j < $height; $j++) {
-            $line = array();
-            for ($i = 0; $i < $width; $i++) {
-                fseek($fp, 20 + ($i) * $hgt_value_size + ($j) * $width * $hgt_value_size);
-                $val = fread($fp, 2);
-                $alt = @unpack('n', $val)[1];
-                array_push($line, $alt);
+            //Variables globales stockées dans le fichier
+            fseek($fp, 0);
+            $val = fread($fp, 2);
+            $width = @unpack('n', $val)[1];
+            fseek($fp, 2);
+            $val = fread($fp, 2);
+            $height = @unpack('n', $val)[1];
+            fseek($fp, 4);
+            $val = fread($fp, 4);
+            $bglat = @unpack('f', $val)[1];
+            fseek($fp, 8);
+            $val = fread($fp, 4);
+            $bglon = @unpack('f', $val)[1];
+            fseek($fp, 12);
+            $val = fread($fp, 4);
+            $hdlat = @unpack('f', $val)[1];
+            fseek($fp, 16);
+            $val = fread($fp, 4);
+            $hdlon = @unpack('f', $val)[1];
+
+            $array = array("width" => $width, "height" => $height, "bg" => [$bglat, $bglon], "hd" => [$hdlat, $hdlon], "tile" => null);
+            $tile = array();
+            //génération de la tuile du massif
+            for ($j = 0; $j < $height; $j += 1) {
+                $line = array();
+                for ($i = 0; $i < $width; $i += 1) {
+                    fseek($fp, 20 + ($i) * $hgt_value_size + ($j) * $width * $hgt_value_size);
+                    $val = fread($fp, 2);
+                    $alt = @unpack('n', $val)[1];
+                    array_push($line, $alt);
+                }
+                array_push($tile, $line);
             }
-            array_push($tile, $line);
+            $array["tile"] = $tile;
+
+            //Affichage de la réponse + stockage dans le cache
+
+            ob_start();
+            echo json_encode($array);
+            $page = ob_get_contents();
+            ob_end_clean();
+            file_put_contents("cache/getaltmassif/" . $filenumber . ".json", $page);
+            echo $page;
         }
-        $array["tile"] = $tile;
-        echo json_encode($array);
     }
-}
-else {
+} else {
     die("Merci d'indiquer le paramètre 'massif'");
 }
 
