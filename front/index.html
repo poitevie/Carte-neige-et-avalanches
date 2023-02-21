@@ -10,7 +10,10 @@
 </style>
 
 <!-- Importation de la feuille de style pour Leaflet, une bibliothèque pour la cartographie -->
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.3/dist/leaflet.css" />
+<link
+  rel="stylesheet"
+  href="https://unpkg.com/leaflet@1.0.3/dist/leaflet.css"
+/>
 
 <!-- Importation de la bibliothèque Leaflet -->
 <script src="https://unpkg.com/leaflet@1.0.3/dist/leaflet.js"></script>
@@ -25,12 +28,8 @@
   /* Lorsque la fenêtre est entièrement chargée */
   window.onload = function () {
     /* Initialisation de la carte avec Leaflet dans l'élément div avec id 'viewerDiv',
-    avec une vue centrée sur les coordonnées [45.15384615384615, 5.6923076923076925]
-    et un zoom de 10 */
-    var map = L.map("viewerDiv").setView(
-      [45.17384615384615, 5.71],
-      10
-    );
+    avec une vue centrée sur les coordonnées et le zoom donnés */
+    var map = L.map("viewerDiv").setView([45.17384615384615, 5.71], 10);
 
     /* Ajout de la couche de tuiles pour la carte via une URL de service de tuiles */
     var ign = L.tileLayer(
@@ -44,174 +43,173 @@
       }
     ).addTo(map);
 
+    /* Définition de la couche de tuiles OpenStreetMap */
     var osm = L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
       maxZoom: 19,
       attribution: "© OpenStreetMap",
     });
 
+    /* Définition des couches de base de la carte */
     var baseMaps = {
-      "OpenStreetMap": osm,
+      OpenStreetMap: osm,
       "IGN découverte": ign,
     };
 
+    /* Ajout du contrôle de couche à la carte */
     var layerControl = L.control.layers(baseMaps).addTo(map);
 
-    //Gestion des cartes déja affiché
+    /* Stockage des cartes déjà affichées */
     var carte = [];
 
     /* Création d'un élément canvas pour dessiner une image */
     var canvas = document.createElement("canvas");
 
-
-    // Chargement des données JSON depuis l'url
+    // Place l'image
     function getImage(numMassif) {
-      var url = `http://localhost/skitour/back/getrisquemassif.php?massif=${numMassif}`;
-      $.getJSON(url, function (data) {
+      var url = `http://localhost:8000/back/images/${numMassif}.png`;
+      var urlBounds = "/front/cadremassif.json";
+      /* Ajout de l'image créée sur le canvas en tant qu'overlay sur la carte */
+      $.getJSON(urlBounds, function (data) {
         canvas.width = data["width"]; /* Largeur */
         canvas.height = data["height"]; /* Hauteur */
-        var ctx = canvas.getContext("2d"); /* Récupération du contexte de dessin pour le canvas */
-        var risque = data["tile"];
-        var bg = data["bg"];
-        var hd = data["hd"];
-        // Boucle pour dessiner sur le canvas
-        for (var i = 0; i < canvas.height; i++) {
-          for (var j = 0; j < canvas.width; j++) {
-            var alt = risque[i][j];
-            switch (alt) {
-              case 0:
-                continue;
-              case 1:
-                ctx.fillStyle = "rgb(44, 176, 81)";
-                break
-              case 2:
-                ctx.fillStyle = "rgb(254, 240, 53)";
-                break
-              case 3:
-                ctx.fillStyle = "rgb(253, 127, 54)";
-                break
-              case 4:
-                ctx.fillStyle = "rgb(236, 11, 24)";
-                break
-              case 5:
-                ctx.fillStyle = "rgb(236, 11, 24)";
-                break
-              default:
-                break;
-            }
+        var ctx =
+          canvas.getContext(
+            "2d"
+          ); /* Récupération du contexte de dessin pour le canvas */
+        data.forEach((elem) => {
+          if (elem["id"] === numMassif) {
+            var bg = elem["cadre"]["bg"];
+            var hd = elem["cadre"]["hd"];
 
-            ctx.globalAlpha = 0.5;
-            ctx.fillRect(j, i, 1, 1);
-          }
-        }
+            console.log(bg, hd);
 
-        // Ajout de l'image créée sur le canvas en tant qu'overlay sur la carte
-        var imageOverlay = L.imageOverlay(
-          canvas.toDataURL(),
-          L.latLngBounds([bg, hd]),
-          {
-            opacity: 1,
+            var imageOverlay = L.imageOverlay(url, L.latLngBounds([bg, hd]), {
+              opacity: 0.4,
+            }).addTo(map);
+
+            return;
           }
-        ).addTo(map);
+        });
       });
     }
 
     //Recupere les rectangles autour des massifs depuis un fichier .JSOn
-    let massif;
-    $.getJSON("cadremassif.json", function (data) {
+    let alpes;
+    let P1 = $.getJSON("cadrealpes.json", function (data) {
+      alpes = new Map(data.map((e) => [e.id, e.cadre]));
+    });
+    //Recupere les rectangles autour des massifs depuis un fichier .JSOn
+    let corse;
+    let P2 = $.getJSON("cadrecorse.json", function (data) {
+      corse = new Map(data.map((e) => [e.id, e.cadre]));
+    });
+    //Recupere les rectangles autour des massifs depuis un fichier .JSOn
+    let pyrenees;
+    let P3 = $.getJSON("cadrepyrenees.json", function (data) {
+      pyrenees = new Map(data.map((e) => [e.id, e.cadre]));
+    });
 
-      var test = new Map(data.map((e) => [e.id, e.cadre]));
-      massif = new Map(data.map((e) => [e.id, e.cadre]));
-    }).then((o) => {
-
-      //Affichage des images concernés lors de la premiere génèration de l'image
+    Promise.all([P1, P2, P3]).then((o) => {
+      /* Affichage des images concernées lors de la première génération de l'image */
       var grille = MassifAfficher();
-      grille.forEach(e => getImage(e));
-    })
+      grille.forEach((e) => getImage(e));
+    });
 
-
-    //Permet de savoir si un point est dans un rectangle ou non
+    /* Fonction permettant de savoir si un point est dans un rectangle ou non */
     function dansRect(P, bg, bd, hg, hd) {
-
-      return bg[0] <= P[0] && hg[0] >= P[0] && P[1] >= bg[1] && P[1] <= bd[1]
+      return bg[0] <= P[0] && hg[0] >= P[0] && P[1] >= bg[1] && P[1] <= bd[1];
     }
 
     //Verifie si un rectangle entourant un massif est afficher a l'écran
-    function dansMassif(value, key, ma) {
-
+    function dansMassif(value, key, ma, massif) {
       var SWma = value.bg;
       var NEma = value.hd;
       var NWma = value.hg;
       var SEma = value.bd;
 
-      var NE = [map.getBounds().getNorthEast().lat, map.getBounds().getNorthEast().lng];
-      var NW = [map.getBounds().getNorthWest().lat, map.getBounds().getNorthWest().lng];
-      var SE = [map.getBounds().getSouthEast().lat, map.getBounds().getSouthEast().lng];
-      var SW = [map.getBounds().getSouthWest().lat, map.getBounds().getSouthWest().lng];
-      if (dansRect(SWma, SW, SE, NW, NE)&& !(carte.includes(key))) {
-        ma.push(key)
-        carte.push(key);
-      }
-      if (dansRect(NEma, SW, SE, NW, NE) && !(ma.includes(key))&& !(carte.includes(key))) {
-        ma.push(key)
-        carte.push(key);
-      }
-      if (dansRect(NWma, SW, SE, NW, NE) && !(ma.includes(key))&& !(carte.includes(key))) {
-        ma.push(key)
-        carte.push(key);
-      }
-      if (dansRect(SEma, SW, SE, NW, NE) && !(ma.includes(key))&& !(carte.includes(key))) {
+      var NE = [
+        map.getBounds().getNorthEast().lat,
+        map.getBounds().getNorthEast().lng,
+      ];
+      var NW = [
+        map.getBounds().getNorthWest().lat,
+        map.getBounds().getNorthWest().lng,
+      ];
+      var SE = [
+        map.getBounds().getSouthEast().lat,
+        map.getBounds().getSouthEast().lng,
+      ];
+      var SW = [
+        map.getBounds().getSouthWest().lat,
+        map.getBounds().getSouthWest().lng,
+      ];
+
+      if (
+        dansRect(SWma, SW, SE, NW, NE) ||
+        dansRect(NEma, SW, SE, NW, NE) ||
+        dansRect(NWma, SW, SE, NW, NE) ||
+        dansRect(SEma, SW, SE, NW, NE) ||
+        dansRect(SW, SWma, SEma, NWma, NEma) ||
+        dansRect(NE, SWma, SEma, NWma, NEma) ||
+        dansRect(NW, SWma, SEma, NWma, NEma) ||
+        dansRect(SE, SWma, SEma, NWma, NEma)
+      ) {
         ma.push(key);
-        carte.push(key);
-      }
-      if (dansRect(SW, SWma, SEma, NWma, NEma) && !(ma.includes(key))&& !(carte.includes(key))) {
-        ma.push(key)
-        carte.push(key);
-      }
-      if (dansRect(NE, SWma, SEma, NWma, NEma) && !(ma.includes(key))&& !(carte.includes(key))) {
-        ma.push(key)
-        carte.push(key);
-      }
-      if (dansRect(NW, SWma, SEma, NWma, NEma) && !(ma.includes(key))&& !(carte.includes(key))) {
-        ma.push(key)
-        carte.push(key);
-      }
-      if (dansRect(SE, SWma, SEma, NWma, NEma) && !(ma.includes(key)) && !(carte.includes(key))) {
-        ma.push(key)
-        carte.push(key);
+        massif.delete(key);
       }
     }
 
-
-    //Determiner tout les massifs à afficher
     function MassifAfficher() {
       var ma = [];
+      var massif;
+      var center = map.getCenter();
 
-      var key = massif.entries();
-      var x = key.next().value;
-
-      while (x != undefined) {
-        dansMassif(x[1], x[0], ma);
-        var x = key.next().value;
+      if (
+        center.lat >= 43.85 &&
+        center.lng >= 5.18 &&
+        center.lat <= 46.41 &&
+        center.lng <= 7.78
+      ) {
+        massif = alpes;
+      } else if (
+        center.lat >= 41.6 &&
+        center.lng >= 8.7 &&
+        center.lat <= 42.6 &&
+        center.lng <= 9.64
+      ) {
+        massif = corse;
+      } else if (
+        center.lat >= 42.29 &&
+        center.lng >= -1.34 &&
+        center.lat <= 43.19 &&
+        center.lng <= 2.77
+      ) {
+        massif = pyrenees;
       }
+
+      if (massif) {
+        for (const [key, value] of massif) {
+          dansMassif(value, key, ma, massif);
+        }
+      }
+
       return ma;
     }
 
-
-
-    //Gestion des events de Drag
-    map.on('dragend', function (e) {
+    /* Gestion des évents de drag */
+    map.on("dragend", function (e) {
       if (map.getZoom() >= 10) {
         var grille = MassifAfficher();
-        grille.forEach(e => getImage(e))
+        grille.forEach((e) => getImage(e));
       }
     });
 
-    //Event qui affiche la carte a la fin d'un zoom/dezoom
-    map.on('zoomend', function (e) {
+    /* Évent affichant la carte a la fin d'un zoom/dézoom */
+    map.on("zoomend", function (e) {
       if (map.getZoom() >= 10) {
         var grille = MassifAfficher();
-        grille.forEach(e => getImage(e))
+        grille.forEach((e) => getImage(e));
       }
     });
-  }
+  };
 </script>
