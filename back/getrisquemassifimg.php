@@ -7,6 +7,8 @@ header('Access-Control-Allow-Headers: X-Requested-With');
 $files = scandir('hgt/massifs/');
 foreach ($files as $file) {
     // VARIABLES GLOBALES
+
+    $pas = 20;
     $hgt_value_size = 2;
     $hgt_line_records = 3600;
     $hgt_step = 1 / $hgt_line_records;
@@ -25,14 +27,8 @@ foreach ($files as $file) {
         if (!$fp = fopen($filespath . $filenumber . $fileext, "rb"))
             die("Erreur : N'a pas pu ouvrir le fichier d'altitude " . $filenumber . $fileext);
         else {
-            if (!file_exists('images/1')) {
-                mkdir('images/1', 0777, true);
-            }
-            if (!file_exists('images/3')) {
-                mkdir('images/3', 0777, true);
-            }
-            if (!file_exists('images/5')) {
-                mkdir('images/5', 0777, true);
+            if (!file_exists('images')) {
+                mkdir('images', 0777, true);
             }
             //Variables globales stockées dans le fichier
             fseek($fp, 0);
@@ -76,7 +72,7 @@ foreach ($files as $file) {
                 $yellow = imagecolorallocatealpha($image, 254, 240, 53, 0);
                 $orange = imagecolorallocatealpha($image, 253, 127, 54, 0);
                 $red = imagecolorallocatealpha($image, 236, 11, 24, 0);
-                $redhigh = imagecolorallocatealpha($image, 236, 11, 24, 0);
+                $redhigh = imagecolorallocatealpha($image, 131, 7, 12, 0);
                 imagesavealpha($image, true);
                 imagefill($image, 0, 0, $trans);
                 //génération de la tuile du massif
@@ -122,6 +118,20 @@ foreach ($files as $file) {
                         } else {
                             $risquecolor = 0;
                         }
+
+                        if($risquecolor > 10) {
+                            $r1 = floor($risquecolor / 10);
+                            $r2 = $risquecolor % 10;
+                            $imod = $i % $pas;
+                            $jmod = $j % $pas;
+                            if($imod < $pas / 2) {
+                                $risquecolor = $r1;
+                            }
+                            else {
+                                $risquecolor = $r2;
+                            }
+                        }
+
                         switch ($risquecolor) {
                             case 0:
                                 imagesetpixel($image, $i, $j, $trans);
@@ -146,13 +156,13 @@ foreach ($files as $file) {
                             case 5:
                                 imagesetpixel($image, $i, $j, $redhigh);
                                 break;
-                            default:
+                            default:   
                                 imagesetpixel($image, $i, $j, $redhigh);
                                 break;
                         }
                     }
                 }
-                imagepng($image, "./images/1/" . $filenumber . ".png");
+                imagepng($image, "./images/" . $filenumber . ".png");
                 imagedestroy($image);
             } else {
                 die("Erreur : Il y a une erreur lors du chargement des données de météofrance");
