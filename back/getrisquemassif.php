@@ -59,11 +59,11 @@ if (isset($_GET["massif"])) {
                     $risque = $xml["CARTOUCHERISQUE"]->{"RISQUE"};
                     $risque1 = (int) $risque["RISQUE1"]; // =-1 quand risque non chiffré
                     $evolurisque1 = (int) $risque["EVOLURISQUE1"];
-                    $loc1 = $risque["LOC1"][0];
+                    $loc1 = substr($risque["LOC1"], 0, 1);
                     $altitude = (int) $risque["ALTITUDE"];
                     $risque2 = (int) $risque["RISQUE2"];
                     $evolurisque2 = (int) $risque["EVOLURISQUE2"];
-                    $loc2 = $risque["LOC2"][0];
+                    $loc2 = substr($risque["LOC2"], 0, 1);
                     $risquemaxi = (int) $risque["RISQUEMAXI"];
 
                     $array = array("width" => $width, "height" => $height, "bg" => [$bglat, $bglon], "hd" => [$hdlat, $hdlon], "tile" => null);
@@ -80,40 +80,40 @@ if (isset($_GET["massif"])) {
                                 if ($risque1 == -1) {
                                     array_push($line, 0);
                                 } else if ($loc1 == "<" && $alt < $altitude) {
-                                    $val = $evolurisque1 != 0 ? $risque1 . $evolurisque1 : $risque1;
+                                    $val = $evolurisque1 != 0 ? intval($risque1 . $evolurisque1) : $risque1;
                                     array_push($line, $val);
                                 } else if ($loc1 == ">" && $alt > $altitude) {
-                                    $val = $evolurisque1 != 0 ? $risque1 . $evolurisque1 : $risque1;
+                                    $val = $evolurisque1 != 0 ? intval($risque1 . $evolurisque1) : $risque1;
                                     array_push($line, $val);
                                 } else if ($loc2 == "<" && $alt <= $altitude) {
-                                    $val = $evolurisque2 != 0 ? $risque2 . $evolurisque2 : $risque2;
+                                    $val = $evolurisque2 != 0 ? intval($risque2 . $evolurisque2) : $risque2;
                                     array_push($line, $val);
                                 } else if ($loc2 == ">" && $alt >= $altitude) {
-                                    $val = $evolurisque2 != 0 ? $risque2 . $evolurisque2 : $risque2;
+                                    $val = $evolurisque2 != 0 ? intval($risque2 . $evolurisque2) : $risque2;
                                     array_push($line, $val);
                                 } else if ($loc1 == "W" && false) {
-                                    $val = $evolurisque1 != 0 ? $risque1 . $evolurisque1 : $risque1;
+                                    $val = $evolurisque1 != 0 ? intval($risque1 . $evolurisque1) : $risque1;
                                     array_push($line, $val);
                                 } else if ($loc1 == "N" && false) {
-                                    $val = $evolurisque1 != 0 ? $risque1 . $evolurisque1 : $risque1;
+                                    $val = $evolurisque1 != 0 ? intval($risque1 . $evolurisque1) : $risque1;
                                     array_push($line, $val);
                                 } else if ($loc1 == "E" && false) {
-                                    $val = $evolurisque1 != 0 ? $risque1 . $evolurisque1 : $risque1;
+                                    $val = $evolurisque1 != 0 ? intval($risque1 . $evolurisque1) : $risque1;
                                     array_push($line, $val);
                                 } else if ($loc1 == "S" && false) {
-                                    $val = $evolurisque1 != 0 ? $risque1 . $evolurisque1 : $risque1;
+                                    $val = $evolurisque1 != 0 ? intval($risque1 . $evolurisque1) : $risque1;
                                     array_push($line, $val);
                                 } else if ($loc2 == "W" && false) {
-                                    $val = $evolurisque2 != 0 ? $risque2 . $evolurisque2 : $risque2;
+                                    $val = $evolurisque2 != 0 ? intval($risque2 . $evolurisque2) : $risque2;
                                     array_push($line, $val);
                                 } else if ($loc2 == "N" && false) {
-                                    $val = $evolurisque2 != 0 ? $risque2 . $evolurisque2 : $risque2;
+                                    $val = $evolurisque2 != 0 ? intval($risque2 . $evolurisque2) : $risque2;
                                     array_push($line, $val);
                                 } else if ($loc2 == "E" && false) {
-                                    $val = $evolurisque2 != 0 ? $risque2 . $evolurisque2 : $risque2;
+                                    $val = $evolurisque2 != 0 ? intval($risque2 . $evolurisque2) : $risque2;
                                     array_push($line, $val);
                                 } else if ($loc2 == "S" && false) {
-                                    $val = $evolurisque2 != 0 ? $risque2 . $evolurisque2 : $risque2;
+                                    $val = $evolurisque2 != 0 ? intval($risque2 . $evolurisque2) : $risque2;
                                     array_push($line, $val);
                                 } else {
                                     array_push($line, intval($risque1));
