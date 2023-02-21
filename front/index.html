@@ -10,7 +10,10 @@
 </style>
 
 <!-- Importation de la feuille de style pour Leaflet, une bibliothèque pour la cartographie -->
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.3/dist/leaflet.css" />
+<link
+  rel="stylesheet"
+  href="https://unpkg.com/leaflet@1.0.3/dist/leaflet.css"
+/>
 
 <!-- Importation de la bibliothèque Leaflet -->
 <script src="https://unpkg.com/leaflet@1.0.3/dist/leaflet.js"></script>
@@ -26,6 +29,7 @@
   window.onload = function () {
     /* Initialisation de la carte avec Leaflet dans l'élément div avec id 'viewerDiv',
     avec une vue centrée sur les coordonnées et le zoom donnés */
+
     var map = L.map("viewerDiv").setView(
       [45.17384615384615, 5.71],
       10
@@ -51,7 +55,7 @@
 
     /* Définition des couches de base de la carte */
     var baseMaps = {
-      "OpenStreetMap": osm,
+      OpenStreetMap: osm,
       "IGN découverte": ign,
     };
 
@@ -64,63 +68,31 @@
     /* Création d'un élément canvas pour dessiner une image */
     var canvas = document.createElement("canvas");
 
-
-    // Chargement des données JSON depuis l'url
+    // Place l'image
     function getImage(numMassif) {
-      var url = `http://localhost/skitour/back/getrisquemassif.php?massif=${numMassif}`;
-      $.getJSON(url, function (data) {
+      var url = `http://localhost:8000/back/images/${numMassif}.png`;
+      var urlBounds = "/front/cadremassif.json";
+      /* Ajout de l'image créée sur le canvas en tant qu'overlay sur la carte */
+      $.getJSON(urlBounds, function (data) {
         canvas.width = data["width"]; /* Largeur */
         canvas.height = data["height"]; /* Hauteur */
-        var ctx = canvas.getContext("2d"); /* Récupération du contexte de dessin pour le canvas */
-        var risque = data["tile"];
-        var bg = data["bg"];
-        var hd = data["hd"];
-        /* Boucle pour dessiner sur le canvas */
-        for (var i = 0; i < canvas.height; i++) {
-          for (var j = 0; j < canvas.width; j++) {
-            /* Récupération du niveau de risque de chaque point */
-            var niveauRisque = risque[i][j];
-            switch (niveauRisque) {
-              /* Risque = 0 */
-              case 0:
-                continue;
-              /* Risque = 1 */
-              case 1:
-                ctx.fillStyle = "rgb(44, 176, 81)";
-                break
-              /* Risque = 2 */
-              case 2:
-                ctx.fillStyle = "rgb(254, 240, 53)";
-                break
-              /* Risque = 3 */
-              case 3:
-                ctx.fillStyle = "rgb(253, 127, 54)";
-                break
-              /* Risque = 4 */
-              case 4:
-                ctx.fillStyle = "rgb(236, 11, 24)";
-                break
-              /* Risque = 5 */
-              case 5:
-                ctx.fillStyle = "rgb(131, 7, 12)";
-                break
-              default:
-                break;
-            }
-            /* Transparence du canvas */
-            ctx.globalAlpha = 0.5;
-            ctx.fillRect(j, i, 1, 1);
-          }
-        }
+        var ctx =
+          canvas.getContext(
+            "2d"
+          ); /* Récupération du contexte de dessin pour le canvas */
+        data.forEach((elem) => {
+          if (elem["id"] === numMassif) {
+            var bg = elem["cadre"]["bg"];
+            var hd = elem["cadre"]["hd"];
 
-        /* Ajout de l'image créée sur le canvas en tant qu'overlay sur la carte */
-        var imageOverlay = L.imageOverlay(
-          canvas.toDataURL(),
-          L.latLngBounds([bg, hd]),
-          {
-            opacity: 1,
+            console.log(bg, hd);
+
+            var imageOverlay = L.imageOverlay(url, L.latLngBounds([bg, hd]), {
+              opacity: 0.4,
+            }).addTo(map);
+            return;
           }
-        ).addTo(map);
+        });
       });
     }
 
@@ -159,8 +131,9 @@
 
 
     //Verifie si un rectangle entourant un massif est afficher a l'écran
-    function dansMassif(value, key, ma,massif ) {
 
+    function dansMassif(value, key, ma,massif ) {
+    
       var SWma = value.bg;
       var NEma = value.hd;
       var NWma = value.hg;
@@ -185,9 +158,7 @@
     massif.delete(key);
   }
     }
-
-
-
+    
     function MassifAfficher() {
       var ma = [];
       var massif;
@@ -206,26 +177,26 @@
           dansMassif(value, key, ma, massif);
         }
       }
-    
+
       return ma;
     }
 
-
-
     /* Gestion des évents de drag */
-    map.on('dragend', function (e) {
+    map.on("dragend", function (e) {
+
       if (map.getZoom() >= 10) {
         var grille = MassifAfficher();
-        grille.forEach(e => getImage(e))
+        grille.forEach((e) => getImage(e));
       }
     });
 
     /* Évent affichant la carte a la fin d'un zoom/dézoom */
-    map.on('zoomend', function (e) {
+    map.on("zoomend", function (e) {
+
       if (map.getZoom() >= 10) {
         var grille = MassifAfficher();
-        grille.forEach(e => getImage(e))
+        grille.forEach((e) => getImage(e));
       }
     });
-  }
+  };
 </script>
