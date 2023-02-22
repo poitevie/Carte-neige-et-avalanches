@@ -70,20 +70,20 @@ foreach ($files as $file) {
                     $risquemaxi = (int) $risque["RISQUEMAXI"];
                     //pente
                     $pente = $xml["CARTOUCHERISQUE"]->{"PENTE"};
-                    $penteNO = (boolean) $pente["NO"];
-                    $penteN = (boolean) $pente["N"];
-                    $penteNE = (boolean) $pente["NE"];
-                    $penteE = (boolean) $pente["E"];
-                    $penteO = (boolean) $pente["O"];
-                    $penteSO = (boolean) $pente["SO"];
-                    $penteS = (boolean) $pente["S"];
-                    $penteSE = (boolean) $pente["SE"];
+                    $penteNO = $pente["NW"];
+                    $penteN = $pente["N"];
+                    $penteNE = $pente["NE"];
+                    $penteE = $pente["E"];
+                    $penteO = $pente["W"];
+                    $penteSO = $pente["SW"];
+                    $penteS = $pente["S"];
+                    $penteSE = $pente["SE"];
 
                     $image = imagecreatetruecolor($width, $height);
                     $trans = imagecolorallocatealpha($image, 0, 0, 0, 127);
                     imagesavealpha($image, true);
                     imagefill($image, 0, 0, $trans);
-                    //génération de la tuile du massif
+                    génération de la tuile du massif
                     for ($j = 0; $j < $height; $j += 1) {
                         for ($i = 0; $i < $width; $i += 1) {
                             fseek($fp, 20 + ($i) * $hgt_value_size + ($j) * $width * $hgt_value_size);
@@ -144,14 +144,14 @@ foreach ($files as $file) {
                             }
                             $alpha = intval(127 / 2);
                             if (
-                                $penteNO && $orientation == 1 ||
-                                $penteN && $orientation == 2 ||
-                                $penteNE && $orientation == 3 ||
-                                $penteO && $orientation == 4 ||
-                                $penteE && $orientation == 6 ||
-                                $penteSO && $orientation == 7 ||
-                                $penteS && $orientation == 8 ||
-                                $penteSE && $orientation == 9
+                                ($penteNO && $orientation == 1) ||
+                                ($penteN && $orientation == 2) ||
+                                ($penteNE && $orientation == 3) ||
+                                ($penteO && $orientation == 4) ||
+                                ($penteE && $orientation == 6) ||
+                                ($penteSO && $orientation == 7) ||
+                                ($penteS && $orientation == 8) ||
+                                ($penteSE && $orientation == 9)
                             ) {
                                 $alpha = 0;
                             }
