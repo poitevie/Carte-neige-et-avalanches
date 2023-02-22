@@ -25,39 +25,14 @@
   /* Lorsque la fenêtre est entièrement chargée */
   window.onload = function () {
     /* Initialisation de la carte avec Leaflet dans l'élément div avec id 'viewerDiv',
-    avec une vue centrée sur les coordonnées et le zoom donnés */
-
+        avec une vue centrée sur les coordonnées et le zoom donnés */
     var map = L.map("viewerDiv").setView(
       [45.17384615384615, 5.71],
       10
     );
 
-    /* Ajout de la couche de tuiles pour la carte via une URL de service de tuiles */
-    var ign = L.tileLayer(
-      "https://wxs.ign.fr/decouverte/geoportail/wmts?service=WMTS&request=GetTile&version=1.0.0&tilematrixset=PM&tilematrix={z}&tilecol={x}&tilerow={y}&layer=ORTHOIMAGERY.ORTHOPHOTOS&format=image/jpeg&style=normal",
-      {
-        minZoom: 0 /* Niveau de zoom minimum */,
-        maxZoom: 18 /* Niveau de zoom maximum */,
-        tileSize: 256 /* Taille des tuiles */,
-        attribution:
-          "IGN-F/Géoportail" /* Crédit à afficher pour les données */,
-      }
-    ).addTo(map);
-
-    /* Définition de la couche de tuiles OpenStreetMap */
-    var osm = L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      maxZoom: 19,
-      attribution: "© OpenStreetMap",
-    });
-
-    /* Définition des couches de base de la carte */
-    var baseMaps = {
-      OpenStreetMap: osm,
-      "IGN découverte": ign,
-    };
-
-    /* Ajout du contrôle de couche à la carte */
-    var layerControl = L.control.layers(baseMaps).addTo(map);
+    /* Création d'un groupe de couches contenant les couches de risque d'avalanche */
+    var imageOverlays = L.layerGroup();
 
     /* Stockage des cartes déjà affichées */
     var carte = [];
@@ -86,26 +61,27 @@
 
             var imageOverlay = L.imageOverlay(url, L.latLngBounds([bg, hd]), {
               opacity: 0.4,
-            }).addTo(map);
+            }).addTo(imageOverlays);
+
             return;
           }
         });
       });
     }
 
-    //Recupere les rectangles autour des massifs depuis un fichier .JSOn
+    /* Recupère les rectangles autour des massifs depuis un fichier .json */
     let alpes;
     let P1 = $.getJSON("cadrealpes.json", function (data) {
 
       alpes = new Map(data.map((e) => [e.id, e.cadre]));
     })
-    //Recupere les rectangles autour des massifs depuis un fichier .JSOn
+    /* Recupère les rectangles autour des massifs depuis un fichier .json */
     let corse;
     let P2 = $.getJSON("cadrecorse.json", function (data) {
 
       corse = new Map(data.map((e) => [e.id, e.cadre]));
     })
-    //Recupere les rectangles autour des massifs depuis un fichier .JSOn
+    /* Recupère les rectangles autour des massifs depuis un fichier .json */
     let pyrenees;
     let P3 = $.getJSON("cadrepyrenees.json", function (data) {
 
@@ -127,8 +103,7 @@
     }
 
 
-    //Verifie si un rectangle entourant un massif est afficher a l'écran
-
+    /* Vérification de si un rectangle entourant un massif est affiché a l'écran */
     function dansMassif(value, key, ma, massif) {
 
       var SWma = value.bg;
@@ -156,6 +131,7 @@
       }
     }
 
+    /* Fonction permettant de déterminer quels massifs sont affichés à l'écran */
     function MassifAfficher() {
       var ma = [];
       var massif;
@@ -181,7 +157,7 @@
     /* Gestion des évents de drag */
     map.on("dragend", function (e) {
 
-      if (map.getZoom() >= 5) {
+      if (map.getZoom() >= 3) {
         var grille = MassifAfficher();
         grille.forEach((e) => getImage(e));
       }
@@ -190,10 +166,48 @@
     /* Évent affichant la carte a la fin d'un zoom/dézoom */
     map.on("zoomend", function (e) {
 
-      if (map.getZoom() >= 5) {
+      if (map.getZoom() >= 3) {
         var grille = MassifAfficher();
         grille.forEach((e) => getImage(e));
       }
     });
+
+    /* Ajout de la couche de tuiles pour la carte via une URL de service de tuiles */
+    var ign = L.tileLayer(
+      "https://wxs.ign.fr/decouverte/geoportail/wmts?service=WMTS&request=GetTile&version=1.0.0&tilematrixset=PM&tilematrix={z}&tilecol={x}&tilerow={y}&layer=ORTHOIMAGERY.ORTHOPHOTOS&format=image/jpeg&style=normal",
+      {
+        minZoom: 0 /* Niveau de zoom minimum */,
+        maxZoom: 18 /* Niveau de zoom maximum */,
+        tileSize: 256 /* Taille des tuiles */,
+        attribution:
+          "IGN-F/Géoportail" /* Crédit à afficher pour les données */,
+      }
+    );
+
+    /* Définition de la couche de tuiles OpenStreetMap */
+    var osm = L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      maxZoom: 19,
+      attribution: "© OpenStreetMap",
+    });
+
+    /* Ajout des couches à la carte */
+    ign.addTo(map);
+    osm.addTo(map);
+    imageOverlays.addTo(map);
+
+    /* Définition des couches de base de la carte */
+    var baseMaps = {
+      OpenStreetMap: osm,
+      "IGN découverte": ign,
+    };
+
+    /* Définition des couches supérieures de la carte */
+    var overlayMaps = {
+      "Risque d'avalanche": imageOverlays
+    };
+
+    /* Ajout du contrôle de couche à la carte */
+    var layerControl = L.control.layers(baseMaps, overlayMaps).addTo(map);
+
   };
 </script>
