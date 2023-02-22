@@ -4,7 +4,7 @@ header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, POST');
 header('Access-Control-Allow-Headers: X-Requested-With');
 
-$files = scandir('hgt/massifs/');
+$files = scandir('./hgt/massifs/');
 foreach ($files as $file) {
     // VARIABLES GLOBALES
 
@@ -59,11 +59,11 @@ foreach ($files as $file) {
                 $risque = $xml["CARTOUCHERISQUE"]->{"RISQUE"};
                 $risque1 = (int) $risque["RISQUE1"]; // =-1 quand risque non chiffré
                 $evolurisque1 = (int) $risque["EVOLURISQUE1"];
-                $loc1 = $risque["LOC1"][0];
+                $loc1 = substr($risque["LOC1"], 0, 1);
                 $altitude = (int) $risque["ALTITUDE"];
                 $risque2 = (int) $risque["RISQUE2"];
                 $evolurisque2 = (int) $risque["EVOLURISQUE2"];
-                $loc2 = $risque["LOC2"][0];
+                $loc2 = substr($risque["LOC2"], 0, 1);
                 $risquemaxi = (int) $risque["RISQUEMAXI"];
 
                 $image = imagecreatetruecolor($width, $height);
@@ -89,45 +89,44 @@ foreach ($files as $file) {
                             if ($risque1 == -1) {
                                 $risquecolor = 0;
                             } else if ($loc1 == "<" && $alt < $altitude) {
-                                $risquecolor = $evolurisque1 != 0 ? $risque1 . $evolurisque1 : $risque1;
+                                $risquecolor = $evolurisque1 != 0 ? intval($risque1 . $evolurisque1) : $risque1;
                             } else if ($loc1 == ">" && $alt > $altitude) {
-                                $risquecolor = $evolurisque1 != 0 ? $risque1 . $evolurisque1 : $risque1;
+                                $risquecolor = $evolurisque1 != 0 ? intval($risque1 . $evolurisque1) : $risque1;
                             } else if ($loc2 == "<" && $alt <= $altitude) {
-                                $risquecolor = $evolurisque2 != 0 ? $risque2 . $evolurisque2 : $risque2;
+                                $risquecolor = $evolurisque2 != 0 ? intval($risque2 . $evolurisque2) : $risque2;
                             } else if ($loc2 == ">" && $alt >= $altitude) {
-                                $risquecolor = $evolurisque2 != 0 ? $risque2 . $evolurisque2 : $risque2;
+                                $risquecolor = $evolurisque2 != 0 ? intval($risque2 . $evolurisque2) : $risque2;
                             } else if ($loc1 == "W" && false) {
-                                $risquecolor = $evolurisque1 != 0 ? $risque1 . $evolurisque1 : $risque1;
+                                $risquecolor = $evolurisque1 != 0 ? intval($risque1 . $evolurisque1) : $risque1;
                             } else if ($loc1 == "N" && false) {
-                                $risquecolor = $evolurisque1 != 0 ? $risque1 . $evolurisque1 : $risque1;
+                                $risquecolor = $evolurisque1 != 0 ? intval($risque1 . $evolurisque1) : $risque1;
                             } else if ($loc1 == "E" && false) {
-                                $risquecolor = $evolurisque1 != 0 ? $risque1 . $evolurisque1 : $risque1;
+                                $risquecolor = $evolurisque1 != 0 ? intval($risque1 . $evolurisque1) : $risque1;
                             } else if ($loc1 == "S" && false) {
-                                $risquecolor = $evolurisque1 != 0 ? $risque1 . $evolurisque1 : $risque1;
+                                $risquecolor = $evolurisque1 != 0 ? intval($risque1 . $evolurisque1) : $risque1;
                             } else if ($loc2 == "W" && false) {
-                                $risquecolor = $evolurisque2 != 0 ? $risque2 . $evolurisque2 : $risque2;
+                                $risquecolor = $evolurisque2 != 0 ? intval($risque2 . $evolurisque2) : $risque2;
                             } else if ($loc2 == "N" && false) {
-                                $risquecolor = $evolurisque2 != 0 ? $risque2 . $evolurisque2 : $risque2;
+                                $risquecolor = $evolurisque2 != 0 ? intval($risque2 . $evolurisque2) : $risque2;
                             } else if ($loc2 == "E" && false) {
-                                $risquecolor = $evolurisque2 != 0 ? $risque2 . $evolurisque2 : $risque2;
+                                $risquecolor = $evolurisque2 != 0 ? intval($risque2 . $evolurisque2) : $risque2;
                             } else if ($loc2 == "S" && false) {
-                                $risquecolor = $evolurisque2 != 0 ? $risque2 . $evolurisque2 : $risque2;
+                                $risquecolor = $evolurisque2 != 0 ? intval($risque2 . $evolurisque2) : $risque2;
                             } else {
-                                $risquecolor = $evolurisque1 != 0 ? $risque1 . $evolurisque1 : $risque1;
+                                $risquecolor = $evolurisque1 != 0 ? intval($risque1 . $evolurisque1) : $risque1;
                             }
                         } else {
                             $risquecolor = 0;
                         }
 
-                        if($risquecolor > 10) {
+                        if ($risquecolor > 10) {
                             $r1 = floor($risquecolor / 10);
                             $r2 = $risquecolor % 10;
                             $imod = $i % $pas;
                             $jmod = $j % $pas;
-                            if($imod < $pas / 2) {
+                            if ($imod < $pas / 2) {
                                 $risquecolor = $r1;
-                            }
-                            else {
+                            } else {
                                 $risquecolor = $r2;
                             }
                         }
@@ -156,7 +155,7 @@ foreach ($files as $file) {
                             case 5:
                                 imagesetpixel($image, $i, $j, $redhigh);
                                 break;
-                            default:   
+                            default:
                                 imagesetpixel($image, $i, $j, $redhigh);
                                 break;
                         }
@@ -200,4 +199,3 @@ function getfilenumber($latitude, $longitude)
 
     return $filenumber;
 }
-?>
