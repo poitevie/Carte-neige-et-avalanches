@@ -133,7 +133,6 @@ function generatehgt($massif, $idfile)
                     $valw = fwrite($fp, pack("n", $alt), 2);
                 else
                     $valw = fwrite($fp, pack("n", 0), 2);
-                // $valw = fwrite($fp, pack("n", $filey), 2);
             }
         }
     }
