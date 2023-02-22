@@ -13,7 +13,9 @@ $hgt_step = 1 / $hgt_line_records;
 $hgt_line_size = $hgt_value_size * ($hgt_line_records + 1);
 $filespath = "hgt/";
 $cadremassif = array();
-
+if (!file_exists('hgt/massifs/altitude')) {
+    mkdir('hgt/massifs/altitude', 0777, true);
+}
 if (!$jsontext = file_get_contents("geojson/massifs.geojson"))
     die("Erreur : N'a pas pu ouvrir le fichier geojson des massifs");
 else {
@@ -98,7 +100,7 @@ function generatehgt($massif, $idfile)
         array_push($files, $filesline);
     }
     $files = array_reverse($files);
-    if (!$fp = fopen("hgt/massifs/" . $idfile.".hgt", "w")) {
+    if (!$fp = fopen("hgt/massifs/altitude/" . $idfile.".hgt", "w")) {
         die("Erreur : N'a pas pu ouvrir le fichier");
     } else {
         $indexlathg = $hgt_line_records - floor(($cadre["hg"][0] - floor($cadre["hg"][0])) / $hgt_step);

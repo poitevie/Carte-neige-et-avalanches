@@ -67,7 +67,7 @@
 
     // Place l'image
     function getImage(numMassif) {
-      var url = `http://localhost:8000/back/images/${numMassif}.png`;
+      var url = `http://localhost:8000/back/images/risque/${numMassif}.png`;
       var urlBounds = "/front/cadremassif.json";
       /* Ajout de l'image créée sur le canvas en tant qu'overlay sur la carte */
       $.getJSON(urlBounds, function (data) {
