@@ -79,7 +79,7 @@
     /* Création d'un élément canvas pour dessiner une image */
     var canvas = document.createElement("canvas");
 
-    // Place l'image
+    /* Affichage de l'image à l'endroit correspondant */
     function getImage(numMassif) {
       var url = `http://localhost:8000/back/images/risque/${numMassif}.png`;
       var urlNeige = `http://localhost:8000/back/images/neigetotale/${numMassif}.png`;
@@ -96,8 +96,6 @@
           if (elem["id"] === numMassif) {
             var bg = elem["cadre"]["bg"];
             var hd = elem["cadre"]["hd"];
-
-            console.log(bg, hd);
 
             var imageOverlay = L.imageOverlay(url, L.latLngBounds([bg, hd]), {
               opacity: 0.4,
@@ -240,6 +238,7 @@
     imageOverlays.addTo(map);
     imageNeigeOverlays.addTo(map);
 
+
     /* Définition des couches de base de la carte */
     var baseMaps = {
       OpenStreetMap: osm,
@@ -266,7 +265,6 @@
       div.innerHTML += '<i style="background: #E8E6E0"></i><span>Residential</span><br>';
       div.innerHTML += '<i style="background: #FFFFFF"></i><span>Ice</span><br>';
       div.innerHTML += '<i class="icon" style="background-image: url(https://d30y9cdsu7xlg0.cloudfront.net/png/194515-200.png);background-repeat: no-repeat;"></i><span>Grænse</span><br>';
-
       return div;
     };
 
