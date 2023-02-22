@@ -55,13 +55,13 @@ foreach ($files as $file) {
                 fseek($fp2, 16);
                 $valw = fwrite($fp2, pack("f", $hdlon), 4);
 
-                for ($j = 1; $j < $height - 1; $j += 1) {
-                    for ($i = 1; $i < $width - 1; $i += 1) {
+                for ($j = 0; $j < $height; $j += 1) {
+                    for ($i = 0; $i < $width; $i += 1) {
                         fseek($fp, 20 + ($i) * $hgt_value_size + ($j) * $width * $hgt_value_size);
                         $val = fread($fp, 2);
                         $altC = @unpack('n', $val)[1];
 
-                        if ($altC != 0) {
+                        if ($altC != 0 || $j != 0 || $j != $height || $i != 0 || $i != $width) {
 
                             $max = 0;
                             $orientation = 5;
