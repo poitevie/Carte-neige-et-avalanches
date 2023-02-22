@@ -69,14 +69,14 @@ foreach ($files as $file) {
                             for ($yo = -1; $yo <= 1; $yo++) {
                                 for ($xo = -1; $xo <= 1; $xo++) {
                                     if ($xo != 0 && $yo != 0) {
-                                        fseek($fp, 20 + ($i) * $hgt_value_size + ($j) * ($width + $yo) * $hgt_value_size + $xo);
+                                        fseek($fp, 20 + ($i + $xo) * $hgt_value_size + ($j + $yo) * $width * $hgt_value_size);
                                         $val = fread($fp, 2);
                                         $alt = @unpack('n', $val)[1];
 
                                         $cal = $alt - $altC;
                                         if($cal > $max) {
                                             $max = $cal;
-                                            $orientation = (8 - ($xo+1) + 3*($yo+1)) + 1;
+                                            $orientation = 10 - (($xo+2) + 3*($yo+1));
                                         }
                                     }
                                 }
