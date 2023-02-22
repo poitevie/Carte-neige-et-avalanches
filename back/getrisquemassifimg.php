@@ -4,13 +4,14 @@ header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, POST');
 header('Access-Control-Allow-Headers: X-Requested-With');
 
-$files = scandir('./hgt/massifs/');
+$files = scandir('./hgt/massifs/altitude/');
 foreach ($files as $file) {
     // VARIABLES GLOBALES
 
     $pas = 20;
     $hgt_value_size = 2;
     $hgt_line_records = 3600;
+    $fileext = '.hgt';
     $hgt_step = 1 / $hgt_line_records;
     $hgt_line_size = $hgt_value_size * ($hgt_line_records + 1);
     $filespath = "hgt/massifs/";
@@ -18,17 +19,16 @@ foreach ($files as $file) {
     if ($filenumber != "") {
 
         // Si le fichier binaire du massif existe
-        if (file_exists($filespath . $filenumber . '.hgt')) {
-            $fileext = '.hgt';
+        if (file_exists($filespath . "altitude/" . $filenumber . '.hgt')) {
             $hgt_line_records = 3600;
         } else
             die("Erreur : " . $filenumber . $fileext . " n'existe pas");
 
-        if (!$fp = fopen($filespath . $filenumber . $fileext, "rb"))
+        if (!$fp = fopen($filespath . "altitude/". $filenumber . $fileext, "rb"))
             die("Erreur : N'a pas pu ouvrir le fichier d'altitude " . $filenumber . $fileext);
         else {
-            if (!file_exists('images')) {
-                mkdir('images', 0777, true);
+            if (!file_exists('images/risque')) {
+                mkdir('images/risque', 0777, true);
             }
             //Variables globales stockées dans le fichier
             fseek($fp, 0);
@@ -161,7 +161,7 @@ foreach ($files as $file) {
                         }
                     }
                 }
-                imagepng($image, "./images/" . $filenumber . ".png");
+                imagepng($image, "./images/risque/" . $filenumber . ".png");
                 imagedestroy($image);
             } else {
                 die("Erreur : Il y a une erreur lors du chargement des données de météofrance");

@@ -7,6 +7,42 @@
     height: 600px;
     /* Hauteur à 600 pixels */
   }
+
+  .legend {
+    padding: 6px 8px;
+    font: 14px Arial, Helvetica, sans-serif;
+    background: white;
+    background: rgba(255, 255, 255, 0.8);
+    /*box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);*/
+    /*border-radius: 5px;*/
+    line-height: 24px;
+    color: #555;
+  }
+
+  .legend h4 {
+    text-align: center;
+    font-size: 16px;
+    margin: 2px 12px 8px;
+    color: #777;
+  }
+
+  .legend span {
+    position: relative;
+    bottom: 3px;
+  }
+
+  .legend i {
+    width: 18px;
+    height: 18px;
+    float: left;
+    margin: 0 8px 0 0;
+    opacity: 0.7;
+  }
+
+  .legend i.icon {
+    background-size: 18px;
+    background-color: rgba(255, 255, 255, 1);
+  }
 </style>
 
 <!-- Importation de la feuille de style pour Leaflet, une bibliothèque pour la cartographie -->
@@ -34,15 +70,19 @@
     /* Création d'un groupe de couches contenant les couches de risque d'avalanche */
     var imageOverlays = L.layerGroup();
 
+    /* Création d'un groupe de couches contenant les couches de neige totale */
+    var imageNeigeOverlays = L.layerGroup();
+
     /* Stockage des cartes déjà affichées */
     var carte = [];
 
     /* Création d'un élément canvas pour dessiner une image */
     var canvas = document.createElement("canvas");
 
-    // Place l'image
+    /* Affichage de l'image à l'endroit correspondant */
     function getImage(numMassif) {
-      var url = `http://localhost:8000/back/images/${numMassif}.png`;
+      var url = `http://localhost:8000/back/images/risque/${numMassif}.png`;
+      var urlNeige = `http://localhost:8000/back/images/neigetotale/${numMassif}.png`;
       var urlBounds = "/front/cadremassif.json";
       /* Ajout de l'image créée sur le canvas en tant qu'overlay sur la carte */
       $.getJSON(urlBounds, function (data) {
@@ -57,11 +97,13 @@
             var bg = elem["cadre"]["bg"];
             var hd = elem["cadre"]["hd"];
 
-            console.log(bg, hd);
-
             var imageOverlay = L.imageOverlay(url, L.latLngBounds([bg, hd]), {
               opacity: 0.4,
             }).addTo(imageOverlays);
+
+            var imageNeigeOverlay = L.imageOverlay(urlNeige, L.latLngBounds([bg, hd]), {
+              opacity: 0.7,
+            }).addTo(imageNeigeOverlays);
 
             return;
           }
@@ -194,6 +236,8 @@
     ign.addTo(map);
     osm.addTo(map);
     imageOverlays.addTo(map);
+    imageNeigeOverlays.addTo(map);
+
 
     /* Définition des couches de base de la carte */
     var baseMaps = {
@@ -203,11 +247,27 @@
 
     /* Définition des couches supérieures de la carte */
     var overlayMaps = {
-      "Risque d'avalanche": imageOverlays
+      "Risque d'avalanche": imageOverlays,
+      "Epaisseur de neige": imageNeigeOverlays
     };
 
     /* Ajout du contrôle de couche à la carte */
     var layerControl = L.control.layers(baseMaps, overlayMaps).addTo(map);
 
+    var legend = L.control({ position: "bottomright" });
+
+    legend.onAdd = function (map) {
+      var div = L.DomUtil.create("div", "legend");
+      div.innerHTML += "<h4>Tegnforklaring</h4>";
+      div.innerHTML += '<i style="background: #477AC2"></i><span>Water</span><br>';
+      div.innerHTML += '<i style="background: #448D40"></i><span>Forest</span><br>';
+      div.innerHTML += '<i style="background: #E6E696"></i><span>Land</span><br>';
+      div.innerHTML += '<i style="background: #E8E6E0"></i><span>Residential</span><br>';
+      div.innerHTML += '<i style="background: #FFFFFF"></i><span>Ice</span><br>';
+      div.innerHTML += '<i class="icon" style="background-image: url(https://d30y9cdsu7xlg0.cloudfront.net/png/194515-200.png);background-repeat: no-repeat;"></i><span>Grænse</span><br>';
+      return div;
+    };
+
+    legend.addTo(map);
   };
 </script>
