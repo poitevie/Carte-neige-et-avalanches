@@ -24,7 +24,7 @@ foreach ($files as $file) {
         } else
             die("Erreur : " . $filenumber . $fileext . " n'existe pas");
 
-        if (!$fp = fopen($filespath . "altitude/". $filenumber . $fileext, "rb"))
+        if (!$fp = fopen($filespath . "altitude/" . $filenumber . $fileext, "rb"))
             die("Erreur : N'a pas pu ouvrir le fichier d'altitude " . $filenumber . $fileext);
         else {
             if (!file_exists('images/risque')) {
