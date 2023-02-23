@@ -53,10 +53,16 @@
       attribution: "© OpenStreetMap",
     });
 
+    var opentopo = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+          attribution: `Kartendaten: © OpenStreetMap-Mitwirkende, SRTM 
+                                  | Kartendarstellung: © OpenTopoMap (CC-BY-SA)`
+      });
+
     /* Définition des couches de base de la carte */
     var baseMaps = {
-      OpenStreetMap: osm,
-      "IGN découverte": ign,
+      "OpenStreetMap": osm,
+      "IGN Satellite": ign,
+      "OpenTopo": opentopo
     };
 
     /* Ajout du contrôle de couche à la carte */
