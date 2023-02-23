@@ -144,14 +144,14 @@ foreach ($files as $file) {
                             }
                             $alpha = intval(127 / 2);
                             if (
-                                ($penteNO && $orientation == 1) ||
-                                ($penteN && $orientation == 2) ||
-                                ($penteNE && $orientation == 3) ||
-                                ($penteO && $orientation == 4) ||
-                                ($penteE && $orientation == 6) ||
-                                ($penteSO && $orientation == 7) ||
-                                ($penteS && $orientation == 8) ||
-                                ($penteSE && $orientation == 9)
+                                ($penteNO && ($orientation == 1 || $orientation ==  5)) ||
+                                ($penteN && ($orientation == 2 || $orientation ==  5)) ||
+                                ($penteNE && ($orientation == 3 || $orientation ==  5)) ||
+                                ($penteO && ($orientation == 4 || $orientation ==  5)) ||
+                                ($penteE && ($orientation == 6 || $orientation ==  5)) ||
+                                ($penteSO && ($orientation == 7 || $orientation ==  5)) ||
+                                ($penteS && ($orientation == 8 || $orientation ==  5)) ||
+                                ($penteSE && ($orientation == 9 || $orientation ==  5))
                             ) {
                                 $alpha = 0;
                             }
