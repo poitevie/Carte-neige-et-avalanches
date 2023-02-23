@@ -1,7 +1,19 @@
 <?php
+
+function getPente($max, $xo, $yo)
+{
+    if ($yo == 0 && ($xo == -1 || $xo == 1)) {   // Ouest et Est
+        return round(atan($max / 20) * (180 / M_PI));
+    } else if ($xo == 0 && ($yo == -1 || $yo == 1)) {     // Nord et Sud
+        return round(atan($max / 30) * (180 / M_PI));
+    } else {  // Autre
+        return round(atan($max / 36.0555127546) * (180 / M_PI));
+    }
+}
+
 $files = scandir('hgt/massifs/altitude/');
-if (!file_exists('hgt/massifs/orientation')) {
-    mkdir('hgt/massifs/orientation', 0777, true);
+if (!file_exists('hgt/massifs/pente')) {
+    mkdir('hgt/massifs/pente', 0777, true);
 }
 foreach ($files as $file) {
     $hgt_value_size = 2;
@@ -15,7 +27,7 @@ foreach ($files as $file) {
         if (!$fp = fopen($filespath . "altitude/" . $filenumber . ".hgt", "rb"))
             die("Erreur : N'a pas pu ouvrir le fichier d'altitude " . $filenumber . $fileext);
         else {
-            if (!$fp2 = fopen($filespath . "orientation/" . $filenumber . ".hgt", "w")) {
+            if (!$fp2 = fopen($filespath . "pente/" . $filenumber . ".hgt", "w")) {
                 die("Erreur : N'a pas pu ouvrir le fichier");
             } else {
                 //Variables globales stockées dans le fichier
@@ -64,7 +76,7 @@ foreach ($files as $file) {
                         if ($altC != 0 && $j != 0 && $j != $height && $i != 0 && $i != $width) {
 
                             $max = 0;
-                            $orientation = 5;
+                            $pente = 0;
 
                             for ($yo = -1; $yo <= 1; $yo++) {
                                 for ($xo = -1; $xo <= 1; $xo++) {
@@ -74,15 +86,15 @@ foreach ($files as $file) {
                                         $alt = @unpack('n', $val)[1];
 
                                         $cal = $alt - $altC;
-                                        if ($cal > $max) {
+                                        if ($cal > $max && $alt != 0) {
                                             $max = $cal;
-                                            $orientation = 10 - (($xo + 2) + 3 * ($yo + 1));
+                                            $pente = getPente($max, $xo, $yo);
                                         }
                                     }
                                 }
                             }
                             fseek($fp2, 20 + ($i) * $hgt_value_size + ($j) * $width * $hgt_value_size);
-                            $valw = fwrite($fp2, pack("n", $orientation), 2);
+                            $valw = fwrite($fp2, pack("n", $pente), 2);
                         } else {
                             fseek($fp2, 20 + ($i) * $hgt_value_size + ($j) * $width * $hgt_value_size);
                             $valw = fwrite($fp2, pack("n", 0), 2);
