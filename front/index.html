@@ -1,10 +1,13 @@
 <!DOCTYPE html>
 <style type="text/css">
+  html,body {
+    margin: 0;
+  }
   /* Définition du style pour l'élément avec l'identifiant 'viewerDiv' */
   #viewerDiv {
     width: 100%;
     /* Largeur à 100% */
-    height: 600px;
+    height: 100vh;
     /* Hauteur à 600 pixels */
   }
 </style>
@@ -67,7 +70,7 @@
 
     // Place l'image
     function getImage(numMassif) {
-      var url = `http://localhost:8000/back/images/${numMassif}.png`;
+      var url = `http://localhost:8000/back/images/risque/${numMassif}.png`;
       var urlBounds = "/front/cadremassif.json";
       /* Ajout de l'image créée sur le canvas en tant qu'overlay sur la carte */
       $.getJSON(urlBounds, function (data) {
@@ -85,7 +88,7 @@
             console.log(bg, hd);
 
             var imageOverlay = L.imageOverlay(url, L.latLngBounds([bg, hd]), {
-              opacity: 0.4,
+              opacity: 0.7,
             }).addTo(map);
             return;
           }
