@@ -73,7 +73,7 @@ foreach ($files as $file) {
                         $val = fread($fp, 2);
                         $altC = @unpack('n', $val)[1];
 
-                        if ($altC != 0 || $j != 0 || $j != $height || $i != 0 || $i != $width) {
+                        if ($altC != 0 && $j != 0 && $j != $height && $i != 0 && $i != $width) {
 
                             $max = 0;
                             $pente = 0;
