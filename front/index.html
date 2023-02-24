@@ -101,6 +101,12 @@
     /* Création d'un groupe de couches contenant les couches de neige totale */
     var imageNeigeOverlays = L.layerGroup();
 
+    /* Création d'un groupe de couches contenant les couches de neige fraiche */
+    var imageNeigeFraicheOverlays = L.layerGroup();
+
+    /* Création d'un groupe de couches contenant les couches de neige fraiche */
+    var imageNeigeFraichePrevisionOverlays = L.layerGroup();
+
     /* Stockage des cartes déjà affichées */
     var carte = [];
 
@@ -111,7 +117,9 @@
     function getImage(numMassif) {
       var url = `http://localhost:8000/back/images/risque/${numMassif}.png`;
       var urlNeige = `http://localhost:8000/back/images/neigetotale/${numMassif}.png`;
+      var urlNeigeFraiche = `http://localhost:8000/back/images/neigefraiche/${numMassif}.png`;
       var urlBounds = "/front/cadremassif.json";
+      var urlNeigeFraichePrevision = `http://localhost:8000/back/images/neigefraicheprevision/${numMassif}.png`;
       /* Ajout de l'image créée sur le canvas en tant qu'overlay sur la carte */
       $.getJSON(urlBounds, function (data) {
         canvas.width = data["width"]; /* Largeur */
@@ -133,6 +141,13 @@
               opacity: 0.7,
             }).addTo(imageNeigeOverlays);
 
+            var imageNeigeFraicheOverlay = L.imageOverlay(urlNeigeFraiche, L.latLngBounds([bg, hd]), {
+              opacity: 0.7,
+            }).addTo(imageNeigeFraicheOverlays);
+
+            var imageNeigeFraichePrevisionOverlay = L.imageOverlay(urlNeigeFraichePrevision, L.latLngBounds([bg, hd]), {
+              opacity: 0.7,
+            }).addTo(imageNeigeFraichePrevisionOverlays);
             return;
           }
         });
@@ -282,7 +297,9 @@
     /* Définition des couches supérieures de la carte */
     var overlayMaps = {
       "Risque d'avalanche": imageOverlays,
-      "Epaisseur de neige": imageNeigeOverlays
+      "Epaisseur de neige": imageNeigeOverlays,
+      "Neige fraiche": imageNeigeFraicheOverlays,
+      "Neige fraiche Prévision": imageNeigeFraichePrevisionOverlays
     };
 
     /* Ajout du contrôle de couche à la carte */

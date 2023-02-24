@@ -27,11 +27,8 @@ foreach ($files as $file) {
         if (!$fp = fopen($filespath . "altitude/" . $filenumber . $fileext, "rb"))
             die("Erreur : N'a pas pu ouvrir le fichier d'altitude " . $filenumber . $fileext);
         else {
-            if (!$fp2 = fopen($filespath . "orientation/" . $filenumber . $fileext, "rb"))
-                die("Erreur : N'a pas pu ouvrir le fichier d'orientation " . $filenumber . $fileext);
-            else {
-            if (!file_exists('images/neigetotale')) {
-                mkdir('images/neigetotale', 0777, true);
+            if (!file_exists('images/neigefraiche')) {
+                mkdir('images/neigefraiche', 0777, true);
             }
             //Variables globales stockées dans le fichier
             fseek($fp, 0);
@@ -56,21 +53,26 @@ foreach ($files as $file) {
             //Fichier neige de météofrance en fonction du massif.
             $xml = (array) simplexml_load_string(file_get_contents("http://api.meteofrance.com/files/mountain/bulletins/BRA" . $filenumber . ".xml"));
 
-            if (isset($xml["ENNEIGEMENT"])) {
+            if (isset($xml["NEIGEFRAICHE"])) {
 
-
-                $neige = $xml["ENNEIGEMENT"];
-                $niveaux = array();
-                foreach ($neige->NIVEAU as $niveau) {
-                    $niveaux[] = array(
-                        'alti' => (string)$niveau['ALTI'],
-                        'n' => (string)$niveau['N'],
-                        's' => (string)$niveau['S']
-                    );
-                }
-
-                $limiteSud = $neige["LimiteSud"];
-                $limiteNord = $neige["LimiteNord"];
+                //Recupération de la neige fraiche et stockage si pluie pour hachage future
+                $neige = $xml["NEIGEFRAICHE"];
+                $neigefraiche = array();
+                $somme = 0;
+                $pluie = false;
+                foreach ($neige->NEIGE24H as $neige24h) {
+                    if($neige24h['SS241']==-2){
+                        $neigefraiche[]= 0;
+                        $pluie = true;
+                    }
+                    else{
+                        $neigefraiche[]= $neige24h['SS241'];
+                    }
+                    }
+                
+                //Récupération de la neige fraiche tombé les 4 derniers   
+                $somme = $neigefraiche[0]+$neigefraiche[1]+$neigefraiche[2]+$neigefraiche[3];
+                $altneige = $neige["ALTITUDESS"];
 
 
                 $image = imagecreatetruecolor($width, $height);
@@ -88,34 +90,26 @@ foreach ($files as $file) {
                         fseek($fp, 20 + ($i) * $hgt_value_size + ($j) * $width * $hgt_value_size);
                         $val = fread($fp, 2);
                         $alt = @unpack('n', $val)[1];
-
-                        fseek($fp2, 20 + ($i) * $hgt_value_size + ($j) * $width * $hgt_value_size);
-                        $val = fread($fp2, 2);
-                        $ori = @unpack('n', $val)[1];
-                        //génération du code risque en fonction de l'altitude et des données météofrance
-
                         $neigecolor = 0;
-                        if ($alt > 0) {
-                            if ($ori == 6 || $ori == 4 || (($alt < $limiteNord) && ($alt < $limiteSud))) {
-                                $neigecolor = 0;
-                            } else if (($ori == 1 || $ori == 2 || $ori == 3 || $ori == 5) && ($alt >= $limiteNord) && ($limiteNord != -1)) { //comprend NO, NE, N, sommet
-                                if ($alt >= $niveaux[2]["alti"]) {
-                                    $neigecolor = $niveaux[2]["n"];
-                                } else if ($alt >= $niveaux[1]["alti"]) {
-                                    $neigecolor = $niveaux[1]["n"];
-                                } else if ($alt >= $niveaux[0]["alti"]) {
-                                    $neigecolor = $niveaux[0]["n"];
+
+                        
+                        if ($alt > $altneige) {
+                            if ($pluie && $somme ==0){
+                                $neigecolor=-2;
+                            }
+                            //Hachage
+                            else if ($pluie && $somme>0 ){
+     
+                                $imod = $i % $pas;
+                                $jmod = $j % $pas;
+                                if ($imod < $pas / 2) {
+                                    $neigecolor = -2;
+                                } else {
+                                    $neigecolor = $somme;
                                 }
-                            } else if (($ori == 7 || $ori == 8 || $ori == 9) && ($alt >= $limiteSud) && ($limiteSud != -1)) { //comprend SO, SE, S
-                                if ($alt >= $niveaux[2]["alti"]) {
-                                    $neigecolor = $niveaux[2]["s"];
-                                } else if ($alt >= $niveaux[1]["alti"]) {
-                                    $neigecolor = $niveaux[1]["s"];
-                                } else if ($alt >= $niveaux[0]["alti"]) {
-                                    $neigecolor = $niveaux[0]["s"];
-                                }
-                            } else {
-                                $neigecolor = 0;
+                            }
+                            else {
+                                $neigecolor = $somme;
                             }
                         } else {
                             $neigecolor = 0;
@@ -123,14 +117,21 @@ foreach ($files as $file) {
 
                         if ($neigecolor == 0) {
                             imagesetpixel($image, $i, $j, $trans);
+                        }
+                        //COuleur rouge si pluie
+                        else if ($neigecolor == -2) {
+                            imagesetpixel($image, $i, $j, $red);
                         } else {
 
+
+
+                            
                             // Couleurs de départ et d'arrivée
                             $couleurDebut = [132, 214, 249]; // Bleu clair
                             $couleurFin = [0, 48, 67]; // Bleu foncé
 
                             // Nombre de couleurs dans le dégradé
-                            $nbCouleurs = 398;
+                            $nbCouleurs = 100;
 
                             // Calcul de la différence entre chaque composante de couleur
                             $diffCouleur = [
@@ -145,16 +146,17 @@ foreach ($files as $file) {
                             $b = round($couleurDebut[2] + $diffCouleur[2] * $neigecolor);
                             imagesetpixel($image, $i, $j, imagecolorallocatealpha($image, $r, $g, $b, 0));
                         }
+                    
                     }
                 }
-                imagepng($image, "./images/neigetotale/" . $filenumber . ".png");
+                imagepng($image, "./images/neigefraiche/" . $filenumber . ".png");
                 imagedestroy($image);
             } else {
                 die("Erreur : Il y a une erreur lors du chargement des données de météofrance");
             }
         }
     }
-}
+
 }
 
 
