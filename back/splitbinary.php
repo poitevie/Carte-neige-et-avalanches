@@ -13,7 +13,9 @@ $hgt_step = 1 / $hgt_line_records;
 $hgt_line_size = $hgt_value_size * ($hgt_line_records + 1);
 $filespath = "hgt/";
 $cadremassif = array();
-
+if (!file_exists('hgt/massifs/altitude')) {
+    mkdir('hgt/massifs/altitude', 0777, true);
+}
 if (!$jsontext = file_get_contents("geojson/massifs.geojson"))
     die("Erreur : N'a pas pu ouvrir le fichier geojson des massifs");
 else {
@@ -26,8 +28,6 @@ else {
     }
     $content = json_encode($cadremassif);
     file_put_contents("geojson/cadremassif.json", $content);
-
-
 }
 
 function getcadremassif($massif)
@@ -69,8 +69,8 @@ function generatehgt($massif, $idfile)
     array_push($cadremassif, $arr);
 
     for ($i = 0; $i < count($coord); $i++) {
-        $x = floor((($coord[$i][0] - $cadre["bg"][1])/($cadre["hd"][1] - $cadre["bg"][1]) * $width) / 2) * 2;
-        $y = floor((1-(($coord[$i][1] - $cadre["bg"][0])/($cadre["hd"][0] - $cadre["bg"][0]))) * $height);
+        $x = floor((($coord[$i][0] - $cadre["bg"][1]) / ($cadre["hd"][1] - $cadre["bg"][1]) * $width) / 2) * 2;
+        $y = floor((1 - (($coord[$i][1] - $cadre["bg"][0]) / ($cadre["hd"][0] - $cadre["bg"][0]))) * $height);
         array_push($coordxy, [$x, $y]);
     }
 
@@ -82,7 +82,7 @@ function generatehgt($massif, $idfile)
         $filesline = array();
         for ($e = $bgfile[1]; $e <= $hdfile[1]; $e++) {
             $filenumber = getfilenumber($n, $e);
-            
+
             if (file_exists($filespath . $filenumber . '.hgt')) {
                 $fileext = '.hgt';
                 $hgt_line_records = 3600;
@@ -98,7 +98,7 @@ function generatehgt($massif, $idfile)
         array_push($files, $filesline);
     }
     $files = array_reverse($files);
-    if (!$fp = fopen("hgt/massifs/" . $idfile.".hgt", "w")) {
+    if (!$fp = fopen("hgt/massifs/altitude/" . $idfile . ".hgt", "w")) {
         die("Erreur : N'a pas pu ouvrir le fichier");
     } else {
         $indexlathg = $hgt_line_records - floor(($cadre["hg"][0] - floor($cadre["hg"][0])) / $hgt_step);
@@ -121,7 +121,7 @@ function generatehgt($massif, $idfile)
         for ($y = 0; $y < $height; $y++) {
             for ($x = 0; $x < $width; $x++) {
 
-                $filey = intdiv(intdiv($indexhg, $hgt_line_size) + $y, $hgt_line_size/2);
+                $filey = intdiv(intdiv($indexhg, $hgt_line_size) + $y, $hgt_line_size / 2);
                 $filex = intdiv(($indexhg % $hgt_line_size) + ($x * 2), $hgt_line_size);
                 $file = $files[$filey][$filex];
                 fseek($file, (($indexhg + ($x * 2)) - $filex * $hgt_line_size) + ($y * $hgt_line_size) - $filey * ($hgt_line_size) * ($hgt_line_records + 1));
@@ -129,11 +129,10 @@ function generatehgt($massif, $idfile)
                 $alt = @unpack('n', $val)[1];
 
                 fseek($fp, 20 + $x * $hgt_value_size + $y * $width * $hgt_value_size);
-                if(is_point_in_polygon([$x, $y],$coordxy))
+                if (is_point_in_polygon([$x, $y], $coordxy))
                     $valw = fwrite($fp, pack("n", $alt), 2);
                 else
                     $valw = fwrite($fp, pack("n", 0), 2);
-                // $valw = fwrite($fp, pack("n", $filey), 2);
             }
         }
     }
@@ -190,5 +189,3 @@ function is_point_in_polygon($point, $polygon_coordinates)
     }
     return $inside;
 }
-
-?>

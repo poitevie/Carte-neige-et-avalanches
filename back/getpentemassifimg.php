@@ -4,32 +4,32 @@ header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, POST');
 header('Access-Control-Allow-Headers: X-Requested-With');
 
-
-//Le paramètre massif correspond à l'id du massif ex: 07 pour la Chartreuse
-if (isset($_GET["massif"])) {
+$files = scandir('./hgt/massifs/pente/');
+foreach ($files as $file) {
     // VARIABLES GLOBALES
+
+    $pas = 20;
     $hgt_value_size = 2;
     $hgt_line_records = 3600;
+    $fileext = '.hgt';
     $hgt_step = 1 / $hgt_line_records;
     $hgt_line_size = $hgt_value_size * ($hgt_line_records + 1);
     $filespath = "hgt/massifs/";
-    $filenumber = htmlspecialchars($_GET["massif"]);
+    $filenumber = explode(".", $file)[0];
+    if ($filenumber != "") {
 
-    //Cache
-    if (file_exists("cache/getaltmassif/" . $filenumber . ".json")) {
-        readfile("cache/getaltmassif/" . $filenumber . ".json");
-    } else {
         // Si le fichier binaire du massif existe
-        if (file_exists($filespath . $filenumber . '.hgt')) {
-            $fileext = '.hgt';
+        if (file_exists($filespath . "pente/" . $filenumber . '.hgt')) {
             $hgt_line_records = 3600;
         } else
             die("Erreur : " . $filenumber . $fileext . " n'existe pas");
 
-        if (!$fp = fopen($filespath . $filenumber . $fileext, "rb"))
-            die("Erreur : N'a pas pu ouvrir le fichier d'altitude " . $filenumber . $fileext);
+        if (!$fp = fopen($filespath . "pente/" . $filenumber . $fileext, "rb"))
+            die("Erreur : N'a pas pu ouvrir le fichier de pente " . $filenumber . $fileext);
         else {
-
+            if (!file_exists('images/pente')) {
+                mkdir('images/pente', 0777, true);
+            }
             //Variables globales stockées dans le fichier
             fseek($fp, 0);
             $val = fread($fp, 2);
@@ -50,34 +50,40 @@ if (isset($_GET["massif"])) {
             $val = fread($fp, 4);
             $hdlon = @unpack('f', $val)[1];
 
-            $array = array("width" => $width, "height" => $height, "bg" => [$bglat, $bglon], "hd" => [$hdlat, $hdlon], "tile" => null);
-            $tile = array();
+            $image = imagecreatetruecolor($width, $height);
+            $trans = imagecolorallocatealpha($image, 0, 0, 0, 127);
+            $jaune = imagecolorallocatealpha($image, 241, 231, 11, 0);
+            $orange = imagecolorallocatealpha($image, 248, 111, 33, 0);
+            $rouge = imagecolorallocatealpha($image, 227, 3, 91, 0);
+            $violet = imagecolorallocatealpha($image, 203, 135, 186, 0);
+            imagesavealpha($image, true);
+            imagefill($image, 0, 0, $trans);
             //génération de la tuile du massif
             for ($j = 0; $j < $height; $j += 1) {
-                $line = array();
                 for ($i = 0; $i < $width; $i += 1) {
                     fseek($fp, 20 + ($i) * $hgt_value_size + ($j) * $width * $hgt_value_size);
                     $val = fread($fp, 2);
-                    $alt = @unpack('n', $val)[1];
-                    array_push($line, $alt);
+                    $pente = @unpack('n', $val)[1];
+
+                    if ($pente >= 45) {
+                        imagesetpixel($image, $i, $j, $violet);
+                    } else if ($pente >= 40) {
+                        imagesetpixel($image, $i, $j, $rouge);
+                    } else if ($pente >= 35) {
+                        imagesetpixel($image, $i, $j, $orange);
+                    } else if ($pente >= 30) {
+                        imagesetpixel($image, $i, $j, $jaune);
+                    } else {
+                        imagesetpixel($image, $i, $j, $trans);
+                    }
                 }
-                array_push($tile, $line);
             }
-            $array["tile"] = $tile;
-
-            //Affichage de la réponse + stockage dans le cache
-
-            ob_start();
-            echo json_encode($array);
-            $page = ob_get_contents();
-            ob_end_clean();
-            file_put_contents("cache/getaltmassif/" . $filenumber . ".json", $page);
-            echo $page;
+            imagepng($image, "./images/pente/" . $filenumber . ".png");
+            imagedestroy($image);
         }
     }
-} else {
-    die("Merci d'indiquer le paramètre 'massif'");
 }
+
 
 
 // Récupérer le numéro du fichier à partir d'un point (latitude,longitude)
@@ -107,4 +113,3 @@ function getfilenumber($latitude, $longitude)
 
     return $filenumber;
 }
-?>
