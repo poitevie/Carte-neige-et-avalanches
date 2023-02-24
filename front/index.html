@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<meta charset="UTF-8">
 <style type="text/css">
   html,body {
     margin: 0;
@@ -10,6 +11,66 @@
     height: 100vh;
     /* Hauteur à 600 pixels */
   }
+
+  .legend {
+    padding: 0px 8px;
+    font: 11px Arial, Helvetica, sans-serif;
+    background: white;
+    background: rgba(255, 255, 255, 0.8);
+    line-height: 24px;
+    color: #555;
+  }
+
+  .legend h4 {
+    text-align: center;
+    font-size: 12px;
+    margin:-3px;
+    color: #777;
+  }
+
+  .legend h2 {
+    text-align: center;
+    font-size: 16px;
+    margin: 2px 12px 8px;
+  }
+
+  .legend span {
+    position: relative;
+    bottom: 3px;
+  }
+
+  .legend p {
+    position: relative;
+    margin: -5px 0px;
+    font-size: 10px;
+  }
+
+  .legend span.degradedroite {
+    position: relative;
+    bottom: 3px;
+    float: right;
+  }
+
+  .legend i {
+    width: 18px;
+    height: 18px;
+    float: left;
+    margin: 0 8px 0 0;
+    opacity: 0.7;
+  }
+
+  .legend i.degrade {
+    width: 130px;
+    height: 18px;
+    margin: 0 0 0 2px;
+    opacity: 0.7;
+  }
+
+  .legend i.icon {
+    background-size: 18px;
+    background-color: rgba(255, 255, 255, 1);
+  }
+
 </style>
 
 <!-- Importation de la feuille de style pour Leaflet, une bibliothèque pour la cartographie -->
@@ -28,45 +89,17 @@
   /* Lorsque la fenêtre est entièrement chargée */
   window.onload = function () {
     /* Initialisation de la carte avec Leaflet dans l'élément div avec id 'viewerDiv',
-    avec une vue centrée sur les coordonnées et le zoom donnés */
-
+        avec une vue centrée sur les coordonnées et le zoom donnés */
     var map = L.map("viewerDiv").setView(
       [45.17384615384615, 5.71],
       10
     );
 
-    /* Ajout de la couche de tuiles pour la carte via une URL de service de tuiles */
-    var ign = L.tileLayer(
-      "https://wxs.ign.fr/decouverte/geoportail/wmts?service=WMTS&request=GetTile&version=1.0.0&tilematrixset=PM&tilematrix={z}&tilecol={x}&tilerow={y}&layer=ORTHOIMAGERY.ORTHOPHOTOS&format=image/jpeg&style=normal",
-      {
-        minZoom: 0 /* Niveau de zoom minimum */,
-        maxZoom: 18 /* Niveau de zoom maximum */,
-        tileSize: 256 /* Taille des tuiles */,
-        attribution:
-          "IGN-F/Géoportail" /* Crédit à afficher pour les données */,
-      }
-    ).addTo(map);
+    /* Création d'un groupe de couches contenant les couches de risque d'avalanche */
+    var imageOverlays = L.layerGroup();
 
-    /* Définition de la couche de tuiles OpenStreetMap */
-    var osm = L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      maxZoom: 19,
-      attribution: "© OpenStreetMap",
-    });
-
-    var opentopo = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
-          attribution: `Kartendaten: © OpenStreetMap-Mitwirkende, SRTM 
-                                  | Kartendarstellung: © OpenTopoMap (CC-BY-SA)`
-      });
-
-    /* Définition des couches de base de la carte */
-    var baseMaps = {
-      "OpenStreetMap": osm,
-      "IGN Satellite": ign,
-      "OpenTopo": opentopo
-    };
-
-    /* Ajout du contrôle de couche à la carte */
-    var layerControl = L.control.layers(baseMaps).addTo(map);
+    /* Création d'un groupe de couches contenant les couches de neige totale */
+    var imageNeigeOverlays = L.layerGroup();
 
     /* Stockage des cartes déjà affichées */
     var carte = [];
@@ -74,9 +107,10 @@
     /* Création d'un élément canvas pour dessiner une image */
     var canvas = document.createElement("canvas");
 
-    // Place l'image
+    /* Affichage de l'image à l'endroit correspondant */
     function getImage(numMassif) {
       var url = `http://localhost:8000/back/images/risque/${numMassif}.png`;
+      var urlNeige = `http://localhost:8000/back/images/neigetotale/${numMassif}.png`;
       var urlBounds = "/front/cadremassif.json";
       /* Ajout de l'image créée sur le canvas en tant qu'overlay sur la carte */
       $.getJSON(urlBounds, function (data) {
@@ -91,30 +125,33 @@
             var bg = elem["cadre"]["bg"];
             var hd = elem["cadre"]["hd"];
 
-            console.log(bg, hd);
-
             var imageOverlay = L.imageOverlay(url, L.latLngBounds([bg, hd]), {
+              opacity: 0.9,
+            }).addTo(imageOverlays);
+
+            var imageNeigeOverlay = L.imageOverlay(urlNeige, L.latLngBounds([bg, hd]), {
               opacity: 0.7,
-            }).addTo(map);
+            }).addTo(imageNeigeOverlays);
+
             return;
           }
         });
       });
     }
 
-    //Recupere les rectangles autour des massifs depuis un fichier .JSOn
+    /* Recupère les rectangles autour des massifs depuis un fichier .json */
     let alpes;
     let P1 = $.getJSON("cadrealpes.json", function (data) {
 
       alpes = new Map(data.map((e) => [e.id, e.cadre]));
     })
-    //Recupere les rectangles autour des massifs depuis un fichier .JSOn
+    /* Recupère les rectangles autour des massifs depuis un fichier .json */
     let corse;
     let P2 = $.getJSON("cadrecorse.json", function (data) {
 
       corse = new Map(data.map((e) => [e.id, e.cadre]));
     })
-    //Recupere les rectangles autour des massifs depuis un fichier .JSOn
+    /* Recupère les rectangles autour des massifs depuis un fichier .json */
     let pyrenees;
     let P3 = $.getJSON("cadrepyrenees.json", function (data) {
 
@@ -136,8 +173,7 @@
     }
 
 
-    //Verifie si un rectangle entourant un massif est afficher a l'écran
-
+    /* Vérification de si un rectangle entourant un massif est affiché a l'écran */
     function dansMassif(value, key, ma, massif) {
 
       var SWma = value.bg;
@@ -165,6 +201,7 @@
       }
     }
 
+    /* Fonction permettant de déterminer quels massifs sont affichés à l'écran */
     function MassifAfficher() {
       var ma = [];
       var massif;
@@ -190,7 +227,7 @@
     /* Gestion des évents de drag */
     map.on("dragend", function (e) {
 
-      if (map.getZoom() >= 5) {
+      if (map.getZoom() >= 3) {
         var grille = MassifAfficher();
         grille.forEach((e) => getImage(e));
       }
@@ -199,10 +236,78 @@
     /* Évent affichant la carte a la fin d'un zoom/dézoom */
     map.on("zoomend", function (e) {
 
-      if (map.getZoom() >= 5) {
+      if (map.getZoom() >= 3) {
         var grille = MassifAfficher();
         grille.forEach((e) => getImage(e));
       }
     });
+
+    /* Ajout de la couche de tuiles pour la carte via une URL de service de tuiles */
+    var ign = L.tileLayer(
+      "https://wxs.ign.fr/decouverte/geoportail/wmts?service=WMTS&request=GetTile&version=1.0.0&tilematrixset=PM&tilematrix={z}&tilecol={x}&tilerow={y}&layer=ORTHOIMAGERY.ORTHOPHOTOS&format=image/jpeg&style=normal",
+      {
+        minZoom: 0 /* Niveau de zoom minimum */,
+        maxZoom: 18 /* Niveau de zoom maximum */,
+        tileSize: 256 /* Taille des tuiles */,
+        attribution:
+          "IGN-F/Géoportail" /* Crédit à afficher pour les données */,
+      }
+    );
+
+    /* Définition de la couche de tuiles OpenStreetMap */
+    var osm = L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      maxZoom: 19,
+      attribution: "© OpenStreetMap",
+    });
+
+    var opentopo = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+          attribution: `Kartendaten: © OpenStreetMap-Mitwirkende, SRTM 
+                                  | Kartendarstellung: © OpenTopoMap (CC-BY-SA)`
+    });
+
+    /* Ajout des couches à la carte */
+    opentopo.addTo(map);
+
+    imageOverlays.addTo(map);
+    imageNeigeOverlays.addTo(map);
+
+
+    /* Définition des couches de base de la carte */
+    var baseMaps = {
+      OpenStreetMap: osm,
+      "IGN découverte": ign,
+      "OpenTopo": opentopo
+    };
+
+    /* Définition des couches supérieures de la carte */
+    var overlayMaps = {
+      "Risque d'avalanche": imageOverlays,
+      "Epaisseur de neige": imageNeigeOverlays
+    };
+
+    /* Ajout du contrôle de couche à la carte */
+    var layerControl = L.control.layers(baseMaps, overlayMaps).addTo(map);
+
+    var legend = L.control({ position: "bottomright" });
+
+    legend.onAdd = function (map) {
+      var div = L.DomUtil.create("div", "legend");
+      div.innerHTML += "<h2>Légende</h2>";
+      div.innerHTML += "<h4>Risque d'avalanche</h4>";
+      div.innerHTML += '<i style="background: #2CB051"></i><span>1-Faible</span><br>';
+      div.innerHTML += '<i style="background: #FEF035"></i><span>2-Limité</span><br>';
+      div.innerHTML += '<i style="background: #FD7F36"></i><span>3-Marqué</span><br>';
+      div.innerHTML += '<i style="background: #EC0B18"></i><span>4-Fort</span><br>';
+      div.innerHTML += '<i style="background: #83070C"></i><span>5-Très fort</span><br>';
+      div.innerHTML += 'Hachures : Risque évolutif entre <br>les deux risques représentés';
+      div.innerHTML += "<h4>Épaisseur de neige</h4>";
+      div.innerHTML += "<h4>(en cm)</h4>";
+      div.innerHTML += '<i class="degrade" style="background: linear-gradient(to right, rgba(132, 214, 249), rgba(0, 48, 67));"></i><br>';
+      div.innerHTML += '<span class="degradegauche">1</span>';
+      div.innerHTML += '<span class="degradedroite">400</span><br>';
+      return div;
+    };
+
+    legend.addTo(map);
   };
 </script>
