@@ -61,17 +61,16 @@ foreach ($files as $file) {
                 $somme = 0;
                 $pluie = false;
                 foreach ($neige->NEIGE24H as $neige24h) {
-                    if($neige24h['SS241']==-2){
-                        $neigefraiche[]= 0;
+                    if ($neige24h['SS241'] == -2) {
+                        $neigefraiche[] = 0;
                         $pluie = true;
+                    } else {
+                        $neigefraiche[] = $neige24h['SS241'];
                     }
-                    else{
-                        $neigefraiche[]= $neige24h['SS241'];
-                    }
-                    }
-                
+                }
+
                 //Récupération de la neige fraiche tombé les 4 derniers   
-                $somme = $neigefraiche[0]+$neigefraiche[1]+$neigefraiche[2]+$neigefraiche[3];
+                $somme = $neigefraiche[0] + $neigefraiche[1] + $neigefraiche[2] + $neigefraiche[3];
                 $altneige = $neige["ALTITUDESS"];
 
 
@@ -82,6 +81,7 @@ foreach ($files as $file) {
                 $orange = imagecolorallocatealpha($image, 253, 127, 54, 0);
                 $red = imagecolorallocatealpha($image, 236, 11, 24, 0);
                 $redhigh = imagecolorallocatealpha($image, 131, 7, 12, 0);
+                $gray = imagecolorallocatealpha($image, 52, 56, 82, 0);
                 imagesavealpha($image, true);
                 imagefill($image, 0, 0, $trans);
                 //génération de la tuile du massif
@@ -92,23 +92,22 @@ foreach ($files as $file) {
                         $alt = @unpack('n', $val)[1];
                         $neigecolor = 0;
 
-                        
+
                         if ($alt > $altneige) {
-                            if ($pluie && $somme ==0){
-                                $neigecolor=-2;
+                            if ($pluie && $somme == 0) {
+                                $neigecolor = -2;
                             }
                             //Hachage
-                            else if ($pluie && $somme>0 ){
-     
+                            else if ($pluie && $somme > 0) {
+
                                 $imod = $i % $pas;
                                 $jmod = $j % $pas;
-                                if ($imod < $pas / 2) {
+                                if (($jmod < $pas / 4 && $imod < $pas / 4) || ($jmod >= $pas / 2 && $imod >= $pas / 2 && $jmod < 3 * $pas / 4 && $imod < 3 * $pas / 4)) {
                                     $neigecolor = -2;
                                 } else {
                                     $neigecolor = $somme;
                                 }
-                            }
-                            else {
+                            } else {
                                 $neigecolor = $somme;
                             }
                         } else {
@@ -120,12 +119,12 @@ foreach ($files as $file) {
                         }
                         //COuleur rouge si pluie
                         else if ($neigecolor == -2) {
-                            imagesetpixel($image, $i, $j, $red);
+                            imagesetpixel($image, $i, $j, $gray);
                         } else {
 
 
 
-                            
+
                             // Couleurs de départ et d'arrivée
                             $couleurDebut = [132, 214, 249]; // Bleu clair
                             $couleurFin = [0, 48, 67]; // Bleu foncé
@@ -146,7 +145,6 @@ foreach ($files as $file) {
                             $b = round($couleurDebut[2] + $diffCouleur[2] * $neigecolor);
                             imagesetpixel($image, $i, $j, imagecolorallocatealpha($image, $r, $g, $b, 0));
                         }
-                    
                     }
                 }
                 imagepng($image, "./images/neigefraiche/" . $filenumber . ".png");
@@ -156,7 +154,6 @@ foreach ($files as $file) {
             }
         }
     }
-
 }
 
 
