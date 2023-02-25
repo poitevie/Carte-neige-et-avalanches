@@ -1,9 +1,11 @@
 <!DOCTYPE html>
 <meta charset="UTF-8">
 <style type="text/css">
-  html,body {
+  html,
+  body {
     margin: 0;
   }
+
   /* Définition du style pour l'élément avec l'identifiant 'viewerDiv' */
   #viewerDiv {
     width: 100%;
@@ -13,64 +15,68 @@
   }
 
   .legend {
-    padding: 0px 8px;
-    font: 11px Arial, Helvetica, sans-serif;
-    background: white;
-    background: rgba(255, 255, 255, 0.8);
-    line-height: 24px;
-    color: #555;
-  }
-
-  .legend h4 {
-    text-align: center;
+    background-color: rgba(255, 255, 255, 0.8);
+    padding: 6px 8px;
     font-size: 12px;
-    margin:-3px;
-    color: #777;
+    line-height: 18px;
+    border-radius: 5px;
   }
 
   .legend h2 {
-    text-align: center;
-    font-size: 16px;
-    margin: 2px 12px 8px;
+    font-size: 20px;
+    margin-bottom: 6px;
   }
 
-  .legend span {
-    position: relative;
-    bottom: 3px;
-  }
-
-  .legend p {
-    position: relative;
-    margin: -5px 0px;
-    font-size: 10px;
-  }
-
-  .legend span.degradedroite {
-    position: relative;
-    bottom: 3px;
-    float: right;
+  .legend h4 {
+    font-size: 13px;
+    padding: 0 0 4px 2px;
+    margin: 2px 0 7px 0;
   }
 
   .legend i {
     width: 18px;
     height: 18px;
     float: left;
-    margin: 0 8px 0 0;
+    margin: -6px 8px;
     opacity: 0.7;
   }
 
   .legend i.degrade {
-    width: 130px;
+    width: 90%;
     height: 18px;
-    margin: 0 0 0 2px;
+    margin: 0 0 0 8px;
     opacity: 0.7;
   }
 
-  .legend i.icon {
-    background-size: 18px;
-    background-color: rgba(255, 255, 255, 1);
+  .legend span.degradedroite {
+    position: relative;
+    float: right;
   }
 
+  .btn-open,
+  .btn-close {
+    background-color: #fff;
+    border: 1px solid #ccc;
+    color: #333;
+    padding: 2px 12px;
+    cursor: pointer;
+    float: right;
+    font-size: 12px;
+    border-radius: 5px;
+  }
+
+  .btn-open:hover,
+  .btn-close:hover {
+    background-color: #f7f7f7;
+  }
+
+  .hidden {
+    display: none;
+  }
+
+  .leg {
+    line-height: 5px;
+  }
 </style>
 
 <!-- Importation de la feuille de style pour Leaflet, une bibliothèque pour la cartographie -->
@@ -104,7 +110,7 @@
     /* Création d'un groupe de couches contenant les couches de neige fraiche */
     var imageNeigeFraicheOverlays = L.layerGroup();
 
-    /* Création d'un groupe de couches contenant les couches de neige fraiche */
+    /* Création d'un groupe de couches contenant les couches de neige fraiche (prévisions) */
     var imageNeigeFraichePrevisionOverlays = L.layerGroup();
 
     /* Stockage des cartes déjà affichées */
@@ -133,18 +139,22 @@
             var bg = elem["cadre"]["bg"];
             var hd = elem["cadre"]["hd"];
 
+            /* Création d'un calque d'image du risque d'avalanche sur la carte */
             var imageOverlay = L.imageOverlay(url, L.latLngBounds([bg, hd]), {
               opacity: 0.9,
             }).addTo(imageOverlays);
 
+            /* Création d'un calque d'image de l'apaisseur de neige totale sur la carte */
             var imageNeigeOverlay = L.imageOverlay(urlNeige, L.latLngBounds([bg, hd]), {
               opacity: 0.7,
             }).addTo(imageNeigeOverlays);
 
+            /* Création d'un calque d'image de l'apaisseur de neige fraiche sur la carte */
             var imageNeigeFraicheOverlay = L.imageOverlay(urlNeigeFraiche, L.latLngBounds([bg, hd]), {
               opacity: 0.7,
             }).addTo(imageNeigeFraicheOverlays);
 
+            /* Création d'un calque d'image de l'apaisseur de neige fraiche (prévisions) sur la carte */
             var imageNeigeFraichePrevisionOverlay = L.imageOverlay(urlNeigeFraichePrevision, L.latLngBounds([bg, hd]), {
               opacity: 0.7,
             }).addTo(imageNeigeFraichePrevisionOverlays);
@@ -160,19 +170,20 @@
 
       alpes = new Map(data.map((e) => [e.id, e.cadre]));
     })
+
     /* Recupère les rectangles autour des massifs depuis un fichier .json */
     let corse;
     let P2 = $.getJSON("cadrecorse.json", function (data) {
 
       corse = new Map(data.map((e) => [e.id, e.cadre]));
     })
+
     /* Recupère les rectangles autour des massifs depuis un fichier .json */
     let pyrenees;
     let P3 = $.getJSON("cadrepyrenees.json", function (data) {
 
       pyrenees = new Map(data.map((e) => [e.id, e.cadre]));
     })
-
 
     Promise.all([P1, P2, P3]).then((o) => {
 
@@ -188,7 +199,7 @@
     }
 
 
-    /* Vérification de si un rectangle entourant un massif est affiché a l'écran */
+    /* Fonction permettant de vérifier si un rectangle entourant un massif est affiché a l'écran */
     function dansMassif(value, key, ma, massif) {
 
       var SWma = value.bg;
@@ -275,23 +286,27 @@
       attribution: "© OpenStreetMap",
     });
 
+    /* Définition de la couche de tuiles OpenTopo */
     var opentopo = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
-          attribution: `Kartendaten: © OpenStreetMap-Mitwirkende, SRTM 
+      attribution: `Kartendaten: © OpenStreetMap-Mitwirkende, SRTM 
                                   | Kartendarstellung: © OpenTopoMap (CC-BY-SA)`
     });
 
-    /* Ajout des couches à la carte */
-    opentopo.addTo(map);
+    /* Définition de la couche de tuiles ESRI */
+    var Esri_WorldStreetMap = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
+      attribution: 'Tiles &copy; Esri &mdash; Source: Esri, DeLorme, NAVTEQ, USGS, Intermap, iPC, NRCAN, Esri Japan, METI, Esri China (Hong Kong), Esri (Thailand), TomTom, 2012'
+    });
 
+    /* Ajout des couches affichées initialement*/
+    Esri_WorldStreetMap.addTo(map);
     imageOverlays.addTo(map);
-    imageNeigeOverlays.addTo(map);
-
 
     /* Définition des couches de base de la carte */
     var baseMaps = {
       OpenStreetMap: osm,
       "IGN découverte": ign,
-      "OpenTopo": opentopo
+      "OpenTopo": opentopo,
+      "ESRI": Esri_WorldStreetMap
     };
 
     /* Définition des couches supérieures de la carte */
@@ -299,32 +314,97 @@
       "Risque d'avalanche": imageOverlays,
       "Epaisseur de neige": imageNeigeOverlays,
       "Neige fraiche": imageNeigeFraicheOverlays,
-      "Neige fraiche Prévision": imageNeigeFraichePrevisionOverlays
+      "Neige fraiche (prévisions)": imageNeigeFraichePrevisionOverlays
     };
 
     /* Ajout du contrôle de couche à la carte */
     var layerControl = L.control.layers(baseMaps, overlayMaps).addTo(map);
 
-    var legend = L.control({ position: "bottomright" });
+    /* Récupération de la couleur associée à chaque risque */
+    function getColor(category) {
+      switch (category) {
+        case "1-Faible":
+          return "#2CB051";
+        case "2-Limité":
+          return "#FEF035";
+        case "3-Marqué":
+          return "#FD7F36";
+        case "4-Fort":
+          return "#EC0B18";
+        case "5-Très fort":
+          return "#83070C";
+        default:
+          return "#000000";
+      }
+    }
+
+    /* Création de la légende */
+    const legend = L.control({ position: "bottomleft" });
 
     legend.onAdd = function (map) {
-      var div = L.DomUtil.create("div", "legend");
-      div.innerHTML += "<h2>Légende</h2>";
-      div.innerHTML += "<h4>Risque d'avalanche</h4>";
-      div.innerHTML += '<i style="background: #2CB051"></i><span>1-Faible</span><br>';
-      div.innerHTML += '<i style="background: #FEF035"></i><span>2-Limité</span><br>';
-      div.innerHTML += '<i style="background: #FD7F36"></i><span>3-Marqué</span><br>';
-      div.innerHTML += '<i style="background: #EC0B18"></i><span>4-Fort</span><br>';
-      div.innerHTML += '<i style="background: #83070C"></i><span>5-Très fort</span><br>';
-      div.innerHTML += 'Hachures : Risque évolutif entre <br>les deux risques représentés';
-      div.innerHTML += "<h4>Épaisseur de neige</h4>";
-      div.innerHTML += "<h4>(en cm)</h4>";
-      div.innerHTML += '<i class="degrade" style="background: linear-gradient(to right, rgba(132, 214, 249), rgba(0, 48, 67));"></i><br>';
-      div.innerHTML += '<span class="degradegauche">1</span>';
-      div.innerHTML += '<span class="degradedroite">400</span><br>';
+      const div = L.DomUtil.create("div", "legend");
+      const labels = [];
+      const categories = ["1-Faible", "2-Limité", "3-Marqué", "4-Fort", "5-Très fort"];
+
+      for (let i = 0; i < categories.length; i++) {
+        labels.push('<div class = " leg inside "><i style="background:' + getColor(categories[i]) + '"></i> ' + categories[i] + '</div>');
+      }
+
+      div.innerHTML += '<button class="btn-open hidden">Ouvrir la légende</button>';
+      div.innerHTML += '<button class="btn-close ">Fermer</button>';
+      div.innerHTML += "<h2 class='inside '>Légende</h2>";
+      div.innerHTML += "<h4 class='inside '>Risque d'avalanche</h4>";
+      div.innerHTML += labels.join("<br>");
+      div.innerHTML += '<p class="inside ">Hachures : Risque évolutif entre <br>les deux risques représentés</p>';
+      div.innerHTML += "<h4 class='inside '>Épaisseur de neige (en cm)</h4>";
+      div.innerHTML += '<i class="degrade inside " style="background: linear-gradient(to right, rgba(132, 214, 249), rgba(0, 48, 67));"></i><br>';
+      div.innerHTML += '<span class="degradegauche inside ">1</span>';
+      div.innerHTML += '<span class="degradedroite inside ">400</span><br>';
+      div.innerHTML += "<h4 class='inside '>Neige fraîche cumulée sur <br>les 4 derniers jours (en cm)</h4>";
+      div.innerHTML += '<i class="degrade inside " style="background: linear-gradient(to right, rgba(132, 214, 249), rgba(0, 48, 67));"></i><br>';
+      div.innerHTML += '<span class="degradegauche inside ">1</span>';
+      div.innerHTML += '<span class="degradedroite inside ">100</span><br>';
+
+      const insideContent = div.querySelectorAll(".inside");
+      const insideBr = div.querySelectorAll("br");
+
+      /* Ajoute un écouteur d'événements sur le bouton d'ouverture */
+      const openButton = div.querySelector(".btn-open");
+      openButton.addEventListener("click", showLegend);
+
+      /* Ajoute un écouteur d'événements sur le bouton de fermeture */
+      const closeButton = div.querySelector(".btn-close");
+      closeButton.addEventListener("click", hideLegend);
+
+      /* Fonction pour afficher la légende */
+      function showLegend() {
+        openButton.classList.add("hidden");
+        closeButton.classList.remove("hidden");
+        insideContent.forEach((item) =>
+          item.classList.remove("hidden")
+        );
+        insideBr.forEach((item) =>
+          item.classList.remove("hidden")
+        );
+      }
+
+      /* Fonction pour masquer la légende */
+      function hideLegend() {
+        openButton.classList.remove("hidden");
+        closeButton.classList.add("hidden");
+        insideContent.forEach((item) =>
+          item.classList.add("hidden")
+        );
+        insideBr.forEach((item) =>
+          item.classList.add("hidden")
+        );
+      }
+
       return div;
     };
 
+    /* Ajout de la légende à la carte */
     legend.addTo(map);
+
   };
 </script>
