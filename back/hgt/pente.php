@@ -1,33 +1,27 @@
 <?php
+include_once("../global.php");
 
 function getPente($max, $xo, $yo)
 {
-    if ($yo == 0 && ($xo == -1 || $xo == 1)) {   // Ouest et Est
+    if ($yo == 0 && ($xo == -1 || $xo == 1)) { // Ouest et Est
         return round(atan($max / 20) * (180 / M_PI));
-    } else if ($xo == 0 && ($yo == -1 || $yo == 1)) {     // Nord et Sud
+    } else if ($xo == 0 && ($yo == -1 || $yo == 1)) { // Nord et Sud
         return round(atan($max / 30) * (180 / M_PI));
-    } else {  // Autre
+    } else { // Autre
         return round(atan($max / 36.0555127546) * (180 / M_PI));
     }
 }
+create_folder($path_pente);
 
-$files = scandir('hgt/massifs/altitude/');
-if (!file_exists('hgt/massifs/pente')) {
-    mkdir('hgt/massifs/pente', 0777, true);
-}
+$files = scandir($path_altitude);
 foreach ($files as $file) {
-    $hgt_value_size = 2;
-    $hgt_line_records = 3600;
-    $hgt_step = 1 / $hgt_line_records;
-    $hgt_line_size = $hgt_value_size * ($hgt_line_records + 1);
-    $filespath = "hgt/massifs/";
     $filenumber = explode(".", $file)[0];
 
     if ($filenumber != "") {
-        if (!$fp = fopen($filespath . "altitude/" . $filenumber . ".hgt", "rb"))
+        if (!$fp = fopen($path_altitude . $filenumber . $fileext, "rb"))
             die("Erreur : N'a pas pu ouvrir le fichier d'altitude " . $filenumber . $fileext);
         else {
-            if (!$fp2 = fopen($filespath . "pente/" . $filenumber . ".hgt", "w")) {
+            if (!$fp2 = fopen($path_pente . $filenumber . $fileext, "w")) {
                 die("Erreur : N'a pas pu ouvrir le fichier");
             } else {
                 //Variables globales stockées dans le fichier
@@ -105,3 +99,4 @@ foreach ($files as $file) {
         }
     }
 }
+?>

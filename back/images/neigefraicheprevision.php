@@ -1,35 +1,23 @@
 <?php
+include_once("../global.php");
 
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, POST');
 header('Access-Control-Allow-Headers: X-Requested-With');
 
-$files = scandir('./hgt/massifs/altitude/');
-foreach ($files as $file) {
-    // VARIABLES GLOBALES
+create_folder($path_neigefraicheprevision);
 
-    $pas = 20;
-    $hgt_value_size = 2;
-    $hgt_line_records = 3600;
-    $fileext = '.hgt';
-    $hgt_step = 1 / $hgt_line_records;
-    $hgt_line_size = $hgt_value_size * ($hgt_line_records + 1);
-    $filespath = "hgt/massifs/";
+$files = scandir($path_altitude);
+foreach ($files as $file) {
     $filenumber = explode(".", $file)[0];
     if ($filenumber != "") {
-
         // Si le fichier binaire du massif existe
-        if (file_exists($filespath . "altitude/" . $filenumber . '.hgt')) {
-            $hgt_line_records = 3600;
-        } else
+        if (!file_exists($path_altitude . $filenumber . $fileext))
             die("Erreur : " . $filenumber . $fileext . " n'existe pas");
 
-        if (!$fp = fopen($filespath . "altitude/" . $filenumber . $fileext, "rb"))
+        if (!$fp = fopen($path_altitude . $filenumber . $fileext, "rb"))
             die("Erreur : N'a pas pu ouvrir le fichier d'altitude " . $filenumber . $fileext);
         else {
-            if (!file_exists('images/neigefraicheprevision')) {
-                mkdir('images/neigefraicheprevision', 0777, true);
-            }
             //Variables globales stockées dans le fichier
             fseek($fp, 0);
             $val = fread($fp, 2);
@@ -54,26 +42,21 @@ foreach ($files as $file) {
             $xml = (array) simplexml_load_string(file_get_contents("http://api.meteofrance.com/files/mountain/bulletins/BRA" . $filenumber . ".xml"));
 
             if (isset($xml["NEIGEFRAICHE"])) {
-
                 //Récupération de la neige 
                 $neige = $xml["NEIGEFRAICHE"];
                 $neigefraiche = array();
                 $somme = 0;
                 $pluie = false;
                 foreach ($neige->NEIGE24H as $neige24h) {
-                    if($neige24h['SS241']==-2){
-                        $neigefraiche[]= 0;
+                    if ($neige24h['SS241'] == -2) {
+                        $neigefraiche[] = 0;
                         $pluie = true;
+                    } else {
+                        $neigefraiche[] = $neige24h['SS241'];
                     }
-                    else{
-                        $neigefraiche[]= $neige24h['SS241'];
-                    }
-                    }
-                
-             
-                $somme = $neigefraiche[4]+$neigefraiche[5];
+                }
+                $somme = $neigefraiche[4] + $neigefraiche[5];
                 $altneige = $neige["ALTITUDESS"];
-
 
                 $image = imagecreatetruecolor($width, $height);
                 $trans = imagecolorallocatealpha($image, 0, 0, 0, 127);
@@ -92,22 +75,20 @@ foreach ($files as $file) {
                         $alt = @unpack('n', $val)[1];
                         $neigecolor = 0;
 
-
                         if ($alt > $altneige) {
-                            if ($pluie && $somme ==0){
-                                $neigecolor=-2;
+                            if ($pluie && $somme == 0) {
+                                $neigecolor = -2;
                             }
                             //Hachage 
-                            else if ($pluie && $somme>0 ){
-                                $imod = $i % $pas;
-                                $jmod = $j % $pas;
-                                if ($imod < $pas / 2) {
+                            else if ($pluie && $somme > 0) {
+                                $imod = $i % $pas_rayure;
+                                $jmod = $j % $pas_rayure;
+                                if ($imod < $pas_rayure / 2) {
                                     $neigecolor = -2;
                                 } else {
                                     $neigecolor = $somme;
                                 }
-                            }
-                            else {
+                            } else {
                                 $neigecolor = $somme;
                             }
                         } else {
@@ -141,45 +122,15 @@ foreach ($files as $file) {
                             $b = round($couleurDebut[2] + $diffCouleur[2] * $neigecolor);
                             imagesetpixel($image, $i, $j, imagecolorallocatealpha($image, $r, $g, $b, 0));
                         }
-                    
+
                     }
                 }
-                imagepng($image, "./images/neigefraicheprevision/" . $filenumber . ".png");
+                imagepng($image, $path_neigefraicheprevision . $filenumber . $imageext);
                 imagedestroy($image);
             } else {
                 die("Erreur : Il y a une erreur lors du chargement des données de météofrance");
             }
         }
     }
-
 }
-
-
-
-// Récupérer le numéro du fichier à partir d'un point (latitude,longitude)
-function getfilenumber($latitude, $longitude)
-{
-    $lat = abs(floor($latitude));
-    $lon = abs(floor($longitude));
-
-    $filenumber = "";
-    if ($latitude >= 0)
-        $filenumber .= "N";
-    else
-        $filenumber .= "S";
-    if (strlen($lat) == 1)
-        $filenumber .= "0";
-    $filenumber .= $lat;
-
-    if ($longitude >= 0)
-        $filenumber .= "E";
-    else
-        $filenumber .= "W";
-    if (strlen($lon) == 1)
-        $filenumber .= "00";
-    else if (strlen($lon) == 2)
-        $filenumber .= "0";
-    $filenumber .= $lon;
-
-    return $filenumber;
-}
+?>

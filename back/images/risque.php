@@ -1,39 +1,23 @@
 <?php
+include_once("../global.php");
 
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, POST');
 header('Access-Control-Allow-Headers: X-Requested-With');
 
-$files = scandir('./hgt/massifs/altitude/');
-foreach ($files as $file) {
-    // VARIABLES GLOBALES
+create_folder($path_risque);
 
-    $pas = 10;
-    $hgt_value_size = 2;
-    $hgt_line_records = 3600;
-    $fileext = '.hgt';
-    $hgt_step = 1 / $hgt_line_records;
-    $hgt_line_size = $hgt_value_size * ($hgt_line_records + 1);
-    $filespath = "hgt/massifs/";
+$files = scandir($path_altitude);
+foreach ($files as $file) {
     $filenumber = explode(".", $file)[0];
     if ($filenumber != "") {
-
-        // Si le fichier binaire du massif existe
-        if (file_exists($filespath . "altitude/" . $filenumber . '.hgt')) {
-            $hgt_line_records = 3600;
-        } else
-            die("Erreur : " . $filenumber . $fileext . " n'existe pas");
-
-        if (!$fp = fopen($filespath . "altitude/" . $filenumber . $fileext, "rb"))
+        if (!$fp = fopen($path_altitude . $filenumber . $fileext, "rb"))
             die("Erreur : N'a pas pu ouvrir le fichier d'altitude " . $filenumber . $fileext);
-        else if (!$fp2 = fopen($filespath . "orientation/" . $filenumber . $fileext, "rb"))
+        if (!$fp2 = fopen($path_orientation . $filenumber . $fileext, "rb"))
             die("Erreur : N'a pas pu ouvrir le fichier d'orientation " . $filenumber . $fileext);
-        else if (!$fp3 = fopen($filespath . "pente/" . $filenumber . $fileext, "rb"))
+        if (!$fp3 = fopen($path_pente . $filenumber . $fileext, "rb"))
             die("Erreur : N'a pas pu ouvrir le fichier de pente " . $filenumber . $fileext);
         else {
-            if (!file_exists('images/risque')) {
-                mkdir('images/risque', 0777, true);
-            }
             //Variables globales stockées dans le fichier
             fseek($fp, 0);
             $val = fread($fp, 2);
@@ -53,7 +37,6 @@ foreach ($files as $file) {
             fseek($fp, 16);
             $val = fread($fp, 4);
             $hdlon = @unpack('f', $val)[1];
-
 
             //Fichier risque de météofrance en fonction du massif.
             $xml = (array) simplexml_load_string(file_get_contents("http://api.meteofrance.com/files/mountain/bulletins/BRA" . $filenumber . ".xml"));
@@ -140,27 +123,29 @@ foreach ($files as $file) {
                         if ($risquecolor > 10) {
                             $r1 = floor($risquecolor / 10);
                             $r2 = $risquecolor % 10;
-                            $imod = $i % $pas;
-                            $jmod = $j % $pas;
-                            if ($imod < $pas / 2) {
+                            $imod = $i % $pas_rayure;
+                            $jmod = $j % $pas_rayure;
+                            if ($imod < $pas_rayure / 2) {
                                 $risquecolor = $r1;
                             } else {
                                 $risquecolor = $r2;
                             }
                         }
+
                         $alpha = intval(127 / 2);
                         if (
-                            ($penteNO && ($orientation == 1 || $orientation ==  5)) ||
-                            ($penteN && ($orientation == 2 || $orientation ==  5)) ||
-                            ($penteNE && ($orientation == 3 || $orientation ==  5)) ||
-                            ($penteO && ($orientation == 4 || $orientation ==  5)) ||
-                            ($penteE && ($orientation == 6 || $orientation ==  5)) ||
-                            ($penteSO && ($orientation == 7 || $orientation ==  5)) ||
-                            ($penteS && ($orientation == 8 || $orientation ==  5)) ||
-                            ($penteSE && ($orientation == 9 || $orientation ==  5))
+                            ($penteNO && ($orientation == 1 || $orientation == 5)) ||
+                            ($penteN && ($orientation == 2 || $orientation == 5)) ||
+                            ($penteNE && ($orientation == 3 || $orientation == 5)) ||
+                            ($penteO && ($orientation == 4 || $orientation == 5)) ||
+                            ($penteE && ($orientation == 6 || $orientation == 5)) ||
+                            ($penteSO && ($orientation == 7 || $orientation == 5)) ||
+                            ($penteS && ($orientation == 8 || $orientation == 5)) ||
+                            ($penteSE && ($orientation == 9 || $orientation == 5))
                         ) {
                             $alpha = 0;
                         }
+
                         $green = imagecolorallocatealpha($image, 44, 176, 81, $alpha);
                         $yellow = imagecolorallocatealpha($image, 254, 240, 53, $alpha);
                         $orange = imagecolorallocatealpha($image, 253, 127, 54, $alpha);
@@ -197,7 +182,7 @@ foreach ($files as $file) {
                         }
                     }
                 }
-                imagepng($image, "./images/risque/" . $filenumber . ".png");
+                imagepng($image, $path_risque . $filenumber . $imageext);
                 imagedestroy($image);
             } else {
                 die("Erreur : Il y a une erreur lors du chargement des données de météofrance");
@@ -205,33 +190,4 @@ foreach ($files as $file) {
         }
     }
 }
-
-
-
-// Récupérer le numéro du fichier à partir d'un point (latitude,longitude)
-function getfilenumber($latitude, $longitude)
-{
-    $lat = abs(floor($latitude));
-    $lon = abs(floor($longitude));
-
-    $filenumber = "";
-    if ($latitude >= 0)
-        $filenumber .= "N";
-    else
-        $filenumber .= "S";
-    if (strlen($lat) == 1)
-        $filenumber .= "0";
-    $filenumber .= $lat;
-
-    if ($longitude >= 0)
-        $filenumber .= "E";
-    else
-        $filenumber .= "W";
-    if (strlen($lon) == 1)
-        $filenumber .= "00";
-    else if (strlen($lon) == 2)
-        $filenumber .= "0";
-    $filenumber .= $lon;
-
-    return $filenumber;
-}
+?>
