@@ -65,6 +65,7 @@ foreach ($files as $file) {
                 $orange = imagecolorallocatealpha($image, 253, 127, 54, 0);
                 $red = imagecolorallocatealpha($image, 236, 11, 24, 0);
                 $redhigh = imagecolorallocatealpha($image, 131, 7, 12, 0);
+                $gray = imagecolorallocatealpha($image, 52, 56, 82, 0);
                 imagesavealpha($image, true);
                 imagefill($image, 0, 0, $trans);
                 //génération de la tuile du massif
@@ -80,10 +81,10 @@ foreach ($files as $file) {
                                 $neigecolor = -2;
                             }
                             //Hachage 
-                            else if ($pluie && $somme > 0) {
+                            else if ($pluie && $somme>0 ){
                                 $imod = $i % $pas_rayure;
                                 $jmod = $j % $pas_rayure;
-                                if ($imod < $pas_rayure / 2) {
+                                if (($jmod < $pas_rayure / 4 && $imod < $pas_rayure / 4) || ($jmod >= $pas_rayure / 2 && $imod >= $pas_rayure / 2 && $jmod < 3 * $pas_rayure / 4 && $imod < 3 * $pas_rayure / 4)) {
                                     $neigecolor = -2;
                                 } else {
                                     $neigecolor = $somme;
@@ -100,7 +101,7 @@ foreach ($files as $file) {
                         }
                         //COuleur rouge si pluie
                         else if ($neigecolor == -2) {
-                            imagesetpixel($image, $i, $j, $red);
+                            imagesetpixel($image, $i, $j, $gray);
                         } else {
                             // Couleurs de départ et d'arrivée
                             $couleurDebut = [132, 214, 249]; // Bleu clair
