@@ -131,7 +131,7 @@ foreach ($files as $file) {
                             imagesetpixel($image, $i, $j, imagecolorallocatealpha($image, $pluie_couleur[0], $pluie_couleur[1], $pluie_couleur[2], 0));
                         } 
                         else if($neigecolor >=100) {
-                            imagesetpixel($image, $i, $j,imagecolorallocatealpha($image, 0, 48, 67, 0));
+                            imagesetpixel($image, $i, $j, imagecolorallocatealpha($image, $pluie_couleur2[0], $pluie_couleur2[1], $pluie_couleur2[2], 0));
                         }
                         else {
                             // Nombre de couleurs dans le dégradé

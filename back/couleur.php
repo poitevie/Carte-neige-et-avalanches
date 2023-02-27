@@ -13,5 +13,6 @@ $couleurFin = [0, 48, 67]; // Bleu foncé
 
 // Couleur pluie
 $pluie_couleur = [52, 56, 82];
+$pluie_couleur2 = [0, 48, 67];
 
 ?>

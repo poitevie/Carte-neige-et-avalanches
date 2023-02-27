@@ -74,7 +74,6 @@ foreach ($files as $file) {
                     }
                 }
 
-
                 $image = imagecreatetruecolor($width, $height);
                 $trans = imagecolorallocatealpha($image, 0, 0, 0, 127);
                 $gray = imagecolorallocatealpha($image, 52, 56, 82, 0);
@@ -91,9 +90,9 @@ foreach ($files as $file) {
                         if ($alt > $iso) {
                             //Affichage uniquement de point gris si il y a de la pluie 
                             if ($pluie && $somme == 0) {
-                                $imod = $i % $pas;
-                                $jmod = $j % $pas;
-                                if (($jmod < $pas / 4 && $imod < $pas / 4) || ($jmod >= $pas / 2 && $imod >= $pas / 2 && $jmod < 3 * $pas / 4 && $imod < 3 * $pas / 4)) {
+                                $imod = $i % $pas_rayure;
+                                $jmod = $j % $pas_rayure;
+                                if (($jmod < $pas_rayure / 4 && $imod < $pas_rayure / 4) || ($jmod >= $pas_rayure / 2 && $imod >= $pas_rayure / 2 && $jmod < 3 * $pas_rayure / 4 && $imod < 3 * $pas_rayure / 4)) {
                                     $neigecolor = -2;
                                 }
                                 else {
@@ -103,9 +102,9 @@ foreach ($files as $file) {
                             //Hachage
                             else if ($pluie && $somme > 0) {
 
-                                $imod = $i % $pas_rayure;
-                                $jmod = $j % $pas_rayure;
-                                if (($jmod < $pas_rayure / 4 && $imod < $pas_rayure / 4) || ($jmod >= $pas_rayure / 2 && $imod >= $pas_rayure / 2 && $jmod < 3 * $pas_rayure / 4 && $imod < 3 * $pas_rayure / 4)) {
+                                $imod = $i % $pas_rayure_rayure;
+                                $jmod = $j % $pas_rayure_rayure;
+                                if (($jmod < $pas_rayure_rayure / 4 && $imod < $pas_rayure_rayure / 4) || ($jmod >= $pas_rayure_rayure / 2 && $imod >= $pas_rayure_rayure / 2 && $jmod < 3 * $pas_rayure_rayure / 4 && $imod < 3 * $pas_rayure_rayure / 4)) {
                                     $neigecolor = -2;
                                 } else {
                                     $neigecolor = $somme;
@@ -134,14 +133,9 @@ foreach ($files as $file) {
                             imagesetpixel($image, $i, $j, imagecolorallocatealpha($image, $pluie_couleur[0], $pluie_couleur[1], $pluie_couleur[2], 0));
                         }
                         else if($neigecolor >=100) {
-                            imagesetpixel($image, $i, $j,imagecolorallocatealpha($image, 0, 48, 67, 0));
+                            imagesetpixel($image, $i, $j, imagecolorallocatealpha($image, $pluie_couleur2[0], $pluie_couleur2[1], $pluie_couleur2[2], 0));
                         }
                         else {
-
-                            // Couleurs de départ et d'arrivée
-                            $couleurDebut = [132, 214, 249]; // Bleu clair
-                            $couleurFin = [0, 48, 67]; // Bleu foncé
-
                             // Nombre de couleurs dans le dégradé
                             $nbCouleurs = 100;
 
