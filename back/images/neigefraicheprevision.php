@@ -48,20 +48,34 @@ foreach ($files as $file) {
                 $neigefraiche = array();
                 $somme = 0;
                 $pluie = false;
-                foreach ($neige->NEIGE24H as $neige24h) {
-                    if ($neige24h['SS241'] == -2) {
+                for($i = 4;$i<=5;$i++){
+                    if($neige->NEIGE24H[$i]['SS241']==-2){
                         $neigefraiche[] = 0;
-                        $pluie = true;
-                    } else {
-                        $neigefraiche[] = $neige24h['SS241'];
+                    }
+                    else{
+                        $neigefraiche[] = $neige->NEIGE24H[$i]['SS241'];
                     }
                 }
-                $somme = $neigefraiche[4] + $neigefraiche[5];
+                
+             
+                $somme = $neigefraiche[0]+$neigefraiche[1];
                 $altneige = $neige["ALTITUDESS"];
+ 
+                //Récupération de la valeur max de l'iso 0 
+                $meteo = $xml["METEO"];
+                $iso = 0;
+   
+                foreach( $meteo->ECHEANCE as $echeance){
+  
+                    if(intval($echeance['ISO0'])>$iso){
+                        $iso = intval($echeance['ISO0']);
+                    
+                    }
+                }
 
                 $image = imagecreatetruecolor($width, $height);
                 $trans = imagecolorallocatealpha($image, 0, 0, 0, 127);
-
+                
                 imagesavealpha($image, true);
                 imagefill($image, 0, 0, $trans);
                 //génération de la tuile du massif
@@ -71,21 +85,38 @@ foreach ($files as $file) {
                         $val = fread($fp, 2);
                         $alt = @unpack('n', $val)[1];
                         $neigecolor = 0;
-
-                        if ($alt > $altneige) {
-                            if ($pluie && $somme == 0) {
-                                $neigecolor = -2;
-                            }
-                            //Hachage 
-                            else if ($pluie && $somme>0 ){
+                        if ($alt > $iso) {
+                           //Affichage uniquement de point gris si il y a de la pluie 
+                            if ($pluie && $somme ==0){
                                 $imod = $i % $pas_rayure;
                                 $jmod = $j % $pas_rayure;
                                 if (($jmod < $pas_rayure / 4 && $imod < $pas_rayure / 4) || ($jmod >= $pas_rayure / 2 && $imod >= $pas_rayure / 2 && $jmod < 3 * $pas_rayure / 4 && $imod < 3 * $pas_rayure / 4)) {
                                     $neigecolor = -2;
+                                }
+                                else {
+                                    $neigecolor=0;
+                                }
+                            }
+                            //Hachage 
+                            else if ($pluie && $somme>0 ){
+                                $imod = $i % $pas_rayure_rayure;
+                                $jmod = $j % $pas_rayure_rayure;
+                                if (($jmod < $pas_rayure_rayure / 4 && $imod < $pas_rayure_rayure / 4) || ($jmod >= $pas_rayure_rayure / 2 && $imod >= $pas_rayure_rayure / 2 && $jmod < 3 * $pas_rayure_rayure / 4 && $imod < 3 * $pas_rayure_rayure / 4)) {
+                                    $neigecolor = -2;
                                 } else {
                                     $neigecolor = $somme;
                                 }
-                            } else {
+                            }
+                            else if ($alt<$altneige){
+                                if($somme == 0 ){
+                                    $neigecolor=0;
+                                }
+                                else {
+                                    $neigecolor = 1;
+                                }
+                        
+                            }
+                            else {
                                 $neigecolor = $somme;
                             }
                         } else {
@@ -98,7 +129,11 @@ foreach ($files as $file) {
                         //Couleur si pluie
                         else if ($neigecolor == -2) {
                             imagesetpixel($image, $i, $j, imagecolorallocatealpha($image, $pluie_couleur[0], $pluie_couleur[1], $pluie_couleur[2], 0));
-                        } else {
+                        } 
+                        else if($neigecolor >=100) {
+                            imagesetpixel($image, $i, $j,imagecolorallocatealpha($image, 0, 48, 67, 0));
+                        }
+                        else {
                             // Nombre de couleurs dans le dégradé
                             $nbCouleurs = 100;
 

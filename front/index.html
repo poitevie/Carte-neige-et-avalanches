@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <meta charset="UTF-8">
+<meta http-equiv="cache-control" content="max-age=300"/>
 <style type="text/css">
   html,
   body {
@@ -20,7 +21,8 @@
     font-size: 12px;
     line-height: 18px;
     border-radius: 5px;
-  }
+    bottom: 3vh
+;  }
 
   .legend h2 {
     font-size: 20px;
@@ -33,11 +35,19 @@
     margin: 2px 0 7px 0;
   }
 
-  .legend i {
+  .element {
     width: 18px;
     height: 18px;
     float: left;
     margin: -6px 8px;
+    opacity: 0.7;
+  }
+
+  .legend i {
+    width: 18px;
+    height: 18px;
+    float: left;
+    margin: 0 8px;
     opacity: 0.7;
   }
 
@@ -352,7 +362,7 @@
       const categories = ["1-Faible", "2-Limité", "3-Marqué", "4-Fort", "5-Très fort"];
 
       for (let i = 0; i < categories.length; i++) {
-        labels.push('<div class = " leg inside "><i style="background:' + getColor(categories[i]) + '"></i> ' + categories[i] + '</div>');
+        labels.push('<div class = " leg inside "><i class="element" style="background:' + getColor(categories[i]) + '"></i> ' + categories[i] + '</div>');
       }
 
       div.innerHTML += '<button class="btn-open hidden">Ouvrir la légende</button>';
@@ -369,6 +379,7 @@
       div.innerHTML += '<i class="degrade inside " style="background: linear-gradient(to right, rgba(132, 214, 249), rgba(0, 48, 67));"></i><br>';
       div.innerHTML += '<span class="degradegauche inside ">1</span>';
       div.innerHTML += '<span class="degradedroite inside ">100</span><br>';
+      div.innerHTML += '<div class = "inside"><i style="background-image: url(pluieLegende.png); background-size: 300%"></i>Pluie</div>'
 
       const insideContent = div.querySelectorAll(".inside");
       const insideBr = div.querySelectorAll("br");
