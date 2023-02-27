@@ -52,10 +52,6 @@ foreach ($files as $file) {
 
             $image = imagecreatetruecolor($width, $height);
             $trans = imagecolorallocatealpha($image, 0, 0, 0, 127);
-            $jaune = imagecolorallocatealpha($image, 241, 231, 11, 0);
-            $orange = imagecolorallocatealpha($image, 248, 111, 33, 0);
-            $rouge = imagecolorallocatealpha($image, 227, 3, 91, 0);
-            $violet = imagecolorallocatealpha($image, 203, 135, 186, 0);
             imagesavealpha($image, true);
             imagefill($image, 0, 0, $trans);
             //génération de la tuile du massif
@@ -65,7 +61,7 @@ foreach ($files as $file) {
                     $val = fread($fp, 2);
                     $alt = @unpack('n', $val)[1];
 
-                    imagesetpixel($image, $i, $j, linearRed($alt, $image));
+                    imagesetpixel($image, $i, $j, colorScale($alt, $image));
                 }
             }
             imagepng($image, "./images/altitude/" . $filenumber . ".png");
@@ -73,7 +69,6 @@ foreach ($files as $file) {
         }
     }
 }
-
 
 
 // Récupérer le numéro du fichier à partir d'un point (latitude,longitude)
@@ -104,10 +99,21 @@ function getfilenumber($latitude, $longitude)
     return $filenumber;
 }
 
-function linearRed($alt, $image) {
-    $newAlt = $alt > 2000 ? 2000 : $alt;
-    if($newAlt == 0) {
+function colorScale($alt, $image) {
+    if($alt == 0) {
         return imagecolorallocatealpha($image, 0, 0, 0, 127);
     }
-    return imagecolorallocatealpha($image, $newAlt*255/2000, 0, 0, 0);
+    $newAlt = $alt > 4696 ? 4696 : $alt;
+    if($newAlt <= 1174) {    // Bleu -> Vert
+        return imagecolorallocatealpha($image, 0, 255, 255 - $newAlt*255/1174, 0);
+    }
+    else if ($newAlt <= 2348) {  // Vert -> Jaune
+        return imagecolorallocatealpha($image, ($newAlt-1174)*255/(2348-1174), 255, 0, 0);
+    }
+    else if ($newAlt <= 3522) {  // Jaune -> Rouge
+        return imagecolorallocatealpha($image, 255, 255-($newAlt-2348)*255/(3522-2348), 0, 0);
+    }
+    else {  // Rouge -> Violet
+        return imagecolorallocatealpha($image, 255, 0, ($newAlt-3522)*255/(4696-3522), 0);
+    }
 }
