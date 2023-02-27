@@ -138,16 +138,9 @@ foreach ($files as $file) {
                         }
 
                         if ($risquecolor > 10) {
-                            $r1 = floor($risquecolor / 10);
-                            $r2 = $risquecolor % 10;
-                            $imod = $i % $pas;
-                            $jmod = $j % $pas;
-                            if ($imod < $pas / 2) {
-                                $risquecolor = $r1;
-                            } else {
-                                $risquecolor = $r2;
-                            }
+                            $risquecolor = $risquecolor % 10;
                         }
+                        
                         $alpha = intval(127 / 2);
                         if (
                             ($penteNO && ($orientation == 1 || $orientation ==  5)) ||
