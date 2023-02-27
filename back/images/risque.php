@@ -1,39 +1,24 @@
 <?php
+include_once("../global.php");
+include_once("../couleur.php");
 
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, POST');
 header('Access-Control-Allow-Headers: X-Requested-With');
 
-$files = scandir('./hgt/massifs/altitude/');
-foreach ($files as $file) {
-    // VARIABLES GLOBALES
+create_folder("../" . $path_risque);
 
-    $pas = 10;
-    $hgt_value_size = 2;
-    $hgt_line_records = 3600;
-    $fileext = '.hgt';
-    $hgt_step = 1 / $hgt_line_records;
-    $hgt_line_size = $hgt_value_size * ($hgt_line_records + 1);
-    $filespath = "hgt/massifs/";
+$files = scandir("../" . $path_altitude);
+foreach ($files as $file) {
     $filenumber = explode(".", $file)[0];
     if ($filenumber != "") {
-
-        // Si le fichier binaire du massif existe
-        if (file_exists($filespath . "altitude/" . $filenumber . '.hgt')) {
-            $hgt_line_records = 3600;
-        } else
-            die("Erreur : " . $filenumber . $fileext . " n'existe pas");
-
-        if (!$fp = fopen($filespath . "altitude/" . $filenumber . $fileext, "rb"))
+        if (!$fp = fopen("../" . $path_altitude . $filenumber . $fileext, "rb"))
             die("Erreur : N'a pas pu ouvrir le fichier d'altitude " . $filenumber . $fileext);
-        else if (!$fp2 = fopen($filespath . "orientation/" . $filenumber . $fileext, "rb"))
+        if (!$fp2 = fopen("../" . $path_orientation . $filenumber . $fileext, "rb"))
             die("Erreur : N'a pas pu ouvrir le fichier d'orientation " . $filenumber . $fileext);
-        else if (!$fp3 = fopen($filespath . "pente/" . $filenumber . $fileext, "rb"))
+        if (!$fp3 = fopen("../" . $path_pente . $filenumber . $fileext, "rb"))
             die("Erreur : N'a pas pu ouvrir le fichier de pente " . $filenumber . $fileext);
         else {
-            if (!file_exists('images/risque')) {
-                mkdir('images/risque', 0777, true);
-            }
             //Variables globales stockées dans le fichier
             fseek($fp, 0);
             $val = fread($fp, 2);
@@ -53,7 +38,6 @@ foreach ($files as $file) {
             fseek($fp, 16);
             $val = fread($fp, 4);
             $hdlon = @unpack('f', $val)[1];
-
 
             //Fichier risque de météofrance en fonction du massif.
             $xml = (array) simplexml_load_string(file_get_contents("http://api.meteofrance.com/files/mountain/bulletins/BRA" . $filenumber . ".xml"));
@@ -82,6 +66,7 @@ foreach ($files as $file) {
 
                 $image = imagecreatetruecolor($width, $height);
                 $trans = imagecolorallocatealpha($image, 0, 0, 0, 127);
+
                 imagesavealpha($image, true);
                 imagefill($image, 0, 0, $trans);
                 //génération de la tuile du massif
@@ -143,22 +128,23 @@ foreach ($files as $file) {
                         
                         $alpha = intval(127 / 2);
                         if (
-                            ($penteNO && ($orientation == 1 || $orientation ==  5)) ||
-                            ($penteN && ($orientation == 2 || $orientation ==  5)) ||
-                            ($penteNE && ($orientation == 3 || $orientation ==  5)) ||
-                            ($penteO && ($orientation == 4 || $orientation ==  5)) ||
-                            ($penteE && ($orientation == 6 || $orientation ==  5)) ||
-                            ($penteSO && ($orientation == 7 || $orientation ==  5)) ||
-                            ($penteS && ($orientation == 8 || $orientation ==  5)) ||
-                            ($penteSE && ($orientation == 9 || $orientation ==  5))
+                            ($penteNO && ($orientation == 1 || $orientation == 5)) ||
+                            ($penteN && ($orientation == 2 || $orientation == 5)) ||
+                            ($penteNE && ($orientation == 3 || $orientation == 5)) ||
+                            ($penteO && ($orientation == 4 || $orientation == 5)) ||
+                            ($penteE && ($orientation == 6 || $orientation == 5)) ||
+                            ($penteSO && ($orientation == 7 || $orientation == 5)) ||
+                            ($penteS && ($orientation == 8 || $orientation == 5)) ||
+                            ($penteSE && ($orientation == 9 || $orientation == 5))
                         ) {
                             $alpha = 0;
                         }
-                        $green = imagecolorallocatealpha($image, 44, 176, 81, $alpha);
-                        $yellow = imagecolorallocatealpha($image, 254, 240, 53, $alpha);
-                        $orange = imagecolorallocatealpha($image, 253, 127, 54, $alpha);
-                        $red = imagecolorallocatealpha($image, 236, 11, 24, $alpha);
-                        $redhigh = imagecolorallocatealpha($image, 131, 7, 12, $alpha);
+
+                        $couleur_1 = imagecolorallocatealpha($image, $risque_1[0], $risque_1[1], $risque_1[2], $alpha);
+                        $couleur_2 = imagecolorallocatealpha($image, $risque_2[0], $risque_2[1], $risque_2[2], $alpha);
+                        $couleur_3 = imagecolorallocatealpha($image, $risque_3[0], $risque_3[1], $risque_3[2], $alpha);
+                        $couleur_4 = imagecolorallocatealpha($image, $risque_4[0], $risque_4[1], $risque_4[2], $alpha);
+                        $couleur_5 = imagecolorallocatealpha($image, $risque_5[0], $risque_5[1], $risque_5[2], $alpha);
 
                         switch ($risquecolor) {
                             case 0:
@@ -166,31 +152,31 @@ foreach ($files as $file) {
                                 break;
 
                             case 1:
-                                imagesetpixel($image, $i, $j, $green);
+                                imagesetpixel($image, $i, $j, $couleur_1);
                                 break;
 
                             case 2:
-                                imagesetpixel($image, $i, $j, $yellow);
+                                imagesetpixel($image, $i, $j, $couleur_2);
                                 break;
 
                             case 3:
-                                imagesetpixel($image, $i, $j, $orange);
+                                imagesetpixel($image, $i, $j, $couleur_3);
                                 break;
 
                             case 4:
-                                imagesetpixel($image, $i, $j, $red);
+                                imagesetpixel($image, $i, $j, $couleur_4);
                                 break;
 
                             case 5:
-                                imagesetpixel($image, $i, $j, $redhigh);
+                                imagesetpixel($image, $i, $j, $couleur_5);
                                 break;
                             default:
-                                imagesetpixel($image, $i, $j, $redhigh);
+                                imagesetpixel($image, $i, $j, $trans);
                                 break;
                         }
                     }
                 }
-                imagepng($image, "./images/risque/" . $filenumber . ".png");
+                imagepng($image, "../" . $path_risque . $filenumber . $imageext);
                 imagedestroy($image);
             } else {
                 die("Erreur : Il y a une erreur lors du chargement des données de météofrance");
@@ -198,33 +184,4 @@ foreach ($files as $file) {
         }
     }
 }
-
-
-
-// Récupérer le numéro du fichier à partir d'un point (latitude,longitude)
-function getfilenumber($latitude, $longitude)
-{
-    $lat = abs(floor($latitude));
-    $lon = abs(floor($longitude));
-
-    $filenumber = "";
-    if ($latitude >= 0)
-        $filenumber .= "N";
-    else
-        $filenumber .= "S";
-    if (strlen($lat) == 1)
-        $filenumber .= "0";
-    $filenumber .= $lat;
-
-    if ($longitude >= 0)
-        $filenumber .= "E";
-    else
-        $filenumber .= "W";
-    if (strlen($lon) == 1)
-        $filenumber .= "00";
-    else if (strlen($lon) == 2)
-        $filenumber .= "0";
-    $filenumber .= $lon;
-
-    return $filenumber;
-}
+?>

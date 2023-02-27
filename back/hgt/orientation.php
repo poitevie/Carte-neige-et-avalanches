@@ -1,21 +1,17 @@
 <?php
-$files = scandir('hgt/massifs/altitude/');
-if (!file_exists('hgt/massifs/orientation')) {
-    mkdir('hgt/massifs/orientation', 0777, true);
-}
+include_once("../global.php");
+
+create_folder("../" . $path_orientation);
+
+$files = scandir("../" . $path_altitude);
 foreach ($files as $file) {
-    $hgt_value_size = 2;
-    $hgt_line_records = 3600;
-    $hgt_step = 1 / $hgt_line_records;
-    $hgt_line_size = $hgt_value_size * ($hgt_line_records + 1);
-    $filespath = "hgt/massifs/";
     $filenumber = explode(".", $file)[0];
 
     if ($filenumber != "") {
-        if (!$fp = fopen($filespath . "altitude/" . $filenumber . ".hgt", "rb"))
+        if (!$fp = fopen("../" . $path_altitude . $filenumber . ".hgt", "rb"))
             die("Erreur : N'a pas pu ouvrir le fichier d'altitude " . $filenumber . $fileext);
         else {
-            if (!$fp2 = fopen($filespath . "orientation/" . $filenumber . ".hgt", "w")) {
+            if (!$fp2 = fopen("../" . $path_orientation . $filenumber . ".hgt", "w")) {
                 die("Erreur : N'a pas pu ouvrir le fichier");
             } else {
                 //Variables globales stockées dans le fichier
@@ -93,3 +89,4 @@ foreach ($files as $file) {
         }
     }
 }
+?>

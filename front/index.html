@@ -129,13 +129,18 @@
     /* Création d'un élément canvas pour dessiner une image */
     var canvas = document.createElement("canvas");
 
+    var urlBack = "http://localhost/skitour/";
+    var urlCadreAlpes = urlBack + "back/geojson/cadrealpes.json";
+    var urlCadreCorse = urlBack + "back/geojson/cadrecorse.json";
+    var urlCadrePyrenees = urlBack + "back/geojson/cadrepyrenees.json";
+
     /* Affichage de l'image à l'endroit correspondant */
     function getImage(numMassif) {
-      var url = `http://localhost:8000/back/images/risque/${numMassif}.png`;
-      var urlNeige = `http://localhost:8000/back/images/neigetotale/${numMassif}.png`;
-      var urlNeigeFraiche = `http://localhost:8000/back/images/neigefraiche/${numMassif}.png`;
-      var urlBounds = "/front/cadremassif.json";
-      var urlNeigeFraichePrevision = `http://localhost:8000/back/images/neigefraicheprevision/${numMassif}.png`;
+      var url = urlBack + `back/images/risque/${numMassif}.png`;
+      var urlNeige = urlBack + `back/images/neigetotale/${numMassif}.png`;
+      var urlNeigeFraiche = urlBack + `back/images/neigefraiche/${numMassif}.png`;
+      var urlBounds = urlBack + "back/geojson/cadremassif.json";
+      var urlNeigeFraichePrevision = urlBack + `back/images/neigefraicheprevision/${numMassif}.png`;
       /* Ajout de l'image créée sur le canvas en tant qu'overlay sur la carte */
       $.getJSON(urlBounds, function (data) {
         canvas.width = data["width"]; /* Largeur */
@@ -176,21 +181,21 @@
 
     /* Recupère les rectangles autour des massifs depuis un fichier .json */
     let alpes;
-    let P1 = $.getJSON("cadrealpes.json", function (data) {
+    let P1 = $.getJSON(urlCadreAlpes, function (data) {
 
       alpes = new Map(data.map((e) => [e.id, e.cadre]));
     })
 
     /* Recupère les rectangles autour des massifs depuis un fichier .json */
     let corse;
-    let P2 = $.getJSON("cadrecorse.json", function (data) {
+    let P2 = $.getJSON(urlCadreCorse, function (data) {
 
       corse = new Map(data.map((e) => [e.id, e.cadre]));
     })
 
     /* Recupère les rectangles autour des massifs depuis un fichier .json */
     let pyrenees;
-    let P3 = $.getJSON("cadrepyrenees.json", function (data) {
+    let P3 = $.getJSON(urlCadrePyrenees, function (data) {
 
       pyrenees = new Map(data.map((e) => [e.id, e.cadre]));
     })
