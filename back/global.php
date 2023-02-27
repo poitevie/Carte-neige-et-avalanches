@@ -1,4 +1,8 @@
 <?php
+$id_alpes = ["07","08","04","12","14","15","18","19","16","20","21","22","23","17","13","09","11","10","06","02","05","03","01"];
+$id_corse = ["40", "41"];
+$id_pyrenees = ["74","73","71","72","70","69","68","67","65","66","64"];
+
 $pas_rayure = 20;
 $hgt_value_size = 2;
 $hgt_line_records = 3600;
@@ -22,7 +26,7 @@ $path_risque = $path_images . "risque/";
 function create_folder($path)
 {
     if (substr($path, -1) == "/") {
-        $path = substr($$path, 0, -1);
+        $path = substr($path, 0, -1);
     }
     if (!file_exists($path)) {
         mkdir($path, 0777, true);

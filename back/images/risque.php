@@ -1,21 +1,22 @@
 <?php
 include_once("../global.php");
+include_once("../couleur.php");
 
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, POST');
 header('Access-Control-Allow-Headers: X-Requested-With');
 
-create_folder($path_risque);
+create_folder("../" . $path_risque);
 
-$files = scandir($path_altitude);
+$files = scandir("../" . $path_altitude);
 foreach ($files as $file) {
     $filenumber = explode(".", $file)[0];
     if ($filenumber != "") {
-        if (!$fp = fopen($path_altitude . $filenumber . $fileext, "rb"))
+        if (!$fp = fopen("../" . $path_altitude . $filenumber . $fileext, "rb"))
             die("Erreur : N'a pas pu ouvrir le fichier d'altitude " . $filenumber . $fileext);
-        if (!$fp2 = fopen($path_orientation . $filenumber . $fileext, "rb"))
+        if (!$fp2 = fopen("../" . $path_orientation . $filenumber . $fileext, "rb"))
             die("Erreur : N'a pas pu ouvrir le fichier d'orientation " . $filenumber . $fileext);
-        if (!$fp3 = fopen($path_pente . $filenumber . $fileext, "rb"))
+        if (!$fp3 = fopen("../" . $path_pente . $filenumber . $fileext, "rb"))
             die("Erreur : N'a pas pu ouvrir le fichier de pente " . $filenumber . $fileext);
         else {
             //Variables globales stockées dans le fichier
@@ -65,6 +66,7 @@ foreach ($files as $file) {
 
                 $image = imagecreatetruecolor($width, $height);
                 $trans = imagecolorallocatealpha($image, 0, 0, 0, 127);
+
                 imagesavealpha($image, true);
                 imagefill($image, 0, 0, $trans);
                 //génération de la tuile du massif
@@ -146,11 +148,11 @@ foreach ($files as $file) {
                             $alpha = 0;
                         }
 
-                        $green = imagecolorallocatealpha($image, 44, 176, 81, $alpha);
-                        $yellow = imagecolorallocatealpha($image, 254, 240, 53, $alpha);
-                        $orange = imagecolorallocatealpha($image, 253, 127, 54, $alpha);
-                        $red = imagecolorallocatealpha($image, 236, 11, 24, $alpha);
-                        $redhigh = imagecolorallocatealpha($image, 131, 7, 12, $alpha);
+                        $couleur_1 = imagecolorallocatealpha($image, $risque_1[0], $risque_1[1], $risque_1[2], $alpha);
+                        $couleur_2 = imagecolorallocatealpha($image, $risque_2[0], $risque_2[1], $risque_2[2], $alpha);
+                        $couleur_3 = imagecolorallocatealpha($image, $risque_3[0], $risque_3[1], $risque_3[2], $alpha);
+                        $couleur_4 = imagecolorallocatealpha($image, $risque_4[0], $risque_4[1], $risque_4[2], $alpha);
+                        $couleur_5 = imagecolorallocatealpha($image, $risque_5[0], $risque_5[1], $risque_5[2], $alpha);
 
                         switch ($risquecolor) {
                             case 0:
@@ -158,31 +160,31 @@ foreach ($files as $file) {
                                 break;
 
                             case 1:
-                                imagesetpixel($image, $i, $j, $green);
+                                imagesetpixel($image, $i, $j, $couleur_1);
                                 break;
 
                             case 2:
-                                imagesetpixel($image, $i, $j, $yellow);
+                                imagesetpixel($image, $i, $j, $couleur_2);
                                 break;
 
                             case 3:
-                                imagesetpixel($image, $i, $j, $orange);
+                                imagesetpixel($image, $i, $j, $couleur_3);
                                 break;
 
                             case 4:
-                                imagesetpixel($image, $i, $j, $red);
+                                imagesetpixel($image, $i, $j, $couleur_4);
                                 break;
 
                             case 5:
-                                imagesetpixel($image, $i, $j, $redhigh);
+                                imagesetpixel($image, $i, $j, $couleur_5);
                                 break;
                             default:
-                                imagesetpixel($image, $i, $j, $redhigh);
+                                imagesetpixel($image, $i, $j, $trans);
                                 break;
                         }
                     }
                 }
-                imagepng($image, $path_risque . $filenumber . $imageext);
+                imagepng($image, "../" . $path_risque . $filenumber . $imageext);
                 imagedestroy($image);
             } else {
                 die("Erreur : Il y a une erreur lors du chargement des données de météofrance");

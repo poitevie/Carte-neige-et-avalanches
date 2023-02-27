@@ -11,17 +11,17 @@ function getPente($max, $xo, $yo)
         return round(atan($max / 36.0555127546) * (180 / M_PI));
     }
 }
-create_folder($path_pente);
+create_folder("../" . $path_pente);
 
-$files = scandir($path_altitude);
+$files = scandir("../" . $path_altitude);
 foreach ($files as $file) {
     $filenumber = explode(".", $file)[0];
 
     if ($filenumber != "") {
-        if (!$fp = fopen($path_altitude . $filenumber . $fileext, "rb"))
+        if (!$fp = fopen("../" . $path_altitude . $filenumber . $fileext, "rb"))
             die("Erreur : N'a pas pu ouvrir le fichier d'altitude " . $filenumber . $fileext);
         else {
-            if (!$fp2 = fopen($path_pente . $filenumber . $fileext, "w")) {
+            if (!$fp2 = fopen("../" . $path_pente . $filenumber . $fileext, "w")) {
                 die("Erreur : N'a pas pu ouvrir le fichier");
             } else {
                 //Variables globales stockées dans le fichier

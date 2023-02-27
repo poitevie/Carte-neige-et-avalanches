@@ -1,17 +1,17 @@
 <?php
 include_once("../global.php");
 
-create_folder($path_orientation);
+create_folder("../" . $path_orientation);
 
-$files = scandir($path_altitude);
+$files = scandir("../" . $path_altitude);
 foreach ($files as $file) {
     $filenumber = explode(".", $file)[0];
 
     if ($filenumber != "") {
-        if (!$fp = fopen($path_altitude . $filenumber . ".hgt", "rb"))
+        if (!$fp = fopen("../" . $path_altitude . $filenumber . ".hgt", "rb"))
             die("Erreur : N'a pas pu ouvrir le fichier d'altitude " . $filenumber . $fileext);
         else {
-            if (!$fp2 = fopen($path_orientation . $filenumber . ".hgt", "w")) {
+            if (!$fp2 = fopen("../" . $path_orientation . $filenumber . ".hgt", "w")) {
                 die("Erreur : N'a pas pu ouvrir le fichier");
             } else {
                 //Variables globales stockées dans le fichier

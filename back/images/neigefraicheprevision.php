@@ -1,5 +1,6 @@
 <?php
 include_once("../global.php");
+include_once("../couleur.php");
 
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, POST');
@@ -60,12 +61,7 @@ foreach ($files as $file) {
 
                 $image = imagecreatetruecolor($width, $height);
                 $trans = imagecolorallocatealpha($image, 0, 0, 0, 127);
-                $green = imagecolorallocatealpha($image, 44, 176, 81, 0);
-                $yellow = imagecolorallocatealpha($image, 254, 240, 53, 0);
-                $orange = imagecolorallocatealpha($image, 253, 127, 54, 0);
-                $red = imagecolorallocatealpha($image, 236, 11, 24, 0);
-                $redhigh = imagecolorallocatealpha($image, 131, 7, 12, 0);
-                $gray = imagecolorallocatealpha($image, 52, 56, 82, 0);
+
                 imagesavealpha($image, true);
                 imagefill($image, 0, 0, $trans);
                 //génération de la tuile du massif
@@ -99,14 +95,10 @@ foreach ($files as $file) {
                         if ($neigecolor == 0) {
                             imagesetpixel($image, $i, $j, $trans);
                         }
-                        //COuleur rouge si pluie
+                        //Couleur si pluie
                         else if ($neigecolor == -2) {
-                            imagesetpixel($image, $i, $j, $gray);
+                            imagesetpixel($image, $i, $j, imagecolorallocatealpha($image, $pluie_couleur[0], $pluie_couleur[1], $pluie_couleur[2], 0));
                         } else {
-                            // Couleurs de départ et d'arrivée
-                            $couleurDebut = [132, 214, 249]; // Bleu clair
-                            $couleurFin = [0, 48, 67]; // Bleu foncé
-
                             // Nombre de couleurs dans le dégradé
                             $nbCouleurs = 100;
 
