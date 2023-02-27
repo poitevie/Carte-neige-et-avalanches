@@ -6,17 +6,17 @@ header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, POST');
 header('Access-Control-Allow-Headers: X-Requested-With');
 
-create_folder($path_neigefraicheprevision);
+create_folder("../" . $path_neigefraicheprevision);
 
-$files = scandir($path_altitude);
+$files = scandir("../" . $path_altitude);
 foreach ($files as $file) {
     $filenumber = explode(".", $file)[0];
     if ($filenumber != "") {
         // Si le fichier binaire du massif existe
-        if (!file_exists($path_altitude . $filenumber . $fileext))
+        if (!file_exists("../" . $path_altitude . $filenumber . $fileext))
             die("Erreur : " . $filenumber . $fileext . " n'existe pas");
 
-        if (!$fp = fopen($path_altitude . $filenumber . $fileext, "rb"))
+        if (!$fp = fopen("../" . $path_altitude . $filenumber . $fileext, "rb"))
             die("Erreur : N'a pas pu ouvrir le fichier d'altitude " . $filenumber . $fileext);
         else {
             //Variables globales stockées dans le fichier
@@ -118,7 +118,7 @@ foreach ($files as $file) {
 
                     }
                 }
-                imagepng($image, $path_neigefraicheprevision . $filenumber . $imageext);
+                imagepng($image, "../" . $path_neigefraicheprevision . $filenumber . $imageext);
                 imagedestroy($image);
             } else {
                 die("Erreur : Il y a une erreur lors du chargement des données de météofrance");

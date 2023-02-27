@@ -119,16 +119,17 @@
     /* Création d'un élément canvas pour dessiner une image */
     var canvas = document.createElement("canvas");
 
+    var urlBack = "http://localhost:8000/";
+    var urlCadreAlpes = urlBack + "back/geojson/cadrealpes.json";
+    var urlCadreCorse = urlBack + "back/geojson/cadrecorse.json";
+    var urlCadrePyrenees = urlBack + "back/geojson/cadrepyrenees.json";
+
     /* Affichage de l'image à l'endroit correspondant */
     function getImage(numMassif) {
-      var urlBack = "http://localhost:8000/";
       var url = urlBack + `back/images/risque/${numMassif}.png`;
       var urlNeige = urlBack + `back/images/neigetotale/${numMassif}.png`;
       var urlNeigeFraiche = urlBack + `back/images/neigefraiche/${numMassif}.png`;
       var urlBounds = urlBack + "back/geojson/cadremassif.json";
-      var urlCadreAlpes = urlBack + "back/geojson/cadrealpes.json";
-      var urlCadreCorse = urlBack + "back/geojson/cadrecorse.json";
-      var urlCadrePyrenees = urlBack + "back/geojson/cadrepyrenees.json";
       var urlNeigeFraichePrevision = urlBack + `back/images/neigefraicheprevision/${numMassif}.png`;
       /* Ajout de l'image créée sur le canvas en tant qu'overlay sur la carte */
       $.getJSON(urlBounds, function (data) {
