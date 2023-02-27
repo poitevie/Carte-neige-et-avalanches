@@ -60,28 +60,33 @@ foreach ($files as $file) {
                 $neigefraiche = array();
                 $somme = 0;
                 $pluie = false;
-                foreach ($neige->NEIGE24H as $neige24h) {
-                    if($neige24h['SS241']==-2){
-                        $neigefraiche[]= 0;
-                        $pluie = true;
+                for($i = 4;$i<=5;$i++){
+                    if($neige->NEIGE24H[$i]['SS241']==-2){
+                        $neigefraiche[] = 0;
                     }
                     else{
-                        $neigefraiche[]= $neige24h['SS241'];
+                        $neigefraiche[] = $neige->NEIGE24H[$i]['SS241'];
                     }
-                    }
+                }
                 
              
-                $somme = $neigefraiche[4]+$neigefraiche[5];
+                $somme = $neigefraiche[0]+$neigefraiche[1];
                 $altneige = $neige["ALTITUDESS"];
-
+ 
+                //Récupération de la valeur max de l'iso 0 
+                $meteo = $xml["METEO"];
+                $iso = 0;
+   
+                foreach( $meteo->ECHEANCE as $echeance){
+  
+                    if(intval($echeance['ISO0'])>$iso){
+                        $iso = intval($echeance['ISO0']);
+                    
+                    }
+                }
 
                 $image = imagecreatetruecolor($width, $height);
                 $trans = imagecolorallocatealpha($image, 0, 0, 0, 127);
-                $green = imagecolorallocatealpha($image, 44, 176, 81, 0);
-                $yellow = imagecolorallocatealpha($image, 254, 240, 53, 0);
-                $orange = imagecolorallocatealpha($image, 253, 127, 54, 0);
-                $red = imagecolorallocatealpha($image, 236, 11, 24, 0);
-                $redhigh = imagecolorallocatealpha($image, 131, 7, 12, 0);
                 $gray = imagecolorallocatealpha($image, 52, 56, 82, 0);
                 imagesavealpha($image, true);
                 imagefill($image, 0, 0, $trans);
@@ -92,11 +97,17 @@ foreach ($files as $file) {
                         $val = fread($fp, 2);
                         $alt = @unpack('n', $val)[1];
                         $neigecolor = 0;
-
-
-                        if ($alt > $altneige) {
+                        if ($alt > $iso) {
+                           //Affichage uniquement de point gris si il y a de la pluie 
                             if ($pluie && $somme ==0){
-                                $neigecolor=-2;
+                                $imod = $i % $pas;
+                                $jmod = $j % $pas;
+                                if (($jmod < $pas / 4 && $imod < $pas / 4) || ($jmod >= $pas / 2 && $imod >= $pas / 2 && $jmod < 3 * $pas / 4 && $imod < 3 * $pas / 4)) {
+                                    $neigecolor = -2;
+                                }
+                                else {
+                                    $neigecolor=0;
+                                }
                             }
                             //Hachage 
                             else if ($pluie && $somme>0 ){
@@ -107,6 +118,15 @@ foreach ($files as $file) {
                                 } else {
                                     $neigecolor = $somme;
                                 }
+                            }
+                            else if ($alt<$altneige){
+                                if($somme == 0 ){
+                                    $neigecolor=0;
+                                }
+                                else {
+                                    $neigecolor = 1;
+                                }
+                        
                             }
                             else {
                                 $neigecolor = $somme;
@@ -121,7 +141,11 @@ foreach ($files as $file) {
                         //COuleur rouge si pluie
                         else if ($neigecolor == -2) {
                             imagesetpixel($image, $i, $j, $gray);
-                        } else {
+                        } 
+                        else if($neigecolor >=100) {
+                            imagesetpixel($image, $i, $j,imagecolorallocatealpha($image, 0, 48, 67, 0));
+                        }
+                        else {
                             // Couleurs de départ et d'arrivée
                             $couleurDebut = [132, 214, 249]; // Bleu clair
                             $couleurFin = [0, 48, 67]; // Bleu foncé
