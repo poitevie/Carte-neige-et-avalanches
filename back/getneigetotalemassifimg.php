@@ -123,6 +123,9 @@ foreach ($files as $file) {
 
                         if ($neigecolor == 0) {
                             imagesetpixel($image, $i, $j, $trans);
+                        }
+                        else if($neigecolor >=200) {
+                            imagesetpixel($image, $i, $j,imagecolorallocatealpha($image, 0, 48, 67, 0));
                         } else {
 
                             // Couleurs de départ et d'arrivée
@@ -130,7 +133,7 @@ foreach ($files as $file) {
                             $couleurFin = [0, 48, 67]; // Bleu foncé
 
                             // Nombre de couleurs dans le dégradé
-                            $nbCouleurs = 398;
+                            $nbCouleurs = 200;
 
                             // Calcul de la différence entre chaque composante de couleur
                             $diffCouleur = [
