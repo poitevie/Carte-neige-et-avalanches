@@ -21,8 +21,8 @@
     font-size: 12px;
     line-height: 18px;
     border-radius: 5px;
-    bottom: 3vh
-;  }
+    bottom: 3vh;
+  }
 
   .legend h2 {
     font-size: 20px;
@@ -87,6 +87,11 @@
   .leg {
     line-height: 5px;
   }
+
+  .leaflet-popup-content {
+    min-width: 450px;
+    min-height: 450px;
+  }
 </style>
 
 <!-- Importation de la feuille de style pour Leaflet, une bibliothèque pour la cartographie -->
@@ -129,10 +134,19 @@
     /* Création d'un élément canvas pour dessiner une image */
     var canvas = document.createElement("canvas");
 
+
+    /* Déclaration  point d'information */
+    var iconeInformation = L.icon({
+      iconUrl: 'information.png',
+      iconSize: [20, 20],
+      iconAnchor: [20, 20],
+    });
+
     var urlBack = "http://localhost:8000/";
     var urlCadreAlpes = urlBack + "back/geojson/cadrealpes.json";
     var urlCadreCorse = urlBack + "back/geojson/cadrecorse.json";
     var urlCadrePyrenees = urlBack + "back/geojson/cadrepyrenees.json";
+
 
     /* Affichage de l'image à l'endroit correspondant */
     function getImage(numMassif) {
@@ -173,11 +187,25 @@
             var imageNeigeFraichePrevisionOverlay = L.imageOverlay(urlNeigeFraichePrevision, L.latLngBounds([bg, hd]), {
               opacity: 0.7,
             }).addTo(imageNeigeFraichePrevisionOverlays);
+
+            /* Point d'information */
+            var pointMilieu = [(elem["cadre"]["bg"][0] + elem["cadre"]["hd"][0]) / 2, (elem["cadre"]["bg"][1] + elem["cadre"]["hd"][1]) / 2]
+            var marker = L.marker(pointMilieu, { icon: iconeInformation }).addTo(map);
+
+            /* Pop up BRA */
+            var popupContent = `<iframe src="https://api.meteofrance.com/files/mountain/bulletins/BRA${numMassif}.xml" width="450px" height="450px"></iframe>`;
+            var popup = L.popup()
+              .setContent(popupContent);
+
+            marker.bindPopup(popup);
+
             return;
           }
         });
       });
     }
+
+
 
     /* Recupère les rectangles autour des massifs depuis un fichier .json */
     let alpes;
@@ -353,6 +381,8 @@
       }
     }
 
+
+
     /* Création de la légende */
     const legend = L.control({ position: "bottomleft" });
 
@@ -419,8 +449,12 @@
       return div;
     };
 
+
+
     /* Ajout de la légende à la carte */
     legend.addTo(map);
+
+
 
   };
 </script>
