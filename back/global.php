@@ -25,6 +25,7 @@ $path_neigefraiche = $path_images . "neigefraiche/";
 $path_neigefraicheprevision = $path_images . "neigefraicheprevision/";
 $path_neigetotale = $path_images . "neigetotale/";
 $path_risque = $path_images . "risque/";
+$path_altitude_img = $path_images . "altitude/";
 
 function create_folder($path)
 {

@@ -1,35 +1,24 @@
 <?php
+include_once("../global.php");
+include_once("../couleur.php");
 
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, POST');
 header('Access-Control-Allow-Headers: X-Requested-With');
 
-$files = scandir('./hgt/massifs/altitude/');
+create_folder("../" . $path_altitude_img);
+$files = scandir("../" . $path_altitude);
 foreach ($files as $file) {
-    // VARIABLES GLOBALES
-
-    $pas = 20;
-    $hgt_value_size = 2;
-    $hgt_line_records = 3600;
-    $fileext = '.hgt';
-    $hgt_step = 1 / $hgt_line_records;
-    $hgt_line_size = $hgt_value_size * ($hgt_line_records + 1);
-    $filespath = "hgt/massifs/";
     $filenumber = explode(".", $file)[0];
     if ($filenumber != "") {
 
         // Si le fichier binaire du massif existe
-        if (file_exists($filespath . "altitude/" . $filenumber . '.hgt')) {
-            $hgt_line_records = 3600;
-        } else
+        if (!file_exists("../" . $path_altitude . $filenumber . $fileext))
             die("Erreur : " . $filenumber . $fileext . " n'existe pas");
 
-        if (!$fp = fopen($filespath . "altitude/" . $filenumber . $fileext, "rb"))
+        if (!$fp = fopen("../" . $path_altitude . $filenumber . $fileext, "rb"))
             die("Erreur : N'a pas pu ouvrir le fichier d'altitude " . $filenumber . $fileext);
         else {
-            if (!file_exists('images/altitude')) {
-                mkdir('images/altitude', 0777, true);
-            }
             //Variables globales stockées dans le fichier
             fseek($fp, 0);
             $val = fread($fp, 2);
@@ -64,39 +53,10 @@ foreach ($files as $file) {
                     imagesetpixel($image, $i, $j, colorScale($alt, $image));
                 }
             }
-            imagepng($image, "./images/altitude/" . $filenumber . ".png");
+            imagepng($image, "../" . $path_altitude_img . $filenumber . $imageext);
             imagedestroy($image);
         }
     }
-}
-
-
-// Récupérer le numéro du fichier à partir d'un point (latitude,longitude)
-function getfilenumber($latitude, $longitude)
-{
-    $lat = abs(floor($latitude));
-    $lon = abs(floor($longitude));
-
-    $filenumber = "";
-    if ($latitude >= 0)
-        $filenumber .= "N";
-    else
-        $filenumber .= "S";
-    if (strlen($lat) == 1)
-        $filenumber .= "0";
-    $filenumber .= $lat;
-
-    if ($longitude >= 0)
-        $filenumber .= "E";
-    else
-        $filenumber .= "W";
-    if (strlen($lon) == 1)
-        $filenumber .= "00";
-    else if (strlen($lon) == 2)
-        $filenumber .= "0";
-    $filenumber .= $lon;
-
-    return $filenumber;
 }
 
 function colorScale($alt, $image) {
