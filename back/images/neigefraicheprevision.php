@@ -99,9 +99,9 @@ foreach ($files as $file) {
                             }
                             //Hachage 
                             else if ($pluie && $somme>0 ){
-                                $imod = $i % $pas_rayure_rayure;
-                                $jmod = $j % $pas_rayure_rayure;
-                                if (($jmod < $pas_rayure_rayure / 4 && $imod < $pas_rayure_rayure / 4) || ($jmod >= $pas_rayure_rayure / 2 && $imod >= $pas_rayure_rayure / 2 && $jmod < 3 * $pas_rayure_rayure / 4 && $imod < 3 * $pas_rayure_rayure / 4)) {
+                                $imod = $i % $pas_rayure;
+                                $jmod = $j % $pas_rayure;
+                                if (($jmod < $pas_rayure / 4 && $imod < $pas_rayure / 4) || ($jmod >= $pas_rayure / 2 && $imod >= $pas_rayure / 2 && $jmod < 3 * $pas_rayure / 4 && $imod < 3 * $pas_rayure / 4)) {
                                     $neigecolor = -2;
                                 } else {
                                     $neigecolor = $somme;
@@ -130,12 +130,12 @@ foreach ($files as $file) {
                         else if ($neigecolor == -2) {
                             imagesetpixel($image, $i, $j, imagecolorallocatealpha($image, $pluie_couleur[0], $pluie_couleur[1], $pluie_couleur[2], 0));
                         } 
-                        else if($neigecolor >=100) {
+                        else if($neigecolor >=$limiteneigefraicheprevision) {
                             imagesetpixel($image, $i, $j, imagecolorallocatealpha($image, $pluie_couleur2[0], $pluie_couleur2[1], $pluie_couleur2[2], 0));
                         }
                         else {
                             // Nombre de couleurs dans le dégradé
-                            $nbCouleurs = 100;
+                            $nbCouleurs = $limiteneigefraicheprevision;
 
                             // Calcul de la différence entre chaque composante de couleur
                             $diffCouleur = [
