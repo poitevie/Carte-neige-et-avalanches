@@ -1,6 +1,12 @@
-back/hgt/*
+back/hgt/maillage/
+back/hgt/massifs/
 back/test/*
-back/images/*
+back/images/risque/
+back/images/neigefraiche/
+back/images/neigefraicheprevision/
+back/images/neigetotale/
+back/images/orientation/
+back/images/pente/
 .DS_Store
 back/.DS_Store
 front/.DS_Store

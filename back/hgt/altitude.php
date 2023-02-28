@@ -1,22 +1,16 @@
 <?php
+include_once("../global.php");
 
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, POST');
 header('Access-Control-Allow-Headers: X-Requested-With');
 
-
-// VARIABLES GLOBALES
-$hgt_value_size = 2;
-$hgt_line_records = 3600;
-$hgt_step = 1 / $hgt_line_records;
-$hgt_step = 1 / $hgt_line_records;
-$hgt_line_size = $hgt_value_size * ($hgt_line_records + 1);
-$filespath = "hgt/";
+create_folder("../" . $path_altitude);
+$cadrealpes = array();
+$cadrecorse = array();
+$cadrepyrenees = array();
 $cadremassif = array();
-if (!file_exists('hgt/massifs/altitude')) {
-    mkdir('hgt/massifs/altitude', 0777, true);
-}
-if (!$jsontext = file_get_contents("geojson/massifs.geojson"))
+if (!$jsontext = file_get_contents("../" . $path_geojson . "massifs.geojson"))
     die("Erreur : N'a pas pu ouvrir le fichier geojson des massifs");
 else {
     $json = json_decode($jsontext);
@@ -26,10 +20,15 @@ else {
         $id = $features[$i]->{"properties"}->{"id"};
         generatehgt($features[$i], $id);
     }
+    $content = json_encode($cadrealpes);
+    file_put_contents("../" . $path_geojson . "cadrealpes.json", $content);
+    $content = json_encode($cadrecorse);
+    file_put_contents("../" . $path_geojson . "cadrecorse.json", $content);
+    $content = json_encode($cadrepyrenees);
+    file_put_contents("../" . $path_geojson . "cadrepyrenees.json", $content);
     $content = json_encode($cadremassif);
-    file_put_contents("geojson/cadremassif.json", $content);
+    file_put_contents("../" . $path_geojson . "cadremassif.json", $content);
 }
-
 function getcadremassif($massif)
 {
     global $hgt_value_size, $hgt_line_records;
@@ -54,10 +53,9 @@ function getcadremassif($massif)
     }
     return ["bg" => [$minlat, $minlon], "hg" => [$maxlat, $minlon], "hd" => [$maxlat, $maxlon], "bd" => [$minlat, $maxlon]];
 }
-
 function generatehgt($massif, $idfile)
 {
-    global $hgt_value_size, $hgt_line_size, $hgt_line_records, $filespath, $hgt_step, $cadremassif;
+    global $hgt_value_size, $hgt_line_size, $hgt_line_records, $hgt_step, $cadremassif, $cadrealpes, $cadrecorse, $cadrepyrenees, $path_maillage, $path_altitude, $fileext, $id_alpes, $id_corse, $id_pyrenees;
     $cadre = getcadremassif($massif);
     $coord = $massif->{"geometry"}->{"coordinates"}[0];
 
@@ -67,6 +65,18 @@ function generatehgt($massif, $idfile)
     $coordxy = [];
     $arr = array("id" => $idfile, "cadre" => $cadre);
     array_push($cadremassif, $arr);
+    if(in_array($idfile, $id_alpes)) {
+        array_push($cadrealpes, $arr);
+    }
+    else if(in_array($idfile, $id_corse)) {
+        array_push($cadrecorse, $arr);
+    }
+    else if(in_array($idfile, $id_pyrenees)) {
+        array_push($cadrepyrenees, $arr);
+    }
+    else {
+        die("Le massif ".$idfile." n'est pas dans les listes de massifs (alpes, corse, ou pyrénées)");
+    }
 
     for ($i = 0; $i < count($coord); $i++) {
         $x = floor((($coord[$i][0] - $cadre["bg"][1]) / ($cadre["hd"][1] - $cadre["bg"][1]) * $width) / 2) * 2;
@@ -83,13 +93,7 @@ function generatehgt($massif, $idfile)
         for ($e = $bgfile[1]; $e <= $hdfile[1]; $e++) {
             $filenumber = getfilenumber($n, $e);
 
-            if (file_exists($filespath . $filenumber . '.hgt')) {
-                $fileext = '.hgt';
-                $hgt_line_records = 3600;
-            } else
-                return;
-
-            if (!$fp = fopen($filespath . $filenumber . $fileext, "rb"))
+            if (!$fp = fopen("../" . $path_maillage . $filenumber . $fileext, "rb"))
                 die("Erreur : N'a pas pu ouvrir le fichier d'altitude");
             else {
                 array_push($filesline, $fp);
@@ -98,7 +102,7 @@ function generatehgt($massif, $idfile)
         array_push($files, $filesline);
     }
     $files = array_reverse($files);
-    if (!$fp = fopen("hgt/massifs/altitude/" . $idfile . ".hgt", "w")) {
+    if (!$fp = fopen("../" . $path_altitude . $idfile . $fileext, "w")) {
         die("Erreur : N'a pas pu ouvrir le fichier");
     } else {
         $indexlathg = $hgt_line_records - floor(($cadre["hg"][0] - floor($cadre["hg"][0])) / $hgt_step);
@@ -137,32 +141,6 @@ function generatehgt($massif, $idfile)
         }
     }
 }
-function getfilenumber($latitude, $longitude)
-{
-    $lat = abs(floor($latitude));
-    $lon = abs(floor($longitude));
-
-    $filenumber = "";
-    if ($latitude >= 0)
-        $filenumber .= "N";
-    else
-        $filenumber .= "S";
-    if (strlen($lat) == 1)
-        $filenumber .= "0";
-    $filenumber .= $lat;
-
-    if ($longitude >= 0)
-        $filenumber .= "E";
-    else
-        $filenumber .= "W";
-    if (strlen($lon) == 1)
-        $filenumber .= "00";
-    else if (strlen($lon) == 2)
-        $filenumber .= "0";
-    $filenumber .= $lon;
-
-    return $filenumber;
-}
 function is_point_in_polygon($point, $polygon_coordinates)
 {
     $n = count($polygon_coordinates);
@@ -189,3 +167,4 @@ function is_point_in_polygon($point, $polygon_coordinates)
     }
     return $inside;
 }
+?>
