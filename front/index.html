@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <meta charset="UTF-8">
-<meta http-equiv="cache-control" content="max-age=300"/>
+<meta http-equiv="cache-control" content="max-age=300" />
 <style type="text/css">
   html,
   body {
@@ -21,8 +21,8 @@
     font-size: 12px;
     line-height: 18px;
     border-radius: 5px;
-    bottom: 3vh
-;  }
+    bottom: 3vh;
+  }
 
   .legend h2 {
     font-size: 20px;
@@ -39,7 +39,7 @@
     width: 18px;
     height: 18px;
     float: left;
-    margin: -6px 8px;
+    margin: 0px 8px;
     opacity: 0.7;
   }
 
@@ -85,7 +85,12 @@
   }
 
   .leg {
-    line-height: 5px;
+    line-height: 18px;
+  }
+
+  .leaflet-popup-content {
+    min-width: 450px;
+    min-height: 450px;
   }
 </style>
 
@@ -130,9 +135,19 @@
     var canvas = document.createElement("canvas");
 
     var urlBack = "http://localhost:8000/";
+
+    /* Déclaration  point d'information */
+    var iconeInformation = L.icon({
+      iconUrl: urlBack + "front/information.png",
+      iconSize: [20, 20],
+      iconAnchor: [20, 20],
+    });
+
+    
     var urlCadreAlpes = urlBack + "back/geojson/cadrealpes.json";
     var urlCadreCorse = urlBack + "back/geojson/cadrecorse.json";
     var urlCadrePyrenees = urlBack + "back/geojson/cadrepyrenees.json";
+
 
     /* Affichage de l'image à l'endroit correspondant */
     function getImage(numMassif) {
@@ -140,44 +155,65 @@
       var urlNeige = urlBack + `back/images/neigetotale/${numMassif}.png`;
       var urlNeigeFraiche = urlBack + `back/images/neigefraiche/${numMassif}.png`;
       var urlBounds = urlBack + "back/geojson/cadremassif.json";
+      var urlCentreMassif = urlBack + "back/geojson/centre_massif.json";
       var urlNeigeFraichePrevision = urlBack + `back/images/neigefraicheprevision/${numMassif}.png`;
+
       /* Ajout de l'image créée sur le canvas en tant qu'overlay sur la carte */
       $.getJSON(urlBounds, function (data) {
-        canvas.width = data["width"]; /* Largeur */
-        canvas.height = data["height"]; /* Hauteur */
-        var ctx =
-          canvas.getContext(
-            "2d"
-          ); /* Récupération du contexte de dessin pour le canvas */
-        data.forEach((elem) => {
-          if (elem["id"] === numMassif) {
-            var bg = elem["cadre"]["bg"];
-            var hd = elem["cadre"]["hd"];
+        $.getJSON(urlCentreMassif, function (centre) {
+          /* Récupération du point au centre du massif */
+          var pointMilieu = [centre[numMassif][1], centre[numMassif][0]];
 
-            /* Création d'un calque d'image du risque d'avalanche sur la carte */
-            var imageOverlay = L.imageOverlay(url, L.latLngBounds([bg, hd]), {
-              opacity: 0.9,
-            }).addTo(imageOverlays);
+          canvas.width = data["width"]; /* Largeur */
+          canvas.height = data["height"]; /* Hauteur */
+          var ctx =
+            canvas.getContext(
+              "2d"
+            ); /* Récupération du contexte de dessin pour le canvas */
+          data.forEach((elem) => {
+            if (elem["id"] === numMassif) {
+              var bg = elem["cadre"]["bg"];
+              var hd = elem["cadre"]["hd"];
 
-            /* Création d'un calque d'image de l'apaisseur de neige totale sur la carte */
-            var imageNeigeOverlay = L.imageOverlay(urlNeige, L.latLngBounds([bg, hd]), {
-              opacity: 0.7,
-            }).addTo(imageNeigeOverlays);
+              /* Création d'un calque d'image du risque d'avalanche sur la carte */
+              var imageOverlay = L.imageOverlay(url, L.latLngBounds([bg, hd]), {
+                opacity: 0.9,
+              }).addTo(imageOverlays);
 
-            /* Création d'un calque d'image de l'apaisseur de neige fraiche sur la carte */
-            var imageNeigeFraicheOverlay = L.imageOverlay(urlNeigeFraiche, L.latLngBounds([bg, hd]), {
-              opacity: 0.7,
-            }).addTo(imageNeigeFraicheOverlays);
+              /* Création d'un calque d'image de l'apaisseur de neige totale sur la carte */
+              var imageNeigeOverlay = L.imageOverlay(urlNeige, L.latLngBounds([bg, hd]), {
+                opacity: 0.7,
+              }).addTo(imageNeigeOverlays);
 
-            /* Création d'un calque d'image de l'apaisseur de neige fraiche (prévisions) sur la carte */
-            var imageNeigeFraichePrevisionOverlay = L.imageOverlay(urlNeigeFraichePrevision, L.latLngBounds([bg, hd]), {
-              opacity: 0.7,
-            }).addTo(imageNeigeFraichePrevisionOverlays);
-            return;
-          }
-        });
+              /* Création d'un calque d'image de l'apaisseur de neige fraiche sur la carte */
+              var imageNeigeFraicheOverlay = L.imageOverlay(urlNeigeFraiche, L.latLngBounds([bg, hd]), {
+                opacity: 0.7,
+              }).addTo(imageNeigeFraicheOverlays);
+
+              /* Création d'un calque d'image de l'apaisseur de neige fraiche (prévisions) sur la carte */
+              var imageNeigeFraichePrevisionOverlay = L.imageOverlay(urlNeigeFraichePrevision, L.latLngBounds([bg, hd]), {
+                opacity: 0.7,
+              }).addTo(imageNeigeFraichePrevisionOverlays);
+
+              /* Point d'information */
+              var marker = L.marker(pointMilieu, { icon: iconeInformation }).addTo(map);
+
+              /* Pop up BRA */
+              var popupContent = `<iframe src="https://api.meteofrance.com/files/mountain/bulletins/BRA${numMassif}.xml" width="450px" height="450px"></iframe>`;
+              var popup = L.popup()
+                .setContent(popupContent);
+
+              marker.bindPopup(popup);
+
+              return;
+            }
+          });
+
+        })
       });
     }
+
+
 
     /* Recupère les rectangles autour des massifs depuis un fichier .json */
     let alpes;
@@ -353,6 +389,8 @@
       }
     }
 
+
+
     /* Création de la légende */
     const legend = L.control({ position: "bottomleft" });
 
@@ -370,16 +408,16 @@
       div.innerHTML += "<h2 class='inside '>Légende</h2>";
       div.innerHTML += "<h4 class='inside '>Risque d'avalanche</h4>";
       div.innerHTML += labels.join("<br>");
-      div.innerHTML += '<p class="inside ">Hachures : Risque évolutif entre <br>les deux risques représentés</p>';
+      div.innerHTML += '<p class="inside ">Pentes les plus opaques : <br>pentes les plus dangereuses</p>';
       div.innerHTML += "<h4 class='inside '>Épaisseur de neige (en cm)</h4>";
       div.innerHTML += '<i class="degrade inside " style="background: linear-gradient(to right, rgba(132, 214, 249), rgba(0, 48, 67));"></i><br>';
       div.innerHTML += '<span class="degradegauche inside ">1</span>';
-      div.innerHTML += '<span class="degradedroite inside ">400</span><br>';
+      div.innerHTML += '<span class="degradedroite inside ">200</span><br>';
       div.innerHTML += "<h4 class='inside '>Neige fraîche cumulée sur <br>les 4 derniers jours (en cm)</h4>";
       div.innerHTML += '<i class="degrade inside " style="background: linear-gradient(to right, rgba(132, 214, 249), rgba(0, 48, 67));"></i><br>';
       div.innerHTML += '<span class="degradegauche inside ">1</span>';
       div.innerHTML += '<span class="degradedroite inside ">100</span><br>';
-      div.innerHTML += '<div class = "inside"><i style="background-image: url(pluieLegende.png); background-size: 300%"></i>Pluie</div>'
+      div.innerHTML += '<div class = "inside"><i style="background-image: url(pluieLegende.png); background-size: 300%;"></i>Pluie</div>'
 
       const insideContent = div.querySelectorAll(".inside");
       const insideBr = div.querySelectorAll("br");
@@ -419,8 +457,12 @@
       return div;
     };
 
+
+
     /* Ajout de la légende à la carte */
     legend.addTo(map);
+
+
 
   };
 </script>
