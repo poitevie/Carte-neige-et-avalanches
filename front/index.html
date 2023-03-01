@@ -134,14 +134,16 @@
     /* Création d'un élément canvas pour dessiner une image */
     var canvas = document.createElement("canvas");
 
+    var urlBack = "http://localhost:8000/";
+
     /* Déclaration  point d'information */
     var iconeInformation = L.icon({
-      iconUrl: 'information.png',
+      iconUrl: urlBack + "front/information.png",
       iconSize: [20, 20],
       iconAnchor: [20, 20],
     });
 
-    var urlBack = "http://localhost:8000/";
+    
     var urlCadreAlpes = urlBack + "back/geojson/cadrealpes.json";
     var urlCadreCorse = urlBack + "back/geojson/cadrecorse.json";
     var urlCadrePyrenees = urlBack + "back/geojson/cadrepyrenees.json";
@@ -406,7 +408,7 @@
       div.innerHTML += "<h2 class='inside '>Légende</h2>";
       div.innerHTML += "<h4 class='inside '>Risque d'avalanche</h4>";
       div.innerHTML += labels.join("<br>");
-      div.innerHTML += '<p class="inside ">Hachures : Risque évolutif entre <br>les deux risques représentés</p>';
+      div.innerHTML += '<p class="inside ">Pentes les plus opaques : <br>pentes les plus dangereuses</p>';
       div.innerHTML += "<h4 class='inside '>Épaisseur de neige (en cm)</h4>";
       div.innerHTML += '<i class="degrade inside " style="background: linear-gradient(to right, rgba(132, 214, 249), rgba(0, 48, 67));"></i><br>';
       div.innerHTML += '<span class="degradegauche inside ">1</span>';
