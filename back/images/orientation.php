@@ -1,35 +1,24 @@
 <?php
+include_once("../global.php");
+include_once("../couleur.php");
 
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, POST');
 header('Access-Control-Allow-Headers: X-Requested-With');
 
-$files = scandir('./hgt/massifs/orientation/');
+create_folder("../" . $path_orientation_img);
+$files = scandir("../" . $path_orientation);
 foreach ($files as $file) {
-    // VARIABLES GLOBALES
-
-    $pas = 20;
-    $hgt_value_size = 2;
-    $hgt_line_records = 3600;
-    $fileext = '.hgt';
-    $hgt_step = 1 / $hgt_line_records;
-    $hgt_line_size = $hgt_value_size * ($hgt_line_records + 1);
-    $filespath = "hgt/massifs/";
     $filenumber = explode(".", $file)[0];
     if ($filenumber != "") {
 
         // Si le fichier binaire du massif existe
-        if (file_exists($filespath . "orientation/" . $filenumber . '.hgt')) {
-            $hgt_line_records = 3600;
-        } else
+        if (!file_exists("../" . $path_orientation . $filenumber . $fileext))
             die("Erreur : " . $filenumber . $fileext . " n'existe pas");
 
-        if (!$fp = fopen($filespath . "orientation/" . $filenumber . $fileext, "rb"))
+        if (!$fp = fopen("../" . $path_orientation . $filenumber . $fileext, "rb"))
             die("Erreur : N'a pas pu ouvrir le fichier d'oritude " . $filenumber . $fileext);
         else {
-            if (!file_exists('images/orientation')) {
-                mkdir('images/orientation', 0777, true);
-            }
             //Variables globales stockées dans le fichier
             fseek($fp, 0);
             $val = fread($fp, 2);
@@ -52,15 +41,15 @@ foreach ($files as $file) {
 
             $image = imagecreatetruecolor($width, $height);
             $trans = imagecolorallocatealpha($image, 0, 0, 0, 127);
-            $no = imagecolorallocatealpha($image, 0, 54, 115, 0);
-            $n = imagecolorallocatealpha($image, 0, 119, 255, 0);
-            $ne = imagecolorallocatealpha($image, 140, 194, 255, 0);
-            $o = imagecolorallocatealpha($image, 0, 0, 0, 0);
-            $c = imagecolorallocatealpha($image, 0, 255, 0, 0);
-            $e = imagecolorallocatealpha($image, 255, 255, 255, 0);
-            $so = imagecolorallocatealpha($image, 115, 42, 0, 0);
-            $s = imagecolorallocatealpha($image, 255, 94, 0, 0);
-            $se = imagecolorallocatealpha($image, 255, 182, 140, 0);
+            $no = imagecolorallocatealpha($image, $no_couleur[0], $no_couleur[1], $no_couleur[2], 0);
+            $n = imagecolorallocatealpha($image, $n_couleur[0], $n_couleur[1], $n_couleur[2], 0);
+            $ne = imagecolorallocatealpha($image, $ne_couleur[0], $ne_couleur[1], $ne_couleur[2], 0);
+            $o = imagecolorallocatealpha($image, $o_couleur[0], $o_couleur[1], $o_couleur[2], 0);
+            $c = imagecolorallocatealpha($image, $c_couleur[0], $c_couleur[1], $c_couleur[2], 0);
+            $e = imagecolorallocatealpha($image, $e_couleur[0], $e_couleur[1], $e_couleur[2], 0);
+            $so = imagecolorallocatealpha($image, $so_couleur[0], $so_couleur[1], $so_couleur[2], 0);
+            $s = imagecolorallocatealpha($image, $s_couleur[0], $s_couleur[1], $s_couleur[2], 0);
+            $se = imagecolorallocatealpha($image, $se_couleur[0], $se_couleur[1], $se_couleur[2], 0);
             imagesavealpha($image, true);
             imagefill($image, 0, 0, $trans);
             //génération de la tuile du massif
@@ -110,39 +99,9 @@ foreach ($files as $file) {
                     }
                 }
             }
-            imagepng($image, "./images/orientation/" . $filenumber . ".png");
+            imagepng($image, "../" . $path_orientation_img . $filenumber . $imageext);
             imagedestroy($image);
         }
     }
-}
-
-
-
-// Récupérer le numéro du fichier à partir d'un point (latitude,longitude)
-function getfilenumber($latitude, $longitude)
-{
-    $lat = abs(floor($latitude));
-    $lon = abs(floor($longitude));
-
-    $filenumber = "";
-    if ($latitude >= 0)
-        $filenumber .= "N";
-    else
-        $filenumber .= "S";
-    if (strlen($lat) == 1)
-        $filenumber .= "0";
-    $filenumber .= $lat;
-
-    if ($longitude >= 0)
-        $filenumber .= "E";
-    else
-        $filenumber .= "W";
-    if (strlen($lon) == 1)
-        $filenumber .= "00";
-    else if (strlen($lon) == 2)
-        $filenumber .= "0";
-    $filenumber .= $lon;
-
-    return $filenumber;
 }
 ?>

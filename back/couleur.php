@@ -15,4 +15,16 @@ $couleurFin = [0, 48, 67]; // Bleu foncé
 $pluie_couleur = [52, 56, 82];
 $pluie_couleur2 = [0, 48, 67];
 
+//Couleur orientation
+
+$no_couleur = [0, 54, 115];
+$n_couleur = [0, 119, 255];
+$ne_couleur = [140, 194, 255];
+$o_couleur = [0, 0, 0];
+$c_couleur = [0, 255, 0];
+$e_couleur = [255, 255, 255];
+$so_couleur = [115, 42, 0];
+$s_couleur = [255, 94, 0];
+$se_couleur = [255, 182, 140];
+
 ?>
