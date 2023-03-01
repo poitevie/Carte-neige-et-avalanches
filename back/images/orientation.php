@@ -78,7 +78,7 @@ foreach ($files as $file) {
                             break;
 
                         case 5:
-                            imagesetpixel($image, $i, $j, $c);
+                            imagesetpixel($image, $i, $j, $trans);
                             break;
 
                         case 6:
