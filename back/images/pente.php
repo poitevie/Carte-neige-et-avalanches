@@ -41,10 +41,10 @@ foreach ($files as $file) {
 
             $image = imagecreatetruecolor($width, $height);
             $trans = imagecolorallocatealpha($image, 0, 0, 0, 127);
-            $jaune = imagecolorallocatealpha($image, 241, 231, 11, 0);
-            $orange = imagecolorallocatealpha($image, 248, 111, 33, 0);
-            $rouge = imagecolorallocatealpha($image, 227, 3, 91, 0);
-            $violet = imagecolorallocatealpha($image, 203, 135, 186, 0);
+            $jaune = imagecolorallocatealpha($image, $jaune_couleur[0], $jaune_couleur[1], $jaune_couleur[2], 0);
+            $orange = imagecolorallocatealpha($image, $orange_couleur[0], $orange_couleur[1], $orange_couleur[2], 0);
+            $rouge = imagecolorallocatealpha($image, $rouge_couleur[0], $rouge_couleur[1], $rouge_couleur[2], 0);
+            $violet = imagecolorallocatealpha($image, $violet_couleur[0], $violet_couleur[1], $violet_couleur[2], 0);
             imagesavealpha($image, true);
             imagefill($image, 0, 0, $trans);
             //génération de la tuile du massif

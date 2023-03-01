@@ -27,4 +27,12 @@ $so_couleur = [115, 42, 0];
 $s_couleur = [255, 94, 0];
 $se_couleur = [255, 182, 140];
 
+//Couleur pente
+
+$trans_couleur = [0, 0, 0];
+$jaune_couleur = [241, 231, 11];
+$orange_couleur = [248, 111, 33];
+$rouge_couleur = [227, 3, 91];
+$violet_couleur = [203, 135, 186];
+
 ?>
