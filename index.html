@@ -147,28 +147,28 @@
 
     /* Déclaration  point d'information */
     var iconeInformation = L.icon({
-      iconUrl: urlBack + "front/information.png",
+      iconUrl: urlBack + "assets/information.png",
       iconSize: [20, 20],
       iconAnchor: [20, 20],
     });
 
     
-    var urlCadreAlpes = urlBack + "back/geojson/cadrealpes.json";
-    var urlCadreCorse = urlBack + "back/geojson/cadrecorse.json";
-    var urlCadrePyrenees = urlBack + "back/geojson/cadrepyrenees.json";
+    var urlCadreAlpes = urlBack + "api/geojson/cadrealpes.json";
+    var urlCadreCorse = urlBack + "api/geojson/cadrecorse.json";
+    var urlCadrePyrenees = urlBack + "api/geojson/cadrepyrenees.json";
 
 
     /* Affichage de l'image à l'endroit correspondant */
     function getImage(numMassif) {
-      var url = urlBack + `back/images/risque/${numMassif}.png`;
-      var urlNeige = urlBack + `back/images/neigetotale/${numMassif}.png`;
-      var urlNeigeFraiche = urlBack + `back/images/neigefraiche/${numMassif}.png`;
-      var urlBounds = urlBack + "back/geojson/cadremassif.json";
-      var urlCentreMassif = urlBack + "back/geojson/centre_massif.json";
-      var urlNeigeFraichePrevision = urlBack + `back/images/neigefraicheprevision/${numMassif}.png`;
-      var urlAltitude = urlBack + `back/images/altitude/${numMassif}.png`;
-      var urlPente = urlBack + `back/images/pente/${numMassif}.png`;
-      var urlOrientation = urlBack + `back/images/orientation/${numMassif}.png`;
+      var url = urlBack + `api/images/risque/${numMassif}.png`;
+      var urlNeige = urlBack + `api/images/neigetotale/${numMassif}.png`;
+      var urlNeigeFraiche = urlBack + `api/images/neigefraiche/${numMassif}.png`;
+      var urlBounds = urlBack + "api/geojson/cadremassif.json";
+      var urlCentreMassif = urlBack + "api/geojson/centre_massif.json";
+      var urlNeigeFraichePrevision = urlBack + `api/images/neigefraicheprevision/${numMassif}.png`;
+      var urlAltitude = urlBack + `api/images/altitude/${numMassif}.png`;
+      var urlPente = urlBack + `api/images/pente/${numMassif}.png`;
+      var urlOrientation = urlBack + `api/images/orientation/${numMassif}.png`;
 
       /* Ajout de l'image créée sur le canvas en tant qu'overlay sur la carte */
       $.getJSON(urlBounds, function (data) {

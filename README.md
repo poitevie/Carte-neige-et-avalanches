@@ -87,9 +87,10 @@ Pour lancer le projet, suivez les instructions suivantes.
    php -S localhost:8000
    ```
 3. Avant d'utiliser l'application, il faut que les fichiers binaires et les images soient générés en suivant les étapes décrites dans [generation.md](docs/generation.md).
-4. Sur la carte, il est possible de zoomer, dézoomer, se déplacer et cliquer sur un massif pour afficher les informations sur la neige et le risque nivologique.
-5. Les informations affichées pour un massif sont la hauteur de neige fraîche, les prévisions de neige fraîche, la hauteur de neige totale, le risque nivologique, les orientations, les pentes et les altitudes.
-6. Ouvrir un navigateur, puis accéder à l'url `http://localhost:8000`
+4. Au besoin éditer la variable `urlBack` dans le fichier `index.html` pour que les appels au back-end s'effectuent correctement.
+5. Sur la carte, il est possible de zoomer, dézoomer, se déplacer et cliquer sur un massif pour afficher les informations sur la neige et le risque nivologique.
+6. Les informations affichées pour un massif sont la hauteur de neige fraîche, les prévisions de neige fraîche, la hauteur de neige totale, le risque nivologique, les orientations, les pentes et les altitudes.
+7. Ouvrir un navigateur, puis accéder à l'url `http://localhost:8000`
 
 <!-- CONTACT -->
 ## Contact
