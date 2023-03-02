@@ -77,15 +77,15 @@ Pour lancer le projet, suivez les instructions suivantes.
 
 ### Installation
 
-1. Cloner le repo
+1. Cloner le repository
    ```sh
    git clone git@github.com:poitevie/Skitour.git
    ```
-2. Lancer le serveur PHP en local
+2. Lancer le serveur PHP en local à la racine du repository
    ```sh
-   php -S localhost:8000 back/
+   php -S localhost:8000
    ```
-3. Ouvrir le fichier HTML
+3. Ouvrir un navigateur, puis accéder à l'url http://localhost:8000
 
 <!-- CONTACT -->
 ## Contact
