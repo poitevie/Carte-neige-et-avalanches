@@ -40,6 +40,7 @@
       </ul>
     </li>
     <li><a href="#contact">Contact</a></li>
+    <li><a href="#developpeurs">Développeurs</a></li>
   </ol>
 </details>
 
@@ -94,6 +95,8 @@ Pour lancer le projet, suivez les instructions suivantes.
 ## Contact
 
 Admin - https://skitour.fr/mailto.php?id=admin
+
+<!-- DEVELOPPEURS -->
 ## Développeurs
 * Eve POITEVIN
 * Thomas FOURNIER
