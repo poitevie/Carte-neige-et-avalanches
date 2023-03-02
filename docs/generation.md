@@ -64,9 +64,3 @@ Pour générer les images qui serviront à afficher de l'informations sur la car
 Les scripts génèrent une image par massif dans le dossier correspondant (ex: les images de neige fraiche se situent dans le dossier `api/images/neigefraiche`).
 
 Les noms des images suivent le schéma suivant : `<id du massif>.png` (ex: Chartreuse -> `07.png`)
-
-## Utilisation de l'application
-1. Avant d'utiliser l'application, il faut que les fichiers binaires et les images soient générés en suivant les étapes précédentes.
-2. Ouvrir le fichier `index.html` dans un navigateur web pour accéder à l'application.
-3. Sur la carte, il est possible de zoomer, dézoomer, se déplacer et cliquer sur un massif pour afficher les informations sur la neige et le risque nivologique.
-4. Les informations affichées pour un massif sont la hauteur de neige fraîche, les prévisions de neige fraîche, la hauteur de neige totale, le risque nivologique, les orientations, les pentes et les altitudes.
