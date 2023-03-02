@@ -16,7 +16,7 @@
   <p align="center">
     Une carte interactive pour le site Skitour, affichant la neige fraîche, totale et le risque nivologique à partir des bulletins Météo France.
     <br />
-    <a href="https://github.com/poitevie/Skitour"><strong>Documentation »</strong></a>
+    <a href="https://github.com/poitevie/Skitour/tree/main/docs"><strong>Documentation »</strong></a>
     <br />
     <br />
   </p>
