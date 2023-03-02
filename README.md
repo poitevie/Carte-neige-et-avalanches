@@ -94,6 +94,11 @@ Pour lancer le projet, suivez les instructions suivantes.
 ## Contact
 
 Admin - https://skitour.fr/mailto.php?id=admin
+## Développeurs
+* Eve POITEVIN
+* Thomas FOURNIER
+* Julien GUIGNARD
+* Thomas BACH
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
