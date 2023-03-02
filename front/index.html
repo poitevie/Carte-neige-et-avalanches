@@ -128,6 +128,15 @@
     /* Création d'un groupe de couches contenant les couches de neige fraiche (prévisions) */
     var imageNeigeFraichePrevisionOverlays = L.layerGroup();
 
+    /* Création d'un groupe de couches contenant les couches d'altitudes */
+    var imageAltitudeOverlays = L.layerGroup();
+    
+    /* Création d'un groupe de couches contenant les couches de pentes */
+    var imagePenteOverlays = L.layerGroup();
+
+    /* Création d'un groupe de couches contenant les couches d'orientations */
+    var imageOrientationOverlays = L.layerGroup();
+
     /* Stockage des cartes déjà affichées */
     var carte = [];
 
@@ -157,6 +166,9 @@
       var urlBounds = urlBack + "back/geojson/cadremassif.json";
       var urlCentreMassif = urlBack + "back/geojson/centre_massif.json";
       var urlNeigeFraichePrevision = urlBack + `back/images/neigefraicheprevision/${numMassif}.png`;
+      var urlAltitude = urlBack + `back/images/altitude/${numMassif}.png`;
+      var urlPente = urlBack + `back/images/pente/${numMassif}.png`;
+      var urlOrientation = urlBack + `back/images/orientation/${numMassif}.png`;
 
       /* Ajout de l'image créée sur le canvas en tant qu'overlay sur la carte */
       $.getJSON(urlBounds, function (data) {
@@ -194,6 +206,21 @@
               var imageNeigeFraichePrevisionOverlay = L.imageOverlay(urlNeigeFraichePrevision, L.latLngBounds([bg, hd]), {
                 opacity: 0.7,
               }).addTo(imageNeigeFraichePrevisionOverlays);
+
+              /* Création d'un calque d'image de l'altitude sur la carte */
+              var imageAltitudeOverlay = L.imageOverlay(urlAltitude, L.latLngBounds([bg, hd]), {
+                opacity: 0.7,
+              }).addTo(imageAltitudeOverlays);
+
+              /* Création d'un calque d'image de la pente sur la carte */
+              var imagePenteOverlay = L.imageOverlay(urlPente, L.latLngBounds([bg, hd]), {
+                opacity: 0.7,
+              }).addTo(imagePenteOverlays);
+
+              /* Création d'un calque d'image de l'orientation sur la carte */
+              var imageOrientationOverlay = L.imageOverlay(urlOrientation, L.latLngBounds([bg, hd]), {
+                opacity: 0.7,
+              }).addTo(imageOrientationOverlays);
 
               /* Point d'information */
               var marker = L.marker(pointMilieu, { icon: iconeInformation }).addTo(map);
@@ -365,7 +392,10 @@
       "Risque d'avalanche": imageOverlays,
       "Epaisseur de neige": imageNeigeOverlays,
       "Neige fraiche": imageNeigeFraicheOverlays,
-      "Neige fraiche (prévisions)": imageNeigeFraichePrevisionOverlays
+      "Neige fraiche (prévisions)": imageNeigeFraichePrevisionOverlays,
+      "Topographie": imageAltitudeOverlays,
+      "Pentes": imagePenteOverlays,
+      "Orientations": imageOrientationOverlays
     };
 
     /* Ajout du contrôle de couche à la carte */
