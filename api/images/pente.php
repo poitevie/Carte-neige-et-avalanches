@@ -6,18 +6,18 @@ header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, POST');
 header('Access-Control-Allow-Headers: X-Requested-With');
 
-create_folder("../" . $path_altitude_img);
-$files = scandir("../" . $path_altitude);
+create_folder("../" . $path_pente_img);
+$files = scandir("../" . $path_pente);
 foreach ($files as $file) {
     $filenumber = explode(".", $file)[0];
     if ($filenumber != "") {
 
         // Si le fichier binaire du massif existe
-        if (!file_exists("../" . $path_altitude . $filenumber . $fileext))
+        if (!file_exists("../" . $path_pente . $filenumber . $fileext))
             die("Erreur : " . $filenumber . $fileext . " n'existe pas");
 
-        if (!$fp = fopen("../" . $path_altitude . $filenumber . $fileext, "rb"))
-            die("Erreur : N'a pas pu ouvrir le fichier d'altitude " . $filenumber . $fileext);
+        if (!$fp = fopen("../" . $path_pente . $filenumber . $fileext, "rb"))
+            die("Erreur : N'a pas pu ouvrir le fichier de pente " . $filenumber . $fileext);
         else {
             //Variables globales stockées dans le fichier
             fseek($fp, 0);
@@ -41,6 +41,10 @@ foreach ($files as $file) {
 
             $image = imagecreatetruecolor($width, $height);
             $trans = imagecolorallocatealpha($image, 0, 0, 0, 127);
+            $jaune = imagecolorallocatealpha($image, $jaune_couleur[0], $jaune_couleur[1], $jaune_couleur[2], 0);
+            $orange = imagecolorallocatealpha($image, $orange_couleur[0], $orange_couleur[1], $orange_couleur[2], 0);
+            $rouge = imagecolorallocatealpha($image, $rouge_couleur[0], $rouge_couleur[1], $rouge_couleur[2], 0);
+            $violet = imagecolorallocatealpha($image, $violet_couleur[0], $violet_couleur[1], $violet_couleur[2], 0);
             imagesavealpha($image, true);
             imagefill($image, 0, 0, $trans);
             //génération de la tuile du massif
@@ -48,38 +52,24 @@ foreach ($files as $file) {
                 for ($i = 0; $i < $width; $i += 1) {
                     fseek($fp, 20 + ($i) * $hgt_value_size + ($j) * $width * $hgt_value_size);
                     $val = fread($fp, 2);
-                    $alt = @unpack('n', $val)[1];
+                    $pente = @unpack('n', $val)[1];
 
-                    imagesetpixel($image, $i, $j, colorScale($alt, $image));
+                    if ($pente >= 45) {
+                        imagesetpixel($image, $i, $j, $violet);
+                    } else if ($pente >= 40) {
+                        imagesetpixel($image, $i, $j, $rouge);
+                    } else if ($pente >= 35) {
+                        imagesetpixel($image, $i, $j, $orange);
+                    } else if ($pente >= 30) {
+                        imagesetpixel($image, $i, $j, $jaune);
+                    } else {
+                        imagesetpixel($image, $i, $j, $trans);
+                    }
                 }
             }
-            imagepng($image, "../" . $path_altitude_img . $filenumber . $imageext);
+            imagepng($image, "../" . $path_pente_img . $filenumber . $imageext);
             imagedestroy($image);
         }
     }
 }
-
-function colorScale($alt, $image) {
-    if($alt == 0) {
-        return imagecolorallocatealpha($image, 0, 0, 0, 127);
-    }
-    $newAlt = $alt > 4809 ? 4809 : $alt;
-    if($newAlt <= 801) {    // Bleu -> Cyan
-        return imagecolorallocatealpha($image, 0, 0, 255, 127 - $newAlt*127/801);
-    }
-    else if ($newAlt <= 1603) {  // Cyan -> Vert
-        return imagecolorallocatealpha($image, 0, ($newAlt-801)*255/(1603-801), 255, 0);
-    }
-    else if ($newAlt <= 2404) {  // Vert -> Jaune
-        return imagecolorallocatealpha($image, 0, 255, 255-($newAlt-1603)*255/(2404-1603), 0);
-    }
-    else if ($newAlt <= 3206) {  // Jaune -> Rouge
-        return imagecolorallocatealpha($image, ($newAlt-2404)*255/(3206-2404), 255, 0, 0);
-    }
-    else if ($newAlt <= 4007) {  // Jaune -> Rouge
-        return imagecolorallocatealpha($image, 255, 255-($newAlt-3206)*255/(4007-3206), 0, 0);
-    }
-    else {  // Rouge -> Violet
-        return imagecolorallocatealpha($image, 255, 0, ($newAlt-4007)*255/(4809-4007), 0);
-    }
-}
+?>
