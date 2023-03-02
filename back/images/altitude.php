@@ -63,17 +63,23 @@ function colorScale($alt, $image) {
     if($alt == 0) {
         return imagecolorallocatealpha($image, 0, 0, 0, 127);
     }
-    $newAlt = $alt > 4696 ? 4696 : $alt;
-    if($newAlt <= 1174) {    // Bleu -> Vert
-        return imagecolorallocatealpha($image, 0, 255, 255 - $newAlt*255/1174, 0);
+    $newAlt = $alt > 4809 ? 4809 : $alt;
+    if($newAlt <= 801) {    // Bleu -> Cyan
+        return imagecolorallocatealpha($image, 0, 0, 255, 127 - $newAlt*127/801);
     }
-    else if ($newAlt <= 2348) {  // Vert -> Jaune
-        return imagecolorallocatealpha($image, ($newAlt-1174)*255/(2348-1174), 255, 0, 0);
+    else if ($newAlt <= 1603) {  // Cyan -> Vert
+        return imagecolorallocatealpha($image, 0, ($newAlt-801)*255/(1603-801), 255, 0);
     }
-    else if ($newAlt <= 3522) {  // Jaune -> Rouge
-        return imagecolorallocatealpha($image, 255, 255-($newAlt-2348)*255/(3522-2348), 0, 0);
+    else if ($newAlt <= 2404) {  // Vert -> Jaune
+        return imagecolorallocatealpha($image, 0, 255, 255-($newAlt-1603)*255/(2404-1603), 0);
+    }
+    else if ($newAlt <= 3206) {  // Jaune -> Rouge
+        return imagecolorallocatealpha($image, ($newAlt-2404)*255/(3206-2404), 255, 0, 0);
+    }
+    else if ($newAlt <= 4007) {  // Jaune -> Rouge
+        return imagecolorallocatealpha($image, 255, 255-($newAlt-3206)*255/(4007-3206), 0, 0);
     }
     else {  // Rouge -> Violet
-        return imagecolorallocatealpha($image, 255, 0, ($newAlt-3522)*255/(4696-3522), 0);
+        return imagecolorallocatealpha($image, 255, 0, ($newAlt-4007)*255/(4809-4007), 0);
     }
 }
