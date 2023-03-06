@@ -7,9 +7,18 @@ header('Access-Control-Allow-Methods: GET, POST');
 header('Access-Control-Allow-Headers: X-Requested-With');
 
 create_folder("../" . $path_pente_img);
-$files = scandir("../" . $path_pente);
-foreach ($files as $file) {
-    $filenumber = explode(".", $file)[0];
+if(isset($_GET["massif"])) {
+    generateImage($_GET["massif"]);
+}
+else {
+    $files = scandir("../" . $path_pente);
+    foreach ($files as $file) {
+        $filenumber = explode(".", $file)[0];
+        generateImage($filenumber);
+    }
+}
+function generateImage($filenumber) {
+    global $path_pente, $fileext, $jaune_couleur, $orange_couleur, $rouge_couleur, $violet_couleur, $hgt_value_size, $path_pente_img, $imageext;
     if ($filenumber != "") {
 
         // Si le fichier binaire du massif existe

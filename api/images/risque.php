@@ -7,10 +7,18 @@ header('Access-Control-Allow-Methods: GET, POST');
 header('Access-Control-Allow-Headers: X-Requested-With');
 
 create_folder("../" . $path_risque);
-
-$files = scandir("../" . $path_altitude);
-foreach ($files as $file) {
-    $filenumber = explode(".", $file)[0];
+if(isset($_GET["massif"])) {
+    generateImage($_GET["massif"]);
+}
+else {
+    $files = scandir("../" . $path_altitude);
+    foreach ($files as $file) {
+        $filenumber = explode(".", $file)[0];
+        generateImage($filenumber);
+    }
+}
+function generateImage($filenumber) {
+    global $path_altitude, $fileext, $path_orientation, $path_pente, $hgt_value_size, $risque_1, $risque_2, $risque_3, $risque_4, $risque_5, $path_risque, $imageext;
     if ($filenumber != "") {
         if (!$fp = fopen("../" . $path_altitude . $filenumber . $fileext, "rb"))
             die("Erreur : N'a pas pu ouvrir le fichier d'altitude " . $filenumber . $fileext);
