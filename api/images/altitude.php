@@ -88,7 +88,7 @@ function colorScale($alt, $image) {
     else if ($newAlt <= 4007) {  // Jaune -> Rouge
         return imagecolorallocatealpha($image, 255, 255-($newAlt-3206)*255/(4007-3206), 0, 0);
     }
-    else {  // Rouge -> Violet
-        return imagecolorallocatealpha($image, 255, 0, ($newAlt-4007)*255/(4809-4007), 0);
+    else {  // Rouge -> Noir
+        return imagecolorallocatealpha($image, 255-($newAlt-4007)*255/(4809-4007), 0, 0, 0);
     }
 }
