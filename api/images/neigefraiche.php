@@ -7,10 +7,18 @@ header('Access-Control-Allow-Methods: GET, POST');
 header('Access-Control-Allow-Headers: X-Requested-With');
 
 create_folder("../" . $path_neigefraiche);
-
-$files = scandir("../" . $path_altitude);
-foreach ($files as $file) {
-    $filenumber = explode(".", $file)[0];
+if(isset($_GET["massif"])) {
+    generateImage($_GET["massif"]);
+}
+else {
+    $files = scandir("../" . $path_altitude);
+    foreach ($files as $file) {
+        $filenumber = explode(".", $file)[0];
+        generateImage($filenumber);
+    }
+}
+function generateImage($filenumber) {
+    global $path_altitude, $fileext, $hgt_value_size, $pas_rayure, $limiteneigefraiche, $pluie_couleur, $pluie_couleur2, $couleurFin, $couleurDebut, $path_neigefraiche, $imageext;
     if ($filenumber != "") {
         // Si le fichier binaire du massif existe
         if (!file_exists("../" . $path_altitude . $filenumber . $fileext))

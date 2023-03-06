@@ -7,9 +7,18 @@ header('Access-Control-Allow-Methods: GET, POST');
 header('Access-Control-Allow-Headers: X-Requested-With');
 
 create_folder("../" . $path_orientation_img);
-$files = scandir("../" . $path_orientation);
-foreach ($files as $file) {
-    $filenumber = explode(".", $file)[0];
+if(isset($_GET["massif"])) {
+    generateImage($_GET["massif"]);
+}
+else {
+    $files = scandir("../" . $path_orientation);
+    foreach ($files as $file) {
+        $filenumber = explode(".", $file)[0];
+        generateImage($filenumber);
+    }
+}
+function generateImage($filenumber) {
+    global $path_orientation, $fileext, $no_couleur, $n_couleur, $ne_couleur, $o_couleur, $c_couleur, $e_couleur, $so_couleur, $s_couleur, $se_couleur, $hgt_value_size, $path_orientation_img, $imageext;
     if ($filenumber != "") {
 
         // Si le fichier binaire du massif existe
