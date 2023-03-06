@@ -7,8 +7,8 @@ header('Access-Control-Allow-Methods: GET, POST');
 header('Access-Control-Allow-Headers: X-Requested-With');
 
 create_folder("../" . $path_neigetotale);
-if(isset($argv[0])) {
-    generateImage($argv[0]);
+if(isset($argv[1])) {
+    generateImage($argv[1]);
 }
 else {
     $files = scandir("../" . $path_altitude);

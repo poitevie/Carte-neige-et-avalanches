@@ -143,7 +143,7 @@
     /* Création d'un élément canvas pour dessiner une image */
     var canvas = document.createElement("canvas");
 
-    var urlBack = "http://localhost/Skitour/";
+    var urlBack = "http://localhost:8000/";
 
     /* Déclaration  point d'information */
     var iconeInformation = L.icon({
@@ -447,7 +447,7 @@
       div.innerHTML += '<i class="degrade inside " style="background: linear-gradient(to right, rgba(132, 214, 249), rgba(0, 48, 67));"></i><br>';
       div.innerHTML += '<span class="degradegauche inside ">1</span>';
       div.innerHTML += '<span class="degradedroite inside ">100</span><br>';
-      div.innerHTML += '<div class = "inside"><i style="background-image: url(pluieLegende.png); background-size: 300%;"></i>Pluie</div>'
+      div.innerHTML += '<div class = "inside"><i style="background-image: url(assets/pluieLegende.png); background-size: 300%;"></i>Pluie</div>'
 
       const insideContent = div.querySelectorAll(".inside");
       const insideBr = div.querySelectorAll("br");
