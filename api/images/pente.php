@@ -18,7 +18,7 @@ else {
     }
 }
 function generateImage($filenumber) {
-    global $path_pente, $fileext, $jaune_couleur, $orange_couleur, $rouge_couleur, $violet_couleur, $hgt_value_size, $path_pente_img, $imageext;
+    global $path_pente, $fileext, $hgt_value_size, $path_pente_img, $imageext;
     if ($filenumber != "") {
 
         // Si le fichier binaire du massif existe
@@ -50,10 +50,6 @@ function generateImage($filenumber) {
 
             $image = imagecreatetruecolor($width, $height);
             $trans = imagecolorallocatealpha($image, 0, 0, 0, 127);
-            $jaune = imagecolorallocatealpha($image, $jaune_couleur[0], $jaune_couleur[1], $jaune_couleur[2], 0);
-            $orange = imagecolorallocatealpha($image, $orange_couleur[0], $orange_couleur[1], $orange_couleur[2], 0);
-            $rouge = imagecolorallocatealpha($image, $rouge_couleur[0], $rouge_couleur[1], $rouge_couleur[2], 0);
-            $violet = imagecolorallocatealpha($image, $violet_couleur[0], $violet_couleur[1], $violet_couleur[2], 0);
             imagesavealpha($image, true);
             imagefill($image, 0, 0, $trans);
             //génération de la tuile du massif
