@@ -16,31 +16,30 @@
   }
 
   .legend {
+    display: flex;
+    flex-direction: column;
     background-color: rgba(255, 255, 255, 0.8);
     padding: 6px 8px;
     font-size: 12px;
-    line-height: 18px;
     border-radius: 5px;
     bottom: 3vh;
+    gap: 1px;
+    max-width: 85%;
   }
 
   .legend h2 {
     font-size: 20px;
-    margin-bottom: 6px;
+    margin: 0;
+  }
+
+  .legend h3 {
+    font-size: 14px;
+    margin: 0;
   }
 
   .legend h4 {
     font-size: 13px;
-    padding: 0 0 4px 2px;
-    margin: 2px 0 7px 0;
-  }
-
-  .element {
-    width: 18px;
-    height: 18px;
-    float: left;
-    margin: 0px 8px;
-    opacity: 0.7;
+    margin: 0;
   }
 
   .legend i {
@@ -51,16 +50,50 @@
     opacity: 0.7;
   }
 
+  .legend p {
+    margin: 2px 0;
+  }
+
   .legend i.degrade {
-    width: 90%;
+    width: 95%;
     height: 18px;
     margin: 0 0 0 8px;
+    opacity: 0.7;
+  }
+
+  .legend i.pentes_degrade {
+    height: 80%;
+    width: 18px;
+    margin: 10px 0 0 8px;
     opacity: 0.7;
   }
 
   .legend span.degradedroite {
     position: relative;
     float: right;
+  }
+
+  .pentes {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .pentes_bloc {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .pentes_valeurs {
+    display: flex;
+    height: 100%;
+  }
+
+  .pentes_groupe_valeurs {
+    display: flex;
+    flex-direction: column-reverse;
+    justify-content: space-between;
+    align-items: end;
   }
 
   .btn-open,
@@ -84,13 +117,14 @@
     display: none;
   }
 
-  .leg {
-    line-height: 18px;
-  }
 
   .leaflet-popup-content {
     min-width: 450px;
     min-height: 450px;
+  }
+
+  img {
+    width: 100px;
   }
 </style>
 
@@ -130,7 +164,7 @@
 
     /* Création d'un groupe de couches contenant les couches d'altitudes */
     var imageAltitudeOverlays = L.layerGroup();
-    
+
     /* Création d'un groupe de couches contenant les couches de pentes */
     var imagePenteOverlays = L.layerGroup();
 
@@ -152,7 +186,7 @@
       iconAnchor: [20, 20],
     });
 
-    
+
     var urlCadreAlpes = urlBack + "api/geojson/cadrealpes.json";
     var urlCadreCorse = urlBack + "api/geojson/cadrecorse.json";
     var urlCadrePyrenees = urlBack + "api/geojson/cadrepyrenees.json";
@@ -419,8 +453,6 @@
       }
     }
 
-
-
     /* Création de la légende */
     const legend = L.control({ position: "bottomleft" });
 
@@ -430,27 +462,26 @@
       const categories = ["1-Faible", "2-Limité", "3-Marqué", "4-Fort", "5-Très fort"];
 
       for (let i = 0; i < categories.length; i++) {
-        labels.push('<div class = " leg inside "><i class="element" style="background:' + getColor(categories[i]) + '"></i> ' + categories[i] + '</div>');
+        labels.push('<div class = "inside"><i style="background:' + getColor(categories[i]) + '"></i> ' + categories[i] + '</div>');
       }
 
       div.innerHTML += '<button class="btn-open hidden">Ouvrir la légende</button>';
-      div.innerHTML += '<button class="btn-close ">Fermer</button>';
-      div.innerHTML += "<h2 class='inside '>Légende</h2>";
-      div.innerHTML += "<h4 class='inside '>Risque d'avalanche</h4>";
-      div.innerHTML += labels.join("<br>");
-      div.innerHTML += '<p class="inside ">Pentes les plus opaques : <br>pentes les plus dangereuses</p>';
-      div.innerHTML += "<h4 class='inside '>Épaisseur de neige (en cm)</h4>";
-      div.innerHTML += '<i class="degrade inside " style="background: linear-gradient(to right, rgba(132, 214, 249), rgba(0, 48, 67));"></i><br>';
-      div.innerHTML += '<span class="degradegauche inside ">1</span>';
-      div.innerHTML += '<span class="degradedroite inside ">200</span><br>';
-      div.innerHTML += "<h4 class='inside '>Neige fraîche cumulée sur <br>les 4 derniers jours (en cm)</h4>";
-      div.innerHTML += '<i class="degrade inside " style="background: linear-gradient(to right, rgba(132, 214, 249), rgba(0, 48, 67));"></i><br>';
-      div.innerHTML += '<span class="degradegauche inside ">1</span>';
-      div.innerHTML += '<span class="degradedroite inside ">100</span><br>';
+      div.innerHTML += '<button class="btn-close">Fermer la légende</button>';
+      div.innerHTML += "<h2 class='inside'>Légende</h2>";
+      div.innerHTML += "<h3 class='inside'>Pentes</h3>";
+      div.innerHTML += "<div class='pentes inside'><div class='pentes_bloc'><h4>Orientation</h4><img src='assets/rose.png'></div><div class='pentes_bloc'><h4>Degré</h4><div class='pentes_valeurs'><div class='pentes_groupe_valeurs'><span>30°</span><span>35°</span><span>40°</span><span>45°</span><span>50°</span></div><i class='pentes_degrade inside' style='background: linear-gradient(to top, #FFFF00, #FF8000, #FF0000, #FF00FF, #000000)'></i></div></div><div class='pentes_bloc'><h4>Altitude</h4><div class='pentes_valeurs'><div class='pentes_groupe_valeurs'><span>0m</span><span>2400m</span><span>4800m</span></div><i class='pentes_degrade inside' style='background: linear-gradient(to top, rgba(0,0,0,0), #0000FF, #00FFFF, #00FF00, #FFFF00, #FF0000, #000000)'></i></div></div></div>";
+      div.innerHTML += "<h4 class='inside'>Risque d'avalanche</h4>";
+      div.innerHTML += labels.join("");
+      div.innerHTML += '<p class="inside">Pentes les plus opaques : pentes les plus dangereuses</p>';
+      div.innerHTML += "<h4 class='inside'>Épaisseur de neige (en cm)</h4>";
+      div.innerHTML += '<i class="degrade inside" style="background: linear-gradient(to right, rgba(132, 214, 249), rgba(0, 48, 67));"></i><br>';
+      div.innerHTML += '<div class="inside deg"><span>1</span><span class="degradedroite">200</span></div>';
+      div.innerHTML += "<h4 class='inside'>Neige fraîche cumulée sur les 4 derniers jours (en cm)</h4>";
+      div.innerHTML += '<i class="degrade inside" style="background: linear-gradient(to right, rgba(132, 214, 249), rgba(0, 48, 67));"></i><br>';
+      div.innerHTML += '<div class="inside deg"><span>1</span><span class="degradedroite">100</span></div>';
       div.innerHTML += '<div class = "inside"><i style="background-image: url(assets/pluieLegende.png); background-size: 300%;"></i>Pluie</div>'
 
       const insideContent = div.querySelectorAll(".inside");
-      const insideBr = div.querySelectorAll("br");
 
       /* Ajoute un écouteur d'événements sur le bouton d'ouverture */
       const openButton = div.querySelector(".btn-open");
@@ -467,9 +498,6 @@
         insideContent.forEach((item) =>
           item.classList.remove("hidden")
         );
-        insideBr.forEach((item) =>
-          item.classList.remove("hidden")
-        );
       }
 
       /* Fonction pour masquer la légende */
@@ -479,20 +507,13 @@
         insideContent.forEach((item) =>
           item.classList.add("hidden")
         );
-        insideBr.forEach((item) =>
-          item.classList.add("hidden")
-        );
       }
 
       return div;
     };
 
-
-
     /* Ajout de la légende à la carte */
     legend.addTo(map);
-
-
 
   };
 </script>
