@@ -37,6 +37,7 @@
       <ul>
         <li><a href="#prerequisites">Prérequis</a></li>
         <li><a href="#installation">Installation</a></li>
+          <li><a href="#utilisation">Utilisation</a></li>
       </ul>
     </li>
     <li><a href="#contact">Contact</a></li>
@@ -88,9 +89,15 @@ Pour lancer le projet, suivez les instructions suivantes.
    ```
 3. Avant d'utiliser l'application, il faut que les fichiers binaires et les images soient générés en suivant les étapes décrites dans [generation.md](docs/generation.md).
 4. Au besoin éditer la variable `urlBack` dans le fichier `index.html` pour que les appels au back-end s'effectuent correctement.
-5. Sur la carte, il est possible de zoomer, dézoomer, se déplacer et cliquer sur un massif pour afficher les informations sur la neige et le risque nivologique.
-6. Les informations affichées pour un massif sont la hauteur de neige fraîche, les prévisions de neige fraîche, la hauteur de neige totale, le risque nivologique, les orientations, les pentes et les altitudes.
-7. Ouvrir un navigateur, puis accéder à l'url `http://localhost:8000`
+5. Ouvrir un navigateur, puis accéder à l'url `http://localhost:8000`
+
+### Utilisation
+* Sur la carte, il est possible de zoomer, dézoomer, se déplacer en utilisant la souris
+* Cliquer sur l'icone "ℹ" d'un massif permet d'afficher les informations sur la neige et le risque nivologique (BRA Météo France à jour).
+* Le menu en haut à droite de la carte permet d'activer certaines fonctionnalitées :
+    * Changer de fond de carte en cliquant sur les radio button
+    * Activer différentes couches d'informations pour chaque massif avec les checkboxes. Les informations affichées pour un massif sont la hauteur de neige fraîche, les prévisions de neige fraîche, la hauteur de neige totale, le risque nivologique, les orientations, les pentes et les altitudes.
+
 
 <!-- CONTACT -->
 ## Contact

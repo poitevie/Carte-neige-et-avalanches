@@ -7,9 +7,18 @@ header('Access-Control-Allow-Methods: GET, POST');
 header('Access-Control-Allow-Headers: X-Requested-With');
 
 create_folder("../" . $path_pente_img);
-$files = scandir("../" . $path_pente);
-foreach ($files as $file) {
-    $filenumber = explode(".", $file)[0];
+if(isset($argv[1])) {
+    generateImage($argv[1]);
+}
+else {
+    $files = scandir("../" . $path_pente);
+    foreach ($files as $file) {
+        $filenumber = explode(".", $file)[0];
+        generateImage($filenumber);
+    }
+}
+function generateImage($filenumber) {
+    global $path_pente, $fileext, $hgt_value_size, $path_pente_img, $imageext;
     if ($filenumber != "") {
 
         // Si le fichier binaire du massif existe
@@ -41,10 +50,6 @@ foreach ($files as $file) {
 
             $image = imagecreatetruecolor($width, $height);
             $trans = imagecolorallocatealpha($image, 0, 0, 0, 127);
-            $jaune = imagecolorallocatealpha($image, $jaune_couleur[0], $jaune_couleur[1], $jaune_couleur[2], 0);
-            $orange = imagecolorallocatealpha($image, $orange_couleur[0], $orange_couleur[1], $orange_couleur[2], 0);
-            $rouge = imagecolorallocatealpha($image, $rouge_couleur[0], $rouge_couleur[1], $rouge_couleur[2], 0);
-            $violet = imagecolorallocatealpha($image, $violet_couleur[0], $violet_couleur[1], $violet_couleur[2], 0);
             imagesavealpha($image, true);
             imagefill($image, 0, 0, $trans);
             //génération de la tuile du massif
@@ -53,15 +58,16 @@ foreach ($files as $file) {
                     fseek($fp, 20 + ($i) * $hgt_value_size + ($j) * $width * $hgt_value_size);
                     $val = fread($fp, 2);
                     $pente = @unpack('n', $val)[1];
+                    $pente = $pente > 50 ? 50 : $pente;
 
                     if ($pente >= 45) {
-                        imagesetpixel($image, $i, $j, $violet);
+                        imagesetpixel($image, $i, $j, imagecolorallocatealpha($image, 255-($pente-45)*255/5, 0, 255-($pente-45)*255/5, 0));
                     } else if ($pente >= 40) {
-                        imagesetpixel($image, $i, $j, $rouge);
+                        imagesetpixel($image, $i, $j, imagecolorallocatealpha($image, 255, 0, 255-($pente-40)*255/5, 0));
                     } else if ($pente >= 35) {
-                        imagesetpixel($image, $i, $j, $orange);
+                        imagesetpixel($image, $i, $j, imagecolorallocatealpha($image, 255, 128-($pente-35)*128/5, 0, 0));
                     } else if ($pente >= 30) {
-                        imagesetpixel($image, $i, $j, $jaune);
+                        imagesetpixel($image, $i, $j, imagecolorallocatealpha($image, 255, 255-($pente-30)*128/5, 0, 0));
                     } else {
                         imagesetpixel($image, $i, $j, $trans);
                     }

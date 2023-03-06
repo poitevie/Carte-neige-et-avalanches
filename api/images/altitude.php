@@ -7,9 +7,18 @@ header('Access-Control-Allow-Methods: GET, POST');
 header('Access-Control-Allow-Headers: X-Requested-With');
 
 create_folder("../" . $path_altitude_img);
-$files = scandir("../" . $path_altitude);
-foreach ($files as $file) {
-    $filenumber = explode(".", $file)[0];
+if(isset($argv[1])) {
+    generateImage($argv[1]);
+}
+else {
+    $files = scandir("../" . $path_altitude);
+    foreach ($files as $file) {
+        $filenumber = explode(".", $file)[0];
+        generateImage($filenumber);
+    }
+}
+function generateImage($filenumber) {
+    global $path_altitude, $fileext, $hgt_value_size, $path_altitude_img, $imageext;
     if ($filenumber != "") {
 
         // Si le fichier binaire du massif existe
@@ -79,7 +88,7 @@ function colorScale($alt, $image) {
     else if ($newAlt <= 4007) {  // Jaune -> Rouge
         return imagecolorallocatealpha($image, 255, 255-($newAlt-3206)*255/(4007-3206), 0, 0);
     }
-    else {  // Rouge -> Violet
-        return imagecolorallocatealpha($image, 255, 0, ($newAlt-4007)*255/(4809-4007), 0);
+    else {  // Rouge -> Noir
+        return imagecolorallocatealpha($image, 255-($newAlt-4007)*255/(4809-4007), 0, 0, 0);
     }
 }
