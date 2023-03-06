@@ -53,15 +53,16 @@ foreach ($files as $file) {
                     fseek($fp, 20 + ($i) * $hgt_value_size + ($j) * $width * $hgt_value_size);
                     $val = fread($fp, 2);
                     $pente = @unpack('n', $val)[1];
+                    $pente = $pente > 50 ? 50 : $pente;
 
                     if ($pente >= 45) {
-                        imagesetpixel($image, $i, $j, $violet);
+                        imagesetpixel($image, $i, $j, imagecolorallocatealpha($image, 255-($pente-45)*255/5, 0, 255-($pente-45)*255/5, 0));
                     } else if ($pente >= 40) {
-                        imagesetpixel($image, $i, $j, $rouge);
+                        imagesetpixel($image, $i, $j, imagecolorallocatealpha($image, 255, 0, 255-($pente-40)*255/5, 0));
                     } else if ($pente >= 35) {
-                        imagesetpixel($image, $i, $j, $orange);
+                        imagesetpixel($image, $i, $j, imagecolorallocatealpha($image, 255, 128-($pente-35)*128/5, 0, 0));
                     } else if ($pente >= 30) {
-                        imagesetpixel($image, $i, $j, $jaune);
+                        imagesetpixel($image, $i, $j, imagecolorallocatealpha($image, 255, 255-($pente-30)*128/5, 0, 0));
                     } else {
                         imagesetpixel($image, $i, $j, $trans);
                     }
