@@ -64,3 +64,8 @@ Pour générer les images qui servent à afficher de l'information sur la carte 
 Les scripts génèrent une image par massif dans le dossier correspondant (ex: les images de neige fraiche se situent dans le dossier `api/images/neigefraiche`).
 
 Les noms des images suivent le schéma suivant : `<id du massif>.png` (ex: Chartreuse -> `07.png`)
+
+Il est possible de générer une image pour un massif en particulier, en spécifiant l'id du massif en paramètre du script. Exemple pour générer l'image de neige totale du massif d'id 07 (Chartreuse) :
+```
+php neigetotale.php 07
+```
