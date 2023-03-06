@@ -7,8 +7,8 @@ header('Access-Control-Allow-Methods: GET, POST');
 header('Access-Control-Allow-Headers: X-Requested-With');
 
 create_folder("../" . $path_pente_img);
-if(isset($_GET["massif"])) {
-    generateImage($_GET["massif"]);
+if(isset($argv[0])) {
+    generateImage($argv[0]);
 }
 else {
     $files = scandir("../" . $path_pente);
