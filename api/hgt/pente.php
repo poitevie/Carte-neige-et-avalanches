@@ -16,6 +16,7 @@ create_folder("../" . $path_pente);
 $files = scandir("../" . $path_altitude);
 foreach ($files as $file) {
     $filenumber = explode(".", $file)[0];
+    print("Génération du fichier binaire de pente pour le massif ".$id."...\n");
 
     if ($filenumber != "") {
         if (!$fp = fopen("../" . $path_altitude . $filenumber . $fileext, "rb"))
@@ -65,7 +66,7 @@ foreach ($files as $file) {
                     for ($i = 0; $i < $width; $i += 1) {
                         fseek($fp, 20 + ($i) * $hgt_value_size + ($j) * $width * $hgt_value_size);
                         $val = fread($fp, 2);
-                        $altC = @unpack('n', $val)[1];
+                        $altC = abs(@unpack('s', $val)[1]);
 
                         if ($altC != 0 && $j != 0 && $j != $height && $i != 0 && $i != $width) {
 
@@ -77,7 +78,7 @@ foreach ($files as $file) {
                                     if ($xo != 0 && $yo != 0) {
                                         fseek($fp, 20 + ($i + $xo) * $hgt_value_size + ($j + $yo) * $width * $hgt_value_size);
                                         $val = fread($fp, 2);
-                                        $alt = @unpack('n', $val)[1];
+                                        $alt = abs(@unpack('s', $val)[1]);
 
                                         $cal = $alt - $altC;
                                         if ($cal > $max && $alt != 0) {
