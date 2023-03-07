@@ -22,7 +22,6 @@
     padding: 6px 8px;
     font-size: 12px;
     border-radius: 5px;
-    bottom: 3vh;
     gap: 1px;
     max-width: 85%;
   }
@@ -145,7 +144,7 @@
   window.onload = function () {
     /* Initialisation de la carte avec Leaflet dans l'élément div avec id 'viewerDiv',
         avec une vue centrée sur les coordonnées et le zoom donnés */
-    var map = L.map("viewerDiv").setView(
+    var map = L.map("viewerDiv", {attributionControl: false}).setView(
       [45.17384615384615, 5.71],
       10
     );
@@ -179,18 +178,9 @@
 
     var urlBack = "http://localhost:8000/";
 
-    /* Déclaration  point d'information */
-    var iconeInformation = L.icon({
-      iconUrl: urlBack + "assets/information.png",
-      iconSize: [20, 20],
-      iconAnchor: [20, 20],
-    });
-
-
     var urlCadreAlpes = urlBack + "api/geojson/cadrealpes.json";
     var urlCadreCorse = urlBack + "api/geojson/cadrecorse.json";
     var urlCadrePyrenees = urlBack + "api/geojson/cadrepyrenees.json";
-
 
     /* Affichage de l'image à l'endroit correspondant */
     function getImage(numMassif) {
@@ -207,8 +197,42 @@
       /* Ajout de l'image créée sur le canvas en tant qu'overlay sur la carte */
       $.getJSON(urlBounds, function (data) {
         $.getJSON(urlCentreMassif, function (centre) {
+
           /* Récupération du point au centre du massif */
           var pointMilieu = [centre[numMassif][1], centre[numMassif][0]];
+
+          /* Déclaration  point d'information */
+          /* Créer une instance de XMLHttpRequest */
+          let xhr = new XMLHttpRequest();
+          /* Spécifier l'URL du fichier XML à récupérer */
+          let urlBra = `https://api.meteofrance.com/files/mountain/bulletins/BRA${numMassif}.xml`;
+          /* Configurer la requête */
+          xhr.open("GET", urlBra, true);
+          /* Envoyer la requête */
+          xhr.send();
+          /* Gérer la réponse de la requête */
+          xhr.onreadystatechange = function () {
+            if (this.readyState == 4 && this.status == 200) {
+              /* Extraire les informations du fichier XML */
+              let xmlDoc = this.responseXML;
+              let risqueMaxi = xmlDoc.getElementsByTagName("CARTOUCHERISQUE")[0].getElementsByTagName("RISQUE")[0].getAttribute("RISQUEMAXI");
+              risqueMaxi = risqueMaxi == 5 ? 4 : risqueMaxi;
+              var iconeInformation = L.icon({
+                iconUrl: urlBack + `assets/risque${risqueMaxi}.png`,
+                iconSize: [20, 20],
+                iconAnchor: [10, 10],
+              });
+
+              var marker = L.marker(pointMilieu, { icon: iconeInformation }).addTo(map);
+
+              /* Pop up BRA */
+              var popupContent = `<iframe src="https://api.meteofrance.com/files/mountain/bulletins/BRA${numMassif}.xml" width="450px" height="450px"></iframe>`;
+              var popup = L.popup()
+                .setContent(popupContent);
+
+              marker.bindPopup(popup);
+            }
+          }
 
           canvas.width = data["width"]; /* Largeur */
           canvas.height = data["height"]; /* Hauteur */
@@ -256,16 +280,6 @@
                 opacity: 0.7,
               }).addTo(imageOrientationOverlays);
 
-              /* Point d'information */
-              var marker = L.marker(pointMilieu, { icon: iconeInformation }).addTo(map);
-
-              /* Pop up BRA */
-              var popupContent = `<iframe src="https://api.meteofrance.com/files/mountain/bulletins/BRA${numMassif}.xml" width="450px" height="450px"></iframe>`;
-              var popup = L.popup()
-                .setContent(popupContent);
-
-              marker.bindPopup(popup);
-
               return;
             }
           });
@@ -273,8 +287,6 @@
         })
       });
     }
-
-
 
     /* Recupère les rectangles autour des massifs depuis un fichier .json */
     let alpes;
@@ -304,12 +316,10 @@
       grille.forEach(e => getImage(e));
     })
 
-
     /* Fonction permettant de savoir si un point est dans un rectangle ou non */
     function dansRect(P, bg, bd, hg, hd) {
       return bg[0] <= P[0] && hg[0] >= P[0] && P[1] >= bg[1] && P[1] <= bd[1]
     }
-
 
     /* Fonction permettant de vérifier si un rectangle entourant un massif est affiché a l'écran */
     function dansMassif(value, key, ma, massif) {
