@@ -29,6 +29,10 @@ $path_altitude_img = $path_images . "altitude/";
 $path_pente_img = $path_images . "pente/";
 $path_orientation_img = $path_images . "orientation/";
 
+// Contours massifs
+$offset_couleur_contour = 63;
+$epaisseur_contour = 30;
+
 function create_folder($path)
 {
     if (substr($path, -1) == "/") {
@@ -64,5 +68,10 @@ function getfilenumber($latitude, $longitude)
     $filenumber .= $lon;
 
     return $filenumber;
+}
+
+// Renvoie la valeur bornée dans l'intervalle 0 255
+function getColorInterval($value) {
+    return $value < 0 ? 0 : ($value > 255 ? 255 : $value);
 }
 ?>

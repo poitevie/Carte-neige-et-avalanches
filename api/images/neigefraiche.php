@@ -18,7 +18,7 @@ else {
     }
 }
 function generateImage($filenumber) {
-    global $path_altitude, $fileext, $hgt_value_size, $pas_rayure, $limiteneigefraiche, $pluie_couleur, $pluie_couleur2, $couleurFin, $couleurDebut, $path_neigefraiche, $imageext;
+    global $path_altitude, $fileext, $hgt_value_size, $pas_rayure, $limiteneigefraiche, $pluie_couleur, $pluie_couleur2, $couleurFin, $couleurDebut, $path_neigefraiche, $imageext, $offset_couleur_contour;
     if ($filenumber != "") {
         // Si le fichier binaire du massif existe
         if (!file_exists("../" . $path_altitude . $filenumber . $fileext))
@@ -93,6 +93,8 @@ function generateImage($filenumber) {
                         fseek($fp, 20 + ($i) * $hgt_value_size + ($j) * $width * $hgt_value_size);
                         $val = fread($fp, 2);
                         $alt = @unpack('s', $val)[1];
+                        $contour = $alt < 0 ? true : false;
+                        $alt = abs($alt);
                         $neigecolor = 0;
 
                         if ($alt > $iso) {
@@ -130,9 +132,7 @@ function generateImage($filenumber) {
                                 $neigecolor = $somme;
                             }
                         }
-                        else if ($alt < 0) {
-                            $neigecolor = 5;
-                        } else {
+                        else {
                             $neigecolor = 0;
                         }
 
@@ -161,7 +161,8 @@ function generateImage($filenumber) {
                             $r = round($couleurDebut[0] + $diffCouleur[0] * $neigecolor);
                             $g = round($couleurDebut[1] + $diffCouleur[1] * $neigecolor);
                             $b = round($couleurDebut[2] + $diffCouleur[2] * $neigecolor);
-                            imagesetpixel($image, $i, $j, imagecolorallocatealpha($image, $r, $g, $b, 0));
+                            $offset = $contour ? $offset_couleur_contour : 0;
+                            imagesetpixel($image, $i, $j, imagecolorallocatealpha($image, getColorInterval($r - $offset), getColorInterval($g - $offset), getColorInterval($b - $offset), 0));
                         }
                     }
                 }

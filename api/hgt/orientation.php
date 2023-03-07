@@ -6,6 +6,7 @@ create_folder("../" . $path_orientation);
 $files = scandir("../" . $path_altitude);
 foreach ($files as $file) {
     $filenumber = explode(".", $file)[0];
+    print("Génération du fichier binaire d'orientation pour le massif ".$id."...\n");
 
     if ($filenumber != "") {
         if (!$fp = fopen("../" . $path_altitude . $filenumber . ".hgt", "rb"))

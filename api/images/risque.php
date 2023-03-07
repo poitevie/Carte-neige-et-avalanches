@@ -7,19 +7,18 @@ header('Access-Control-Allow-Methods: GET, POST');
 header('Access-Control-Allow-Headers: X-Requested-With');
 
 create_folder("../" . $path_risque);
-generateImage("07");
-// if(isset($argv[1])) {
-//     generateImage($argv[1]);
-// }
-// else {
-//     $files = scandir("../" . $path_altitude);
-//     foreach ($files as $file) {
-//         $filenumber = explode(".", $file)[0];
-//         generateImage($filenumber);
-//     }
-// }
+if(isset($argv[1])) {
+    generateImage($argv[1]);
+}
+else {
+    $files = scandir("../" . $path_altitude);
+    foreach ($files as $file) {
+        $filenumber = explode(".", $file)[0];
+        generateImage($filenumber);
+    }
+}
 function generateImage($filenumber) {
-    global $path_altitude, $fileext, $path_orientation, $path_pente, $hgt_value_size, $risque_1, $risque_2, $risque_3, $risque_4, $risque_5, $path_risque, $imageext;
+    global $path_altitude, $fileext, $path_orientation, $path_pente, $hgt_value_size, $risque_1, $risque_2, $risque_3, $risque_4, $risque_5, $path_risque, $imageext, $offset_couleur_contour;
     if ($filenumber != "") {
         if (!$fp = fopen("../" . $path_altitude . $filenumber . $fileext, "rb"))
             die("Erreur : N'a pas pu ouvrir le fichier d'altitude " . $filenumber . $fileext);
@@ -84,6 +83,8 @@ function generateImage($filenumber) {
                         fseek($fp, 20 + ($i) * $hgt_value_size + ($j) * $width * $hgt_value_size);
                         $val = fread($fp, 2);
                         $alt = @unpack('s', $val)[1];
+                        $contour = $alt < 0 ? true : false;
+                        $alt = abs($alt);
 
                         fseek($fp2, 20 + ($i) * $hgt_value_size + ($j) * $width * $hgt_value_size);
                         $val = fread($fp2, 2);
@@ -127,13 +128,9 @@ function generateImage($filenumber) {
                                 $risquecolor = $evolurisque1 != 0 ? intval($risque1 . $evolurisque1) : $risque1;
                             }
                         }
-                        else if ($alt < 0) {
-                            $risquecolor = 5;
-                        }
                         else {
                             $risquecolor = 0;
                         }
-                        echo $alt." ";
                         if ($risquecolor > 10) {
                             $risquecolor = $risquecolor % 10;
                         }
@@ -151,16 +148,18 @@ function generateImage($filenumber) {
                         ) {
                             $alpha = 0;
                         }
+                        $offset = $contour ? $offset_couleur_contour : 0;
 
-                        $couleur_1 = imagecolorallocatealpha($image, $risque_1[0], $risque_1[1], $risque_1[2], $alpha);
-                        $couleur_2 = imagecolorallocatealpha($image, $risque_2[0], $risque_2[1], $risque_2[2], $alpha);
-                        $couleur_3 = imagecolorallocatealpha($image, $risque_3[0], $risque_3[1], $risque_3[2], $alpha);
-                        $couleur_4 = imagecolorallocatealpha($image, $risque_4[0], $risque_4[1], $risque_4[2], $alpha);
-                        $couleur_5 = imagecolorallocatealpha($image, $risque_5[0], $risque_5[1], $risque_5[2], $alpha);
+                        $couleur_1 = imagecolorallocatealpha($image, getColorInterval($risque_1[0] - $offset), getColorInterval($risque_1[1] - $offset), getColorInterval($risque_1[2] - $offset), $alpha);
+                        $couleur_2 = imagecolorallocatealpha($image, getColorInterval($risque_2[0] - $offset), getColorInterval($risque_2[1] - $offset), getColorInterval($risque_2[2] - $offset), $alpha);
+                        $couleur_3 = imagecolorallocatealpha($image, getColorInterval($risque_3[0] - $offset), getColorInterval($risque_3[1] - $offset), getColorInterval($risque_3[2] - $offset), $alpha);
+                        $couleur_4 = imagecolorallocatealpha($image, getColorInterval($risque_4[0] - $offset), getColorInterval($risque_4[1] - $offset), getColorInterval($risque_4[2] - $offset), $alpha);
+                        $couleur_5 = imagecolorallocatealpha($image, getColorInterval($risque_5[0] - $offset), getColorInterval($risque_5[1] - $offset), getColorInterval($risque_5[2] - $offset), $alpha);
 
+                        $dark = imagecolorallocatealpha($image, 60, 60, 60, 80);
                         switch ($risquecolor) {
                             case 0:
-                                imagesetpixel($image, $i, $j, $trans);
+                                imagesetpixel($image, $i, $j, $contour ? $dark : $trans);
                                 break;
 
                             case 1:

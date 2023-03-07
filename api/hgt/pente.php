@@ -16,6 +16,7 @@ create_folder("../" . $path_pente);
 $files = scandir("../" . $path_altitude);
 foreach ($files as $file) {
     $filenumber = explode(".", $file)[0];
+    print("Génération du fichier binaire de pente pour le massif ".$id."...\n");
 
     if ($filenumber != "") {
         if (!$fp = fopen("../" . $path_altitude . $filenumber . $fileext, "rb"))

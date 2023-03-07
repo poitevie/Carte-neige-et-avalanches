@@ -26,6 +26,7 @@ else {
         $id = $features[$i]->{"properties"}->{"id"};
 
         //Génération d'un fichier hgt par massif
+        print("Génération du fichier binaire d'altitudes pour le massif ".$id."...\n");
         generatehgt($features[$i], $id);
     }
 
@@ -67,7 +68,7 @@ function getcadremassif($massif)
 }
 function generatehgt($massif, $idfile)
 {
-    global $hgt_value_size, $hgt_line_size, $hgt_line_records, $hgt_step, $cadremassif, $cadrealpes, $cadrecorse, $cadrepyrenees, $path_maillage, $path_altitude, $fileext, $id_alpes, $id_corse, $id_pyrenees;
+    global $hgt_value_size, $hgt_line_size, $hgt_line_records, $hgt_step, $cadremassif, $cadrealpes, $cadrecorse, $cadrepyrenees, $path_maillage, $path_altitude, $fileext, $id_alpes, $id_corse, $id_pyrenees, $epaisseur_contour;
     
     //Récupération du cadre du massif
     $cadre = getcadremassif($massif);
@@ -156,7 +157,7 @@ function generatehgt($massif, $idfile)
 
                 fseek($fp, 20 + $x * $hgt_value_size + $y * $width * $hgt_value_size);
                 //si le point est dans le massif on l'ajoute sinon on ajoute 0
-                if(est_sur_contour_polygone($coordxy, [$x, $y], 3)) {
+                if(est_sur_contour_polygone($coordxy, [$x, $y], $epaisseur_contour)) {
                     $valw = fwrite($fp, pack("s", -$alt), 2);
                 }
                 else if (is_point_in_polygon([$x, $y], $coordxy))
@@ -215,7 +216,7 @@ function est_sur_contour_polygone($polygone, $point, $epaisseur_contour) {
         }
         // Détermine la distance du point à la droite
         $dist = abs($a * $x - $y + $b) / (sqrt($a ** 2 + 1));
-        if ($dist <= $epaisseur_contour / 2 &&
+        if ($dist <= $epaisseur_contour / 2 && is_point_in_polygon($point, $polygone) &&
             min($xi, $xj) - $epaisseur_contour / 2 <= $x && $x <= max($xi, $xj) + $epaisseur_contour / 2 &&
             min($yi, $yj) - $epaisseur_contour / 2 <= $y && $y <= max($yi, $yj) + $epaisseur_contour / 2) {
             $est_sur_contour = true;
