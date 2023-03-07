@@ -7,16 +7,17 @@ header('Access-Control-Allow-Methods: GET, POST');
 header('Access-Control-Allow-Headers: X-Requested-With');
 
 create_folder("../" . $path_risque);
-if(isset($argv[1])) {
-    generateImage($argv[1]);
-}
-else {
-    $files = scandir("../" . $path_altitude);
-    foreach ($files as $file) {
-        $filenumber = explode(".", $file)[0];
-        generateImage($filenumber);
-    }
-}
+generateImage("07");
+// if(isset($argv[1])) {
+//     generateImage($argv[1]);
+// }
+// else {
+//     $files = scandir("../" . $path_altitude);
+//     foreach ($files as $file) {
+//         $filenumber = explode(".", $file)[0];
+//         generateImage($filenumber);
+//     }
+// }
 function generateImage($filenumber) {
     global $path_altitude, $fileext, $path_orientation, $path_pente, $hgt_value_size, $risque_1, $risque_2, $risque_3, $risque_4, $risque_5, $path_risque, $imageext;
     if ($filenumber != "") {
@@ -82,7 +83,7 @@ function generateImage($filenumber) {
                     for ($i = 0; $i < $width; $i += 1) {
                         fseek($fp, 20 + ($i) * $hgt_value_size + ($j) * $width * $hgt_value_size);
                         $val = fread($fp, 2);
-                        $alt = @unpack('n', $val)[1];
+                        $alt = @unpack('s', $val)[1];
 
                         fseek($fp2, 20 + ($i) * $hgt_value_size + ($j) * $width * $hgt_value_size);
                         $val = fread($fp2, 2);
@@ -95,7 +96,6 @@ function generateImage($filenumber) {
                         //génération du code risque en fonction de l'altitude et des données météofrance
 
                         $risquecolor = 0;
-
                         if ($alt > 0 && $pente >= 30) {
                             if ($risque1 == -1) {
                                 $risquecolor = 0;
@@ -126,10 +126,14 @@ function generateImage($filenumber) {
                             } else {
                                 $risquecolor = $evolurisque1 != 0 ? intval($risque1 . $evolurisque1) : $risque1;
                             }
-                        } else {
+                        }
+                        else if ($alt < 0) {
+                            $risquecolor = 5;
+                        }
+                        else {
                             $risquecolor = 0;
                         }
-
+                        echo $alt." ";
                         if ($risquecolor > 10) {
                             $risquecolor = $risquecolor % 10;
                         }

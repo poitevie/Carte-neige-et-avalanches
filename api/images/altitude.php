@@ -57,7 +57,7 @@ function generateImage($filenumber) {
                 for ($i = 0; $i < $width; $i += 1) {
                     fseek($fp, 20 + ($i) * $hgt_value_size + ($j) * $width * $hgt_value_size);
                     $val = fread($fp, 2);
-                    $alt = @unpack('n', $val)[1];
+                    $alt = abs(@unpack('s', $val)[1]);
 
                     imagesetpixel($image, $i, $j, colorScale($alt, $image));
                 }
