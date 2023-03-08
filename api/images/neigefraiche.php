@@ -161,8 +161,8 @@ function generateImage($filenumber) {
                             $r = round($couleurDebut[0] + $diffCouleur[0] * $neigecolor);
                             $g = round($couleurDebut[1] + $diffCouleur[1] * $neigecolor);
                             $b = round($couleurDebut[2] + $diffCouleur[2] * $neigecolor);
-                            $offset = $contour ? $offset_couleur_contour : 0;
-                            imagesetpixel($image, $i, $j, imagecolorallocatealpha($image, getColorInterval($r - $offset), getColorInterval($g - $offset), getColorInterval($b - $offset), 0));
+                            // $offset = $contour ? $offset_couleur_contour : 0;
+                            imagesetpixel($image, $i, $j, imagecolorallocatealpha($image, $r, $g, $b, 0));
                         }
                     }
                 }

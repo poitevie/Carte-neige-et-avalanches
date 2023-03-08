@@ -148,6 +148,9 @@ function generateImage($filenumber) {
                         ) {
                             $alpha = 0;
                         }
+                        if ($contour && $risquecolor == 0) {
+                            $alpha = 85;
+                        }
                         $offset = $contour ? $offset_couleur_contour : 0;
 
                         $couleur_1 = imagecolorallocatealpha($image, getColorInterval($risque_1[0] - $offset), getColorInterval($risque_1[1] - $offset), getColorInterval($risque_1[2] - $offset), $alpha);
@@ -156,10 +159,12 @@ function generateImage($filenumber) {
                         $couleur_4 = imagecolorallocatealpha($image, getColorInterval($risque_4[0] - $offset), getColorInterval($risque_4[1] - $offset), getColorInterval($risque_4[2] - $offset), $alpha);
                         $couleur_5 = imagecolorallocatealpha($image, getColorInterval($risque_5[0] - $offset), getColorInterval($risque_5[1] - $offset), getColorInterval($risque_5[2] - $offset), $alpha);
 
-                        $dark = imagecolorallocatealpha($image, 60, 60, 60, 80);
+                        if($contour && $risquecolor == 0) {
+                            $risquecolor = $risquemaxi;
+                        }
                         switch ($risquecolor) {
                             case 0:
-                                imagesetpixel($image, $i, $j, $contour ? $dark : $trans);
+                                imagesetpixel($image, $i, $j, $trans);
                                 break;
 
                             case 1:

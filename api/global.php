@@ -31,7 +31,7 @@ $path_orientation_img = $path_images . "orientation/";
 
 // Contours massifs
 $offset_couleur_contour = 63;
-$epaisseur_contour = 30;
+$epaisseur_contour = 150;
 
 function create_folder($path)
 {
