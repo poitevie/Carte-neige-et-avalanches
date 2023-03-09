@@ -37,7 +37,7 @@ Chaque fichier respecte la structure suivante :
 - N altitudes en mètres (2 octets par altitude / 'n')
 
 La première altitude est celle du point en haut à gauche et la dernière altitude et celle du point en bas à droite.
-Toutes les altitudes en dehors du massif (décrit dans le fichier `api/geojson/massifs.geojson`) sont définies à 0.
+Toutes les altitudes en dehors du massif (décrit dans le fichier `api/geojson/massifs.geojson`) sont définies à 0 et celles sur le contour du massif sont négétives.
 
 ![massif](./massif.png)
 
