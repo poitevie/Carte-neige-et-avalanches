@@ -19,11 +19,11 @@
     display: flex;
     flex-direction: column;
     background-color: rgba(255, 255, 255, 0.8);
-    padding: 6px 8px;
-    font-size: 12px;
+    padding: 6px 16px 8px;
+    font-size: 10px;
     border-radius: 5px;
     gap: 1px;
-    max-width: 85%;
+    max-width: 60%;
   }
 
   .legend h2 {
@@ -55,7 +55,7 @@
 
   .legend i.degrade {
     width: 95%;
-    height: 18px;
+    height: 15px;
     margin: 0 0 0 8px;
     opacity: 0.7;
   }
@@ -144,7 +144,7 @@
   window.onload = function () {
     /* Initialisation de la carte avec Leaflet dans l'élément div avec id 'viewerDiv',
         avec une vue centrée sur les coordonnées et le zoom donnés */
-    var map = L.map("viewerDiv", {attributionControl: false}).setView(
+    var map = L.map("viewerDiv", { attributionControl: false }).setView(
       [45.17384615384615, 5.71],
       10
     );
@@ -177,6 +177,16 @@
     var canvas = document.createElement("canvas");
 
     var urlBack = "http://localhost:8000/";
+
+    /* Création des icônes de neige incertaine (s'il existe des sous massifs dans le massif) */
+    var iconeNeigeIncertaine = L.icon({
+      iconUrl: urlBack + `assets/neigeIncertaine.png`,
+      iconSize: [25, 25],
+      iconAnchor: [-15, 25],
+    });
+    var massifsAvecSousMassifs = ["06", "11", "13", "17", "21", "66", "74"];
+
+
 
     var urlCadreAlpes = urlBack + "api/geojson/cadrealpes.json";
     var urlCadreCorse = urlBack + "api/geojson/cadrecorse.json";
@@ -224,6 +234,13 @@
               });
 
               var marker = L.marker(pointMilieu, { icon: iconeInformation }).addTo(map);
+
+              if (massifsAvecSousMassifs.includes(numMassif)) {
+                var markerNeige = L.marker([pointMilieu[0], pointMilieu[1]], { icon: iconeNeigeIncertaine });
+                markerNeige.addTo(imageNeigeFraicheOverlays);
+                var markerNeigePrev = L.marker([pointMilieu[0], pointMilieu[1]+0.07], { icon: iconeNeigeIncertaine });
+                markerNeigePrev.addTo(imageNeigeFraichePrevisionOverlays);
+              }
 
               /* Pop up BRA */
               var popupContent = `<iframe src="https://api.meteofrance.com/files/mountain/bulletins/BRA${numMassif}.xml" width="450px" height="450px"></iframe>`;
@@ -482,14 +499,16 @@
       div.innerHTML += "<div class='pentes inside'><div class='pentes_bloc'><h4>Orientation</h4><img src='assets/rose.png'></div><div class='pentes_bloc'><h4>Degré</h4><div class='pentes_valeurs'><div class='pentes_groupe_valeurs'><span>30°</span><span>35°</span><span>40°</span><span>45°</span><span>50°</span></div><i class='pentes_degrade inside' style='background: linear-gradient(to top, #FFFF00, #FF8000, #FF0000, #FF00FF, #000000)'></i></div></div><div class='pentes_bloc'><h4>Altitude</h4><div class='pentes_valeurs'><div class='pentes_groupe_valeurs'><span>0m</span><span>2400m</span><span>4800m</span></div><i class='pentes_degrade inside' style='background: linear-gradient(to top, rgba(0,0,0,0), #0000FF, #00FFFF, #00FF00, #FFFF00, #FF0000, #000000)'></i></div></div></div>";
       div.innerHTML += "<h4 class='inside'>Risque d'avalanche</h4>";
       div.innerHTML += labels.join("");
-      div.innerHTML += '<p class="inside">Pentes les plus opaques : pentes les plus dangereuses</p>';
+      div.innerHTML += "<span class='inside'><b>Contours des massifs</b> : zones d'incertitude de délimitation des massifs</span>";
+      div.innerHTML += '<span class="inside"><b>Pentes les plus opaques</b> : pentes les plus dangereuses</span>';
       div.innerHTML += "<h4 class='inside'>Épaisseur de neige (en cm)</h4>";
       div.innerHTML += '<i class="degrade inside" style="background: linear-gradient(to right, rgba(132, 214, 249), rgba(0, 48, 67));"></i>';
       div.innerHTML += '<div class="inside deg"><span>1</span><span class="degradedroite">200</span></div>';
       div.innerHTML += "<h4 class='inside'>Neige fraîche cumulée sur les 4 derniers jours (en cm)</h4>";
       div.innerHTML += '<i class="degrade inside" style="background: linear-gradient(to right, rgba(132, 214, 249), rgba(0, 48, 67));"></i>';
       div.innerHTML += '<div class="inside deg"><span>1</span><span class="degradedroite">100</span></div>';
-      div.innerHTML += '<div class = "inside"><i style="background-image: url(assets/pluieLegende.png); background-size: 300%;"></i>Pluie</div>'
+      div.innerHTML += '<div class="inside"><i style="background-image: url(assets/pluieLegende.png); background-size: 300%;"></i>Pluie</div>'
+      div.innerHTML += '<div class="inside"><i style="background-image: url(assets/neigeIncertaine.png); background-size: 100%;"></i><b>Valeurs de neige fraîche pouvant varier au sein du massif</b> : se référer au bulletin pour plus de précisions</div>'
 
       const insideContent = div.querySelectorAll(".inside");
 
