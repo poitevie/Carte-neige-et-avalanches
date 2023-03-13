@@ -238,7 +238,7 @@
               if (massifsAvecSousMassifs.includes(numMassif)) {
                 var markerNeige = L.marker([pointMilieu[0], pointMilieu[1]], { icon: iconeNeigeIncertaine });
                 markerNeige.addTo(imageNeigeFraicheOverlays);
-                var markerNeigePrev = L.marker([pointMilieu[0], pointMilieu[1]+0.07], { icon: iconeNeigeIncertaine });
+                var markerNeigePrev = L.marker([pointMilieu[0], pointMilieu[1]], { icon: iconeNeigeIncertaine });
                 markerNeigePrev.addTo(imageNeigeFraichePrevisionOverlays);
               }
 
