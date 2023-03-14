@@ -60,6 +60,9 @@ function generateImage($filenumber) {
                     if($neige->NEIGE24H[$i]['SS241']==-2){
                         $neigefraiche[] = 0;
                     }
+                    else if($neige->NEIGE24H[$i]['SS241']==-1) {
+                        $neigefraiche[] = 0;
+                    }
                     else{
                         $neigefraiche[] = $neige->NEIGE24H[$i]['SS241'];
                     }
