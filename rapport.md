@@ -223,31 +223,31 @@ Voici ci-dessous une liste des métriques logicielles intéressantes qui permett
   <tr>
    <td>Nombre de commits
    </td>
-   <td>145
+   <td>159
    </td>
   </tr>
   <tr>
    <td>Nombre de commits/personne en moyenne
    </td>
-   <td>36
+   <td>39
    </td>
   </tr>
   <tr>
    <td>Nombre de lignes de code PHP
    </td>
-   <td>1471
+   <td>1512
    </td>
   </tr>
   <tr>
    <td>Nombre de lignes de code HTML/JS
    </td>
-   <td>519
+   <td>548
    </td>
   </tr>
   <tr>
    <td>Nombre de lignes de code total
    </td>
-   <td>1990
+   <td>2060
    </td>
   </tr>
   <tr>
