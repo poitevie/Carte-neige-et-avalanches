@@ -4,7 +4,7 @@ Porteur du projet : Jeroen Zijp (Skitour.fr)
 
 Membres : BACH Thomas - FOURNIER Thomas - GUIGNARD Julien - POITEVIN Eve
 
-# Table of Contents
+# Sommaire
 [I. Présentation du contexte](#contexte)
 
 [II. Technologies et outils utilisés](#techno)
