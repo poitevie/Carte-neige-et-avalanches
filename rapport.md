@@ -4,7 +4,31 @@ Porteur du projet : Jeroen Zijp (Skitour.fr)
 
 Membres : BACH Thomas - FOURNIER Thomas - GUIGNARD Julien - POITEVIN Eve
 
-# I. Présentation du contexte
+# Table of Contents
+[I. Présentation du contexte](#contexte)
+
+[II. Technologies et outils utilisés](#techno)
+
+[III. Architecture technique](#archi)
+
+[IV. Réalisation technique](#realisation)
+
+   - [Choix de conception](#choix)
+
+   - [Difficultés techniques rencontrées](#difficultes)
+
+[V. Gestion de projet](#gestion)
+
+[VI. Métriques](#metriques)
+
+[Conclusion](#conclusion)
+
+[Glossaire](#glossaire)
+
+[Bibliographie](#bibliographie)
+
+
+# I. Présentation du contexte <a name="contexte"></a>
 
 Skitour.fr est le principal site français dédié au ski de randonnée, une activité en pleine expansion. Son objectif premier est de fournir aux skieurs de randonnée un espace où ils peuvent échanger des informations sur leur pratique et disposer d'outils pour préparer leurs sorties. Cela comprend une base de données d'itinéraires, de sommets, de points de départ et de refuges, ainsi que des comptes-rendus de sorties avec des descriptions détaillées des itinéraires, des conditions nivologiques rencontrées, des photos et des commentaires. Skitour propose également des liens vers divers sites, tels que des webcams, des nivoses et des prévisions météorologiques.
 
@@ -14,9 +38,7 @@ Les informations sur la neige et les avalanches sont disponibles via le bulletin
 
 L'objectif du projet est d'afficher sur une carte les données sur la neige fraîchement tombée, la neige totale et le risque nivologique, pour ensuite pouvoir être intégré sur Skitour.
 
-
-
-# II. Technologies et outils utilisés
+# II. Technologies et outils utilisés <a name="techno"></a>
 
 Les technologies utilisées pour le projet comprennent PHP pour le back-end, ainsi que HTML, JavaScript, et Leaflet pour le front-end. Le JSON  est également utilisé pour le transfert et le stockage de données. 
 
@@ -32,9 +54,7 @@ Ensuite, JavaScript est un langage de programmation incontournable pour les proj
 
 Pour la gestion de projet, l’équipe utilise GitHub et JIRA, deux outils de gestion de projet largement utilisés dans l'industrie du développement logiciel. GitHub permet de stocker le code source du projet et de le partager entre les développeurs, tandis que JIRA est un outil de suivi des problèmes et des tâches qui permet aux membres de l'équipe de suivre l'avancement du projet et de gérer les priorités.
 
-
-
-# III. Architecture technique
+# III. Architecture technique <a name="archi"></a>
 
 Notre système actuel repose sur des fichiers binaires contenant les valeurs d’altitude, d’orientation et de pente, ainsi que les bulletins météorologiques quotidiens de Météo France. Dans ces bulletins, les informations concernant les risques, la neige fraîche et la neige totale sont parsées afin de les croiser aux informations des fichiers binaires pour calculer et générer des images des massifs pour le risque, la neige fraîche et la neige totale. Du côté du client, lors de l’affichage de sa carte sur son écran, un appel est effectué pour récupérer les images au serveur puis de les afficher à l’endroit correspondant sur la carte. Les appels au serveur sont effectués uniquement si le massif correspondant est visible sur la carte.  
 
@@ -42,7 +62,7 @@ Notre système actuel repose sur des fichiers binaires contenant les valeurs d�
 
 ```Image 1 : Architecture technique de l'application```
 
-# IV. Réalisation technique
+# IV. Réalisation technique <a name="realisation"></a>
 
 Pour entamer notre travail, nous avons pris la décision stratégique de générer un fichier d’altitude par massif plutôt que global, dans le but de minimiser le traitement des données inutiles en dehors des massifs. Ainsi, nous avons déterminé les délimitations de 36 massifs répartis sur les Alpes, les Pyrénées et la Corse, pour générer un fichier binaire autour de chaque massif. Pour faciliter ce processus, nous avons créé un rectangle autour de chaque massif, où les valeurs en dehors de ces rectangles sont nulles, ce qui simplifie le fichier binaire à traiter.
 
@@ -84,8 +104,6 @@ Ces améliorations contribuent à l'efficacité de notre système de visualisati
 Notons pour la suite, qu’il est possible qu'il y ait deux risques différents dans le massif en fonction des conditions.
 
 Les différentes conditions possibles pour le risque sont notamment : 
-
-
 
 * Les risques évolutifs partant d’une valeur pour en atteindre une autre. Cela signifie que selon l’évolution des conditions météorologiques, le risque peut évoluer et varier. 
 * Un risque qui dépend de l’orientation. Selon la face de la montagne et son orientation, le risque peut varier. 
@@ -146,7 +164,7 @@ L’icône de l’image 9 est présente sur 7 massifs (Cerdagne-Canigou, Haute-B
 Pour finir, comme on peut voir sur l’image 5, des contours sont assombris afin d’indiquer que les valeurs dans ces zones peuvent être imprécises. En effet, les contours des massifs ont été délimités par nous-même à la main, ce qui peut provoquer des imprécisions. De ce fait, tous les points à une distance de moins de 4.5km de la bordure du massif sont assombris afin d’indiquer des imprécisions. 
 
 
-## Choix de conception
+## Choix de conception <a name="choix"></a>
 
 1. Création des images côté serveur 
 
@@ -162,7 +180,7 @@ Afin de réduire les temps de génération et de parcours de fichiers, nous avon
 Pour les couleurs des différentes informations, nous avons choisi des couleurs communiquant l’information efficacement. Pour les altitudes, les couleurs vont du bleu au rouge foncé pour visualiser les zones les plus basses (bleu) et les zones les plus hautes (rouge). Pour les orientations, les points cardinaux opposés sont signalisés par des couleurs bien différentes et la couleur d’un point cardinal intermédiaire est la continuité de la couleur de ses points adjacents. Pour les pentes, les couleurs sont les mêmes que celles du site Géoportail, nous avons ajouté un dégradé entre les paliers pour plus de précision. Pour les risques d’avalanches, nous avons choisi de prendre les mêmes couleurs que les couleurs de risques d’avalanches (convention internationale). Enfin, pour la représentation de l’épaisseur de neige, nous avons pris une échelle de bleu allant du bleu clair (peu de neige) au bleu foncé (beaucoup de neige) pour représenter progressivement l’épaisseur. Notons que lorsque de la pluie est tombée, nous avons choisi de représenter cela par des points foncés, ainsi lorsqu’il tombe de la neige et de la pluie, les deux informations sont lisibles en même temps grâce à la superposition.
 
 
-## Difficultés techniques rencontrées 
+## Difficultés techniques rencontrées <a name="difficultes"></a>
 
 Une des difficultés rencontrée lors de notre projet est la délimitation des massifs. En effet, via Météo France et ses bulletins météorologiques, les informations que nous souhaitons afficher nous sont communiquées par massif mais nous n'avons aucun moyen de savoir à quel massif ou non appartient un point. De ce fait, nous avons recherché sur internet une API ou un fichier contenant les délimitations de ces différents massifs mais nous n’avons rien trouvé. Ainsi, nous avons pris la décision de créer un fichier JSON contenant les contours des 36 massifs pour pouvoir ensuite afficher les valeurs correspondant à un massif au bon endroit.  Pour définir les massifs nous avons utilisé les délimitations trouvées sur des images en ligne ainsi que le site [https://geojson.io/](https://geojson.io/)<span style="text-decoration:underline;"> </span>pour enregistrer les délimitations des massifs au format JSON. 
 
@@ -170,7 +188,7 @@ Toujours en rapport avec les délimitations de massif, certains massifs ont des 
 
 
 
-# V. Gestion de projet
+# V. Gestion de projet <a name="gestion"></a>
 
 Pendant la durée de notre projet, Eve Poitevin a rempli le rôle de chef de projet tandis que Thomas Bach avait le rôle de Scrum Master. Les rôles techniques n'étaient pas spécifiquement attribués aux membres de l'équipe, chacun ayant la possibilité de travailler sur la partie front-end et sur la partie back-end en fonction des besoins et des moments du projet.
 
@@ -196,7 +214,7 @@ Enfin, un journal de bord était tenu pour garder un historique du projet.
 
 
 
-# VI. Métriques
+# VI. Métriques <a name="metriques"></a>
 
 Voici ci-dessous une liste des métriques logicielles intéressantes qui permettent d’avoir un aperçu global de notre travail :
 
@@ -299,7 +317,7 @@ Voici ci-dessous une estimation du coût total du projet :
 
 
 
-# Conclusion 
+# Conclusion <a name="conclusion"></a>
 
 En conclusion, ce projet a été une vraie réussite pour plusieurs raisons.
 
@@ -310,7 +328,7 @@ Ensuite, ce projet a aussi été une réussite sur le plan humain et relationnel
 Enfin, les objectifs du projet ont été atteints. Le système obtenu permet de consulter les risques du jour et diverses données permettant de préparer au mieux sa sortie en montagne. Cet outil, une fois déployé, va s’intégrer dans l’écosystème Skitour pour le rendre encore plus complet et utile aux pratiquants de sports de montagne.
 
 
-# Glossaire 
+# Glossaire <a name="glossaire"></a>
 
 _Leaflet_ : Bibliothèque JavaScript open-source de cartographie.
 
@@ -325,7 +343,7 @@ _Altitude_ : Élévation par rapport au niveau de la mer.
 _Massif_ : Relief d'altitude rassemblant plusieurs montagnes, sommets, pics, monts, et autres aiguilles.
 
 
-# Bibliographie  
+# Bibliographie <a name="bibliographie"></a>
 
 _Documentation Leaflet_ : [https://leafletjs.com/reference.html](https://leafletjs.com/reference.html)
 
