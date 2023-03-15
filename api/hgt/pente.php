@@ -1,6 +1,5 @@
 <?php
 include_once("../global.php");
-
 function getPente($max, $xo, $yo)
 {
     if ($yo == 0 && ($xo == -1 || $xo == 1)) { // Ouest et Est

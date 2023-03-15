@@ -2,10 +2,6 @@
 include_once("../global.php");
 include_once("../couleur.php");
 
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: GET, POST');
-header('Access-Control-Allow-Headers: X-Requested-With');
-
 create_folder("../" . $path_neigefraicheprevision);
 if(isset($argv[1])) {
     generateImage($argv[1]);

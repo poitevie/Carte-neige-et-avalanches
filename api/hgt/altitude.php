@@ -1,10 +1,6 @@
 <?php
 include_once("../global.php");
 
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: GET, POST');
-header('Access-Control-Allow-Headers: X-Requested-With');
-
 create_folder("../" . $path_altitude);
 
 //Tableaux pour la génération des fichiers json contenant les informations des encadrements des massifs
